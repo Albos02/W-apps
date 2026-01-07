@@ -35,6 +35,21 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.favorite-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: background-color 0.2s ease;
+}
+
+.favorite-btn:hover {
+    background: var(--bg-light);
+}
+
 /* Layout Hierarchy */
 .navbar, .content-wrapper { 
     padding: 0 80px; 
