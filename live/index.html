@@ -401,6 +401,40 @@
             item.classList.add('active');
           });
         });
+
+        // Dynamic cards layout based on wrap
+        const cardsContainer = document.querySelector('.cards');
+        const airPressureCard = document.querySelector('.air-pressure');
+        
+        function updateCardsLayout() {
+          const containerWidth = cardsContainer.offsetWidth;
+          const cardWidth = 200; // Fixed card width from CSS
+          const gap = 32; // Gap between cards from CSS
+          const availableWidth = containerWidth;
+          
+          // Calculate how many cards fit in one row
+          // Each card takes cardWidth + gap (except last one)
+          const cardsPerRow = Math.floor((availableWidth + gap) / (cardWidth + gap));
+          
+          // If less than 5 cards fit, hide air pressure and adjust grid
+          if (cardsPerRow < 5) {
+            airPressureCard.style.display = 'none';
+            cardsContainer.style.gridTemplateColumns = `repeat(${cardsPerRow}, 200px)`;
+          } else {
+            airPressureCard.style.display = 'flex';
+            cardsContainer.style.gridTemplateColumns = 'repeat(5, 200px)';
+          }
+        }
+
+        // Initial update
+        updateCardsLayout();
+        
+        // Update on resize with debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(updateCardsLayout, 100);
+        });
       });
     </script>
   </body>

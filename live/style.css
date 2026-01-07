@@ -794,14 +794,7 @@
   }
 }
 
-@media (max-width: 1168px) {
-  .frame .cards .air-pressure {
-    display: none;
-  }
-  .frame .cards {
-    grid-template-columns: repeat(4, 200px);
-  }
-}
+
 
 .frame .placeholder {
   width: 100%;
@@ -857,9 +850,7 @@
     flex: none;
   }
 
-  .frame .cards .air-pressure {
-    display: none;
-  }
+
 
   .frame .main-content {
     flex-direction: column;
