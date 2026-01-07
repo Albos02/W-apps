@@ -1,468 +1,269 @@
 <!DOCTYPE html>
-<html>
-   <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta charset="utf-8" />
-      <link rel="stylesheet" href="globals.css" />
-      <link rel="stylesheet" href="styleguide.css" />
-      <link rel="stylesheet" href="style.css" />
-   </head>
-   <body>
-      <div class="frame">
-      <div class="data-dashboard">
-         <div class="navigation">
-            <div class="text-wrapper-19">W-Apps</div>
-            <div class="time-delta">
-               <div class="item active">
-                  <div class="text-wrapper-17">Hourly</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Daily</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Weekly</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Monthly</div>
-               </div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W-Apps Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+
+    <header class="navbar">
+        <h1 class="navbar__brand">W-Apps</h1>
+        
+        <nav class="tab-group">
+            <button class="tab-btn active">Hourly</button>
+            <button class="tab-btn">Daily</button>
+            <button class="tab-btn">Weekly</button>
+            <button class="tab-btn">Monthly</button>
+        </nav>
+
+        <div class="navbar__actions">
+            <button class="btn btn--outline">Archives</button>
+            <button class="btn btn--primary">About</button>
+        </div>
+    </header>
+
+    <main class="content-wrapper">
+        <section class="controls">
+            <nav class="tab-group">
+                <button class="tab-btn active">Bouveret</button>
+                <button class="tab-btn">Vevey / Corseaux</button>
+                <button class="tab-btn">Aigle</button>
+                <button class="tab-btn">Evionnaz</button>
+                <button class="tab-btn">Neuchâtel</button>
+            </nav>
+
+            <div class="search-container">
+                <input class="search-input" placeholder="Search locations..." type="search" />
             </div>
-            <div class="nav-buttons">
-               <button class="button-2">
-                  <div class="text-wrapper-17">Archives</div>
-               </button>
-               <button class="button">
-                  <div class="div-wrapper-3">
-                     <div class="text-wrapper-18">About</div>
-                  </div>
-               </button>
+        </section>
+
+        <section class="metrics">
+            <h2 class="section-title">Current Weather</h2>
+            <div class="metrics__grid">
+               <div class="by-2-wrap">
+                  <article class="metric-card">
+                     <h3>Average Wind</h3>
+                     <p class="value">4.3 kph</p>
+                     <p class="trend">−20% over last hour</p>
+                  </article>
+                  <article class="metric-card">
+                     <h3>Max Wind Gusts</h3>
+                     <p class="value">7.2 kph</p>
+                     <p class="trend">−33% over last hour</p>
+                  </article>
+                </div>
+                <div class="by-2-wrap">
+                  <article class="metric-card">
+                     <h3>Temperature</h3>
+                     <p class="value">0.3°C</p>
+                     <p class="trend positive">+1°C over last hour</p>
+                  </article>
+                  <article class="metric-card">
+                     <h3>Humidity</h3>
+                     <p class="value">56.7%</p>
+                     <p class="trend">−2% over last hour</p>
+                  </article>
+                </div>
+                <div class="by-2-wrap">
+                  <article class="metric-card">
+                     <h3>Air Pressure</h3>
+                     <p class="value">1018.6 hPa</p>
+                     <p class="trend">−10.2 hPa over last hour</p>
+                  </article>
+                </div>
             </div>
-         </div>
-         <div class="controls-row">
-            <div class="segmented-control">
-               <div class="item active">
-                  <div class="text-wrapper-17">Bouveret</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Vevey / Corseaux</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Aigle</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Evionnaz</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Nyon / Changins</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Neuchâtel</div>
-               </div>
-               <div class="item-2">
-                  <div class="text-wrapper-17">Oron</div>
-               </div>
-            </div>
-            <div class="search">
-               <div class="search-2">
-                  <img class="vector-8" src="img/vector.svg" /> <img class="vector-9" src="img/image.svg" />
-               </div>
-               <input class="label" placeholder="Search..." type="text" />
-            </div>
-         </div>
-         <div class="current-quick-peak">
-            <div class="text-wrapper-16">Current Weather</div>
-            <div class="cards">
-               <div class="card">
-                  <div class="text-wrapper-14">Average Wind</div>
-                  <div class="text-wrapper-15">4.3 kph</div>
-                  <p class="p">-20% over the last hour</p>
-               </div>
-               <div class="card">
-                  <div class="text-wrapper-14">Max Wind Gusts</div>
-                  <div class="text-wrapper-15">7.2 kph</div>
-                  <p class="p">-33% over the last hour</p>
-               </div>
-               <div class="card-2">
-                  <div class="text-wrapper-14">Temperature</div>
-                  <div class="text-wrapper-15">0.3°C</div>
-                  <p class="p">+1°C over the last hour</p>
-               </div>
-               <div class="card-2">
-                  <div class="text-wrapper-14">Humidity</div>
-                  <div class="text-wrapper-15">56.7%</div>
-                  <p class="p">-2% over the last hour</p>
-               </div>
-               <div class="card-2 air-pressure">
-                  <div class="text-wrapper-14">Air Pressure</div>
-                  <div class="text-wrapper-15">1018.6 hPa</div>
-                  <p class="p">-10.2 hPa over the last hour</p>
-               </div>
-            </div>
-         </div>
-         <div class="main-content">
-            <div class="line-cart">
-               <div class="text-wrapper-8">Wind Graph</div>
-               <div class="lines">
-                  <img class="img" src="img/vector-1.svg" />
-                  <img class="vector-2" src="img/vector-3.svg" />
-                  <img class="vector-3" src="img/vector-4.svg" />
-                  <img class="vector-4" src="img/vector-5.svg" />
-                  <img class="vector-5" src="img/vector-6.svg" />
-                  <img class="vector-6" src="img/vector-7.svg" />
-                  <img class="vector-7" src="img/vector-2.svg" />
-               </div>
-               <div class="x-axis">
-                  <div class="div-wrapper-2">
-                     <div class="text-wrapper-9">23 Nov</div>
-                  </div>
-                  <div class="text-wrapper-10">24</div>
-                  <div class="text-wrapper-10">25</div>
-                  <div class="text-wrapper-10">26</div>
-                  <div class="text-wrapper-10">27</div>
-                  <div class="text-wrapper-10">28</div>
-                  <div class="text-wrapper-10">29</div>
-                  <div class="text-wrapper-10">30</div>
-               </div>
-               <div class="y-axis">
-                  <div class="text-wrapper-11">$50,000</div>
-                  <div class="text-wrapper-12">$45,000</div>
-                  <div class="text-wrapper-13">$40,000</div>
-                  <div class="text-wrapper-12">$35,000</div>
-                  <div class="text-wrapper-13">$30,000</div>
-                  <div class="text-wrapper-12">$25,000</div>
-               </div>
-               <img class="graph" src="img/graph-2.svg" />
-               <img class="graph-2" src="img/graph.svg" />
-               <div class="dot"></div>
-               <div class="glow"></div>
-               <div class="dot-2"></div>
-               <div class="glow-2"></div>
-            </div>
-            <div class="raw-table">
-               <img class="vector" src="img/vector-8.svg" />
-               <div class="list">
-                  <div class="text-wrapper-8">Raw Data</div>
-                  <div class="headers">
-                     <div class="text-wrapper">Time</div>
-                     <div class="div">Wind Gusts</div>
-                     <div class="text-wrapper-2">Wind Average</div>
-                     <div class="text-wrapper-3">Direction</div>
-                  </div>
-                  <div class="data-scroll">
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                     <div class="data-row">
-                        <div class="div-2">
-                           <div class="text-wrapper-4">01/04/2026 16:20</div>
-                           <div class="text-wrapper-5">9.4</div>
-                           <div class="text-wrapper-6">6.5</div>
-                           <div class="text-wrapper-7">265°</div>
-                        </div>
-                     </div>
-                  </div>
-                  <img class="rectangle" src="img/rectangle-12.svg" />
-               </div>
-            </div>
-         </div>
-         <div class="placeholder">Lorem, ipsum dolor sit amet consectetur adipisicing elit. A iure, vel nemo harum, accusantium maxime consectetur id distinctio officia delectus at ipsum enim labore provident facilis beatae minus ipsa. Eius!</div>
-      </div>
-      <script>
-         document.addEventListener('DOMContentLoaded', () => {
-           // Segmented control
-           document.querySelectorAll('.segmented-control .item, .segmented-control .item-2').forEach(item => {
-             item.addEventListener('click', () => {
-               document.querySelectorAll('.segmented-control .item, .segmented-control .item-2').forEach(i => i.classList.remove('active'));
-               item.classList.add('active');
-             });
-           });
-         
-           // Time delta
-           document.querySelectorAll('.time-delta .item, .time-delta .item-2').forEach(item => {
-             item.addEventListener('click', () => {
-               document.querySelectorAll('.time-delta .item, .time-delta .item-2').forEach(i => i.classList.remove('active'));
-               item.classList.add('active');
-             });
-           });
-         
-           // Dynamic cards layout based on wrap
-           const cardsContainer = document.querySelector('.cards');
-           const airPressureCard = document.querySelector('.air-pressure');
-           
-           function updateCardsLayout() {
-             const containerWidth = cardsContainer.offsetWidth;
-             const cardWidth = 200; // Fixed card width from CSS
-             const gap = 32; // Gap between cards from CSS
-             const availableWidth = containerWidth;
-             
-             // Calculate how many cards fit in one row
-             // Each card takes cardWidth + gap (except last one)
-             const cardsPerRow = Math.floor((availableWidth + gap) / (cardWidth + gap));
-             
-             // If less than 5 cards fit, hide air pressure and adjust grid
-             if (cardsPerRow < 5) {
-               airPressureCard.style.display = 'none';
-               cardsContainer.style.gridTemplateColumns = `repeat(${cardsPerRow}, 200px)`;
-             } else {
-               airPressureCard.style.display = 'flex';
-               cardsContainer.style.gridTemplateColumns = 'repeat(5, 200px)';
-             }
-           }
-         
-           // Initial update
-           updateCardsLayout();
-           
-           // Update on resize with debounce
-           let resizeTimeout;
-           window.addEventListener('resize', () => {
-             clearTimeout(resizeTimeout);
-             resizeTimeout = setTimeout(updateCardsLayout, 100);
-           });
-         });
-      </script>
-   </body>
+        </section>
+
+        <div class="data-display">
+            <section class="viz-card viz-card--chart">
+                <h2 class="viz-card__title">Wind Graph</h2>
+                <div class="viz-content-area">
+                    <img src="img/graph.svg" alt="Wind speed graph" class="viz-img">
+                </div>
+            </section>
+
+            <section class="viz-card viz-card--table">
+                <h2 class="viz-card__title">Raw Data</h2>
+                <div class="viz-content-area scrollbox">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Gusts</th>
+                                <th>Avg</th>
+                                <th>Dir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            <tr>
+                                <td>01/04/2026 16:20</td>
+                                <td>9.4</td>
+                                <td>6.5</td>
+                                <td>265°</td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Function to handle tab switching
+        function setupTabs(tabGroupSelector) {
+            const tabGroup = document.querySelector(tabGroupSelector);
+            if (!tabGroup) return;
+
+            const tabs = tabGroup.querySelectorAll('.tab-btn');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs in this group
+                    tabs.forEach(t => t.classList.remove('active'));
+
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    // Here you could add logic to update content based on selected tab
+                    console.log('Selected tab:', tab.textContent.trim());
+                });
+            });
+        }
+
+        // Function to handle navbar action buttons
+        function setupNavbarActions() {
+            const archivesBtn = document.querySelector('.btn--outline');
+            const aboutBtn = document.querySelector('.btn--primary');
+
+            if (archivesBtn) {
+                archivesBtn.addEventListener('click', () => {
+                    alert('Archives functionality would be implemented here');
+                });
+            }
+
+            if (aboutBtn) {
+                aboutBtn.addEventListener('click', () => {
+                    alert('About page would open here');
+                });
+            }
+        }
+
+        // Initialize all interactive elements when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup time period tabs (header)
+            setupTabs('.navbar .tab-group');
+
+            // Setup location tabs (controls section)
+            setupTabs('.controls .tab-group');
+
+            // Setup navbar action buttons
+            setupNavbarActions();
+        });
+    </script>
+
+</body>
 </html>
