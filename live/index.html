@@ -29,12 +29,11 @@
     <main class="content-wrapper">
         <section class="controls">
             <nav class="tab-group">
-                <button class="tab-btn active">Bouveret</button>
-                 <button class="tab-btn">Vevey / Corseaux</button>
-                <button class="tab-btn">Aigle</button>
-                <button class="tab-btn">Evionnaz</button>
-                <button class="tab-btn">Neuchâtel</button>
-                <button class="favorite-btn" title="Add to favorites">★</button>
+                <button class="tab-btn active" data-station="Bouveret">Bouveret </button>
+                <button class="tab-btn" data-station="Vevey / Corseaux">Vevey / Corseaux </button>
+                <button class="tab-btn" data-station="Aigle">Aigle </button>
+                <button class="tab-btn" data-station="Evionnaz">Evionnaz </button>
+                <button class="tab-btn" data-station="Neuchâtel">Neuchâtel </button>
             </nav>
 
             <div class="search-container" style="position: relative;">
@@ -217,6 +216,43 @@
 
     <script>
         let stations = [];
+        const favorites = new Set();
+
+        function isFavorited(station) {
+            return favorites.has(station);
+        }
+
+        function toggleFavorite(station) {
+            if (favorites.has(station)) {
+                favorites.delete(station);
+            } else {
+                favorites.add(station);
+            }
+        }
+
+        function updateActiveTab(tabGroup) {
+            const activeTab = tabGroup.querySelector('.tab-btn.active');
+            if (activeTab) {
+                // Remove existing star if any
+                const existingStar = activeTab.querySelector('.star-btn');
+                if (existingStar) existingStar.remove();
+                // Add star span
+                const starSpan = document.createElement('span');
+                starSpan.className = 'star-btn';
+                const isFav = isFavorited(activeTab.dataset.station);
+                starSpan.textContent = isFav ? '★' : '☆';
+                starSpan.style.color = isFav ? 'gold' : '';
+                activeTab.appendChild(starSpan);
+                // Add click listener to star
+                starSpan.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(activeTab.dataset.station);
+                    const isFavNow = isFavorited(activeTab.dataset.station);
+                    starSpan.textContent = isFavNow ? '★' : '☆';
+                    starSpan.style.color = isFavNow ? 'gold' : '';
+                });
+            }
+        }
 
         async function loadStations() {
             try {
@@ -302,7 +338,7 @@
                         width: 100%;
                         text-align: left;
                     `;
-                    item.addEventListener('click', () => {
+                     item.addEventListener('click', () => {
                         searchInput.value = '';
                         console.log('Selected station:', station);
                         item.style.cssText = '';
@@ -313,10 +349,14 @@
                         const existingTabs = tabGroup.querySelectorAll('.tab-btn');
                         let tabExists = false;
                         existingTabs.forEach(tab => {
-                            if (tab.textContent.trim() === station.name) {
+                            if (tab.dataset.station === station.name) {
                                 tabExists = true;
                                 // Set as active
-                                existingTabs.forEach(t => t.classList.remove('active'));
+                                existingTabs.forEach(t => {
+                                    t.classList.remove('active');
+                                    const star = t.querySelector('.star-btn');
+                                    if (star) star.remove();
+                                });
                                 tab.classList.add('active');
                             }
                         });
@@ -324,29 +364,18 @@
                             const newTab = document.createElement('button');
                             newTab.className = 'tab-btn active';
                             newTab.textContent = station.name;
+                            newTab.dataset.station = station.name;
                             // Remove active from others
-                            existingTabs.forEach(t => t.classList.remove('active'));
-                            // Add click listener
-                            newTab.addEventListener('click', () => {
-                                const allTabs = tabGroup.querySelectorAll('.tab-btn');
-                                allTabs.forEach(t => t.classList.remove('active'));
-                                newTab.classList.add('active');
-                                console.log('Selected tab:', newTab.textContent.trim());
+                            existingTabs.forEach(t => {
+                                t.classList.remove('active');
+                                const star = t.querySelector('.star-btn');
+                                if (star) star.remove();
                             });
                             tabGroup.appendChild(newTab);
-
-                            // Add separator before favorite if not already present
-                            const favorite = tabGroup.querySelector('.favorite-btn');
-                            if (favorite) {
-                                const prev = favorite.previousSibling;
-                                if (!prev || prev.tagName !== 'SPAN') {
-                                    const separator = document.createElement('span');
-                                    separator.textContent = '';
-                                    separator.style.cssText = 'width: 0; height: 30px; border: 1px solid var(--text-muted); border-radius: 5px; margin: auto 4px; color: var(--text-muted); font-size: 18px; vertical-align: middle;';
-                                    tabGroup.insertBefore(separator, favorite);
-                                }
-                            }
                         }
+
+                        // Update star for active
+                        updateActiveTab(tabGroup);
                     });
                     item.addEventListener('mouseenter', () => {
                         item.style.backgroundColor = '#f0f0f0';
@@ -379,10 +408,17 @@
                 tab.addEventListener('click', () => {
                     // Remove active class from all current tabs in this group
                     const allTabs = tabGroup.querySelectorAll('.tab-btn');
-                    allTabs.forEach(t => t.classList.remove('active'));
+                    allTabs.forEach(t => {
+                        t.classList.remove('active');
+                        const star = t.querySelector('.star-btn');
+                        if (star) star.remove();
+                    });
 
                     // Add active class to clicked tab
                     tab.classList.add('active');
+
+                    // Update star for active
+                    updateActiveTab(tabGroup);
 
                     // Here you could add logic to update content based on selected tab
                     console.log('Selected tab:', tab.textContent.trim());
@@ -428,6 +464,7 @@
 
             // Setup location tabs (controls section)
             setupTabs('.controls .tab-group');
+            updateActiveTab(document.querySelector('.controls .tab-group'));
 
             // Setup search functionality
             setupSearch();
