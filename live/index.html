@@ -30,14 +30,14 @@
         <section class="controls">
             <nav class="tab-group">
                 <button class="tab-btn active">Bouveret</button>
-                <button class="tab-btn">Vevey / Corseaux</button>
+                 <button class="tab-btn">Vevey / Corseaux</button>
                 <button class="tab-btn">Aigle</button>
                 <button class="tab-btn">Evionnaz</button>
                 <button class="tab-btn">Neuchâtel</button>
                 <button class="favorite-btn" title="Add to favorites">★</button>
             </nav>
 
-            <div class="search-container">
+            <div class="search-container" style="position: relative;">
                 <input class="search-input" placeholder="Search locations..." type="search" />
             </div>
         </section>
@@ -216,6 +216,158 @@
     </main>
 
     <script>
+        let stations = [];
+
+        async function loadStations() {
+            try {
+                const response = await fetch('../assets/coord_station_meteosuisse.json');
+                const data = await response.json();
+                stations = data.filter(([code, lat, lon, name]) => name !== null).map(([code, lat, lon, name, canton, index]) => ({
+                    code, lat, lon, name: name.replace(' / ', '/'), canton, index
+                }));
+            } catch (error) {
+                console.error('Error loading stations:', error);
+            }
+        }
+
+        function setupSearch() {
+            const searchInput = document.querySelector('.search-input');
+            const searchContainer = document.querySelector('.search-container');
+            let dropdown = null;
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                if (query.length < 1) {
+                    hideDropdown();
+                    return;
+                }
+
+                const matches = stations.filter(station =>
+                    station.name.toLowerCase().includes(query)
+                ).slice(0, 10); // limit to 10
+
+                if (matches.length > 0) {
+                    showDropdown(matches);
+                    console.log("its working !", matches)
+                } else {
+                    hideDropdown();
+                }
+            });
+
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim()) {
+                    const query = searchInput.value.toLowerCase().trim();
+                    const matches = stations.filter(station =>
+                        station.name.toLowerCase().includes(query)
+                    ).slice(0, 10);
+                    if (matches.length > 0) showDropdown(matches);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && (!dropdown || !dropdown.contains(e.target))) {
+                    hideDropdown();
+                }
+            });
+
+            function showDropdown(matches) {
+                hideDropdown();
+                dropdown = document.createElement('ul');
+                dropdown.className = 'search-dropdown';
+                dropdown.style.cssText = `
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    background: white;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    z-index: 1000;
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                `;
+
+                matches.forEach(station => {
+                    const item = document.createElement('button');
+                    item.textContent = station.name;
+                    item.style.cssText = `
+                        padding: 8px 12px;
+                        cursor: pointer;
+                        border-bottom: 1px solid #eee;
+                        border: none;
+                        background: none;
+                        width: 100%;
+                        text-align: left;
+                    `;
+                    item.addEventListener('click', () => {
+                        searchInput.value = '';
+                        console.log('Selected station:', station);
+                        item.style.cssText = '';
+                        hideDropdown();
+
+                        // Add to tabs if not already present
+                        const tabGroup = document.querySelector('.controls .tab-group');
+                        const existingTabs = tabGroup.querySelectorAll('.tab-btn');
+                        let tabExists = false;
+                        existingTabs.forEach(tab => {
+                            if (tab.textContent.trim() === station.name) {
+                                tabExists = true;
+                                // Set as active
+                                existingTabs.forEach(t => t.classList.remove('active'));
+                                tab.classList.add('active');
+                            }
+                        });
+                        if (!tabExists) {
+                            const newTab = document.createElement('button');
+                            newTab.className = 'tab-btn active';
+                            newTab.textContent = station.name;
+                            // Remove active from others
+                            existingTabs.forEach(t => t.classList.remove('active'));
+                            // Add click listener
+                            newTab.addEventListener('click', () => {
+                                const allTabs = tabGroup.querySelectorAll('.tab-btn');
+                                allTabs.forEach(t => t.classList.remove('active'));
+                                newTab.classList.add('active');
+                                console.log('Selected tab:', newTab.textContent.trim());
+                            });
+                            tabGroup.appendChild(newTab);
+
+                            // Add separator before favorite if not already present
+                            const favorite = tabGroup.querySelector('.favorite-btn');
+                            if (favorite) {
+                                const prev = favorite.previousSibling;
+                                if (!prev || prev.tagName !== 'SPAN') {
+                                    const separator = document.createElement('span');
+                                    separator.textContent = '';
+                                    separator.style.cssText = 'width: 0; height: 30px; border: 1px solid var(--text-muted); border-radius: 5px; margin: auto 4px; color: var(--text-muted); font-size: 18px; vertical-align: middle;';
+                                    tabGroup.insertBefore(separator, favorite);
+                                }
+                            }
+                        }
+                    });
+                    item.addEventListener('mouseenter', () => {
+                        item.style.backgroundColor = '#f0f0f0';
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        item.style.backgroundColor = 'white';
+                    });
+                    dropdown.appendChild(item);
+                });
+
+                searchContainer.appendChild(dropdown);
+            }
+
+            function hideDropdown() {
+                if (dropdown) {
+                    dropdown.remove();
+                    dropdown = null;
+                }
+            }
+        }
+
         // Function to handle tab switching
         function setupTabs(tabGroupSelector) {
             const tabGroup = document.querySelector(tabGroupSelector);
@@ -225,8 +377,9 @@
 
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
-                    // Remove active class from all tabs in this group
-                    tabs.forEach(t => t.classList.remove('active'));
+                    // Remove active class from all current tabs in this group
+                    const allTabs = tabGroup.querySelectorAll('.tab-btn');
+                    allTabs.forEach(t => t.classList.remove('active'));
 
                     // Add active class to clicked tab
                     tab.classList.add('active');
@@ -266,12 +419,18 @@
         }
 
         // Initialize all interactive elements when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load stations data
+            await loadStations();
+
             // Setup time period tabs (header)
             setupTabs('.navbar .tab-group');
 
             // Setup location tabs (controls section)
             setupTabs('.controls .tab-group');
+
+            // Setup search functionality
+            setupSearch();
 
             // Setup navbar action buttons
             setupNavbarActions();
