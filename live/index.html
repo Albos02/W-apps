@@ -6,6 +6,7 @@
     <title>W-Apps Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="data-loader.js"></script>
 </head>
 <body class="dashboard-page">
 
@@ -254,99 +255,14 @@
             }
         }
 
-        // Function to create the wind chart
-        function createWindChart() {
-            const ctx = document.getElementById('windChart').getContext('2d');
-            
-            // Generate dummy data for two similar but not identical curves
-            const hours = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
-            
-            // First curve - Average Wind
-            const avgWindData = [3.2, 3.5, 3.1, 2.8, 2.9, 3.4, 4.1, 4.8, 5.2, 5.6, 5.9, 6.2, 6.5, 6.8, 6.4, 6.1, 5.8, 5.4, 5.0, 4.6, 4.3, 4.0, 3.7, 3.4];
-            
-            // Second curve - Max Wind Gusts (similar but with more variation)
-            const gustWindData = [5.8, 6.2, 5.4, 4.9, 5.1, 5.8, 6.9, 7.8, 8.4, 9.0, 9.5, 10.1, 10.7, 11.2, 10.6, 10.0, 9.4, 8.7, 8.0, 7.3, 6.8, 6.3, 5.9, 5.4];
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: hours,
-                    datasets: [
-                        {
-                            label: 'Average Wind (kph)',
-                            data: avgWindData,
-                            borderColor: '#0087f2',
-                            backgroundColor: 'rgba(0, 135, 242, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 3,
-                            pointHoverRadius: 5
-                        },
-                        {
-                            label: 'Max Wind Gusts (kph)',
-                            data: gustWindData,
-                            borderColor: '#ff6b6b',
-                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 3,
-                            pointHoverRadius: 5
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 15
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: '#fff',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                maxRotation: 0,
-                                autoSkipPadding: 10
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value + ' kph';
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
-                }
-            });
+        async function createWindChart() {
+            try {
+                const chartData = await WindDashboard.loadData();
+                WindDashboard.createChart(document.getElementById('windChart').getContext('2d'), chartData);
+                WindDashboard.populateTable(document.querySelector('.data-table tbody'), chartData);
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
         }
 
         // Initialize all interactive elements when DOM is loaded
@@ -360,7 +276,7 @@
             // Setup navbar action buttons
             setupNavbarActions();
 
-            // Create the wind chart
+            // Create the wind chart and populate data
             createWindChart();
         });
     </script>
