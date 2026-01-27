@@ -280,13 +280,60 @@
 
                 const matches = stations.filter(station =>
                     station.name.toLowerCase().includes(query)
-                ).slice(0, 10); // limit to 10
+                ).slice(0, 10);
 
                 if (matches.length > 0) {
                     showDropdown(matches);
-                    console.log("its working !", matches)
+                    
+                    if (matches[0].name.toLowerCase().startsWith(query)) {
+                        const start = query.length;
+                        searchInput.value = matches[0].name;
+                        searchInput.setSelectionRange(start, matches[0].name.length);
+                    }
                 } else {
                     hideDropdown();
+                }
+            });
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.selectionEnd > e.target.selectionStart) {
+                    // Remove autocomplete selection
+                    e.preventDefault();
+                    e.target.value = e.target.value.substring(0, e.target.selectionStart);
+                    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                    if (e.target.value.trim() === '') hideDropdown();
+                } else if (e.key === 'Enter' && e.target.selectionEnd > e.target.selectionStart) {
+                    e.preventDefault();
+                    const stationName = e.target.value;
+                    e.target.value = '';
+                    hideDropdown();
+                    
+                    // Find and add station to tabs
+                    const station = stations.find(s => s.name === stationName);
+                    if (station) {
+                        const existingTab = document.querySelector(`.tab-btn[data-station="${station.name}"]`);
+                        if (existingTab) {
+                            document.querySelectorAll('.tab-btn').forEach(t => {
+                                t.classList.remove('active');
+                                const star = t.querySelector('.star-btn');
+                                if (star) star.remove();
+                            });
+                            existingTab.classList.add('active');
+                            updateActiveTab(document.querySelector('.controls .tab-group'));
+                        } else {
+                            const newTab = document.createElement('button');
+                            newTab.className = 'tab-btn active';
+                            newTab.textContent = station.name;
+                            newTab.dataset.station = station.name;
+                            document.querySelectorAll('.tab-btn').forEach(t => {
+                                t.classList.remove('active');
+                                const star = t.querySelector('.star-btn');
+                                if (star) star.remove();
+                            });
+                            document.querySelector('.controls .tab-group').appendChild(newTab);
+                            updateActiveTab(document.querySelector('.controls .tab-group'));
+                        }
+                    }
                 }
             });
 

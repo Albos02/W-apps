@@ -50,6 +50,19 @@ body {
     background: var(--bg-light);
 }
 
+.star-btn {
+    margin-left: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.star-btn:hover {
+    background: var(--bg-light);
+}
+
 /* Layout Hierarchy */
 .navbar, .content-wrapper { 
     padding: 0 80px; 
