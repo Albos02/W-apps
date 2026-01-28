@@ -464,8 +464,10 @@
                     // Add active class to clicked tab
                     tab.classList.add('active');
 
-                    // Update star for active
-                    updateActiveTab(tabGroup);
+                    // Update star for active only for station tabs (not time period tabs)
+                    if (tabGroupSelector === '.controls .tab-group') {
+                        updateActiveTab(tabGroup);
+                    }
 
                     // Here you could add logic to update content based on selected tab
                     console.log('Selected tab:', tab.textContent.trim());
