@@ -117,7 +117,7 @@ body {
 /* 1. The main container holding the groups */
 .metrics__grid {
     display: flex;
-    flex-wrap: wrap; /* Allows groups to drop to the next line */
+    flex-wrap: wrap;
     gap: 20px;
     width: 100%;
 }
@@ -125,7 +125,9 @@ body {
 /* 2. The groups (holding 2 cards each) */
 .by-2-wrap {
     display: flex;
-    gap: 20px; /* Gap between cards inside the group */
+    gap: 20px;
+    flex: 1;
+    min-width: 300px; /* Ensures card pairs stay together */
 }
 
 /* 3. The cards themselves */
@@ -134,32 +136,22 @@ body {
     padding: 24px;
     border-radius: 8px;
     border: 1px solid #dfdfdf;
-    width: 220px; /* Your fixed width */
+    flex: 1;
+    min-width: 200px; /* Flexible minimum width */
     height: 140px;
     box-sizing: border-box;
 }
 
-/* 4. The "Hide Air Pressure" Logic */
-/* Breakpoint calculation: 
-   (5 cards * 220px) + (4 gaps * 20px) + (80px padding * 2) = 1340px 
-*/
-@media (max-width: 1340px) {
-    /* Hide the 3rd wrapper (the one containing Air Pressure) */
+/* 4. Hide Air Pressure wrapper on smaller screens */
+@media (max-width: 900px) {
     .by-2-wrap:nth-child(3) {
         display: none;
     }
-
-    /* Ensure the remaining two wraps take up their own lines if needed, 
-       creating the 2x2 look */
-    .metrics__grid {
-        justify-content: start;
-    }
 }
+
 @media (max-width: 500px) {
     .by-2-wrap {
-        flex-direction: column; /* Stack cards inside the group */
-        justify-content: center;
-        align-items: center;
+        flex-direction: column;
     }
 }
 
