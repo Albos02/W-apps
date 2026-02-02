@@ -276,7 +276,8 @@
             let dropdown = null;
 
             searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
+                const rawValue = e.target.value;
+                const query = rawValue.toLowerCase().trim();
                 if (query.length < 1) {
                     hideDropdown();
                     return;
@@ -297,8 +298,9 @@
                 if (matches.length > 0) {
                     showDropdown(matches);
                     
-                    if (matches[0].name.toLowerCase().startsWith(query)) {
-                        const start = query.length;
+                    // Only autocomplete if no trailing space
+                    if (!rawValue.endsWith(' ') && matches[0].name.toLowerCase().startsWith(query)) {
+                        const start = rawValue.length;
                         searchInput.value = matches[0].name;
                         searchInput.setSelectionRange(start, matches[0].name.length);
                     }
