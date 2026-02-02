@@ -56,9 +56,11 @@ body {
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s;
+    display: none;
 }
-
+.star-btn.is-active {
+    display: inline;
+}
 .star-btn:hover {
     background: var(--bg-light);
 }

@@ -231,26 +231,30 @@
         }
 
         function updateActiveTab(tabGroup) {
-            const activeTab = tabGroup.querySelector('.tab-btn.active');
-            if (activeTab) {
-                // Remove existing star if any
-                const existingStar = activeTab.querySelector('.star-btn');
-                if (existingStar) existingStar.remove();
-                // Add star span
-                const starSpan = document.createElement('span');
-                starSpan.className = 'star-btn';
-                const isFav = isFavorited(activeTab.dataset.station);
-                starSpan.textContent = isFav ? '★' : '☆';
-                starSpan.style.color = isFav ? 'gold' : '';
-                activeTab.appendChild(starSpan);
-                // Add click listener to star
-                starSpan.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleFavorite(activeTab.dataset.station);
-                    const isFavNow = isFavorited(activeTab.dataset.station);
-                    starSpan.textContent = isFavNow ? '★' : '☆';
-                    starSpan.style.color = isFavNow ? 'gold' : '';
-                });
+            tabGroup.querySelectorAll('.tab-btn').forEach(tab => {
+                let star = tab.querySelector('.star-btn');
+                if (!star) {
+                    star = document.createElement('span');
+                    star.className = 'star-btn';
+                    star.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleFavorite(tab.dataset.station);
+                        updateStar(tab);
+                    };
+                    tab.appendChild(star);
+                }
+                updateStar(tab);
+            });
+        }
+        
+        function updateStar(tab) {
+            const star = tab.querySelector('.star-btn');
+            const active = tab.classList.contains('active');
+            const fav = isFavorited(tab.dataset.station);
+            star.classList.toggle('is-active', active);
+            if (active) {
+                star.textContent = fav ? '★' : '☆';
+                star.style.color = fav ? 'gold' : '';
             }
         }
 
@@ -315,8 +319,6 @@
                         if (existingTab) {
                             document.querySelectorAll('.tab-btn').forEach(t => {
                                 t.classList.remove('active');
-                                const star = t.querySelector('.star-btn');
-                                if (star) star.remove();
                             });
                             existingTab.classList.add('active');
                             updateActiveTab(document.querySelector('.controls .tab-group'));
@@ -327,8 +329,6 @@
                             newTab.dataset.station = station.name;
                             document.querySelectorAll('.tab-btn').forEach(t => {
                                 t.classList.remove('active');
-                                const star = t.querySelector('.star-btn');
-                                if (star) star.remove();
                             });
                             document.querySelector('.controls .tab-group').appendChild(newTab);
                             updateActiveTab(document.querySelector('.controls .tab-group'));
@@ -401,8 +401,6 @@
                                 // Set as active
                                 existingTabs.forEach(t => {
                                     t.classList.remove('active');
-                                    const star = t.querySelector('.star-btn');
-                                    if (star) star.remove();
                                 });
                                 tab.classList.add('active');
                             }
@@ -415,8 +413,6 @@
                             // Remove active from others
                             existingTabs.forEach(t => {
                                 t.classList.remove('active');
-                                const star = t.querySelector('.star-btn');
-                                if (star) star.remove();
                             });
                             tabGroup.appendChild(newTab);
                         }
@@ -457,8 +453,6 @@
                     const allTabs = tabGroup.querySelectorAll('.tab-btn');
                     allTabs.forEach(t => {
                         t.classList.remove('active');
-                        const star = t.querySelector('.star-btn');
-                        if (star) star.remove();
                     });
 
                     // Add active class to clicked tab
