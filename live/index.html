@@ -357,38 +357,14 @@
                 hideDropdown();
                 dropdown = document.createElement('ul');
                 dropdown.className = 'search-dropdown';
-                dropdown.style.cssText = `
-                    position: absolute;
-                    top: 100%;
-                    left: 0;
-                    right: 0;
-                    background: white;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    max-height: 200px;
-                    overflow-y: auto;
-                    z-index: 1000;
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                `;
 
                 matches.forEach(station => {
                     const item = document.createElement('button');
+                    item.className = 'search-dropdown-item';
                     item.textContent = station.name;
-                    item.style.cssText = `
-                        padding: 8px 12px;
-                        cursor: pointer;
-                        border-bottom: 1px solid #eee;
-                        border: none;
-                        background: none;
-                        width: 100%;
-                        text-align: left;
-                    `;
-                     item.addEventListener('click', () => {
+                    item.addEventListener('click', () => {
                         searchInput.value = '';
                         console.log('Selected station:', station);
-                        item.style.cssText = '';
                         hideDropdown();
 
                         // Add to tabs if not already present
@@ -398,7 +374,6 @@
                         existingTabs.forEach(tab => {
                             if (tab.dataset.station === station.name) {
                                 tabExists = true;
-                                // Set as active
                                 existingTabs.forEach(t => {
                                     t.classList.remove('active');
                                 });
@@ -410,21 +385,12 @@
                             newTab.className = 'tab-btn active';
                             newTab.textContent = station.name;
                             newTab.dataset.station = station.name;
-                            // Remove active from others
                             existingTabs.forEach(t => {
                                 t.classList.remove('active');
                             });
                             tabGroup.appendChild(newTab);
                         }
-
-                        // Update star for active
                         updateActiveTab(tabGroup);
-                    });
-                    item.addEventListener('mouseenter', () => {
-                        item.style.backgroundColor = '#f0f0f0';
-                    });
-                    item.addEventListener('mouseleave', () => {
-                        item.style.backgroundColor = 'white';
                     });
                     dropdown.appendChild(item);
                 });
