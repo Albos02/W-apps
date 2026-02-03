@@ -316,7 +316,7 @@
                     e.target.value = e.target.value.substring(0, e.target.selectionStart);
                     e.target.setSelectionRange(e.target.value.length, e.target.value.length);
                     if (e.target.value.trim() === '') hideDropdown();
-                } else if (e.key === 'Enter' && e.target.selectionEnd > e.target.selectionStart) {
+                } else if (e.key === 'Enter') {
                     e.preventDefault();
                     const stationName = e.target.value;
                     e.target.value = '';
