@@ -126,8 +126,6 @@ body {
 .by-2-wrap {
     display: flex;
     gap: 20px;
-    flex: 1;
-    min-width: 300px; /* Ensures card pairs stay together */
 }
 
 /* 3. The cards themselves */
@@ -136,8 +134,9 @@ body {
     padding: 24px;
     border-radius: 8px;
     border: 1px solid #dfdfdf;
-    flex: 1;
-    min-width: 200px; /* Flexible minimum width */
+    /* flex: 1;
+    min-width: 200px; Flexible minimum width */
+    width: 220px;
     height: 140px;
     box-sizing: border-box;
 }
