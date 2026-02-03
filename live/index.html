@@ -409,6 +409,20 @@ function setupSearch() {
         dropdown.scrollTop = 0;
     };
 
+    const handleAutocomplete = (query, firstMatch) => {
+        if (!firstMatch || query.length < 1) return;
+
+        const cityName = firstMatch.name;
+        // Only autocomplete if what the user typed matches the start of the station name
+        if (cityName.toLowerCase().startsWith(query.toLowerCase())) {
+            const userLen = query.length;
+            input.value = cityName;
+            
+            // Highlight the "suggested" part
+            input.setSelectionRange(userLen, cityName.length);
+        }
+    };
+
     const clearSearch = () => {
         input.value = '';
         dropdown.style.display = 'none';
@@ -417,14 +431,32 @@ function setupSearch() {
 
     input.addEventListener('input', (e) => {
         const query = e.target.value;
+        
+        // If it's a "delete" action (Backspace/Delete), don't autocomplete
+        const isDelete = e.inputType && e.inputType.includes('delete');
+
         currentMatches = SearchEngine.getMatches(query, stations);
         renderDropdown(currentMatches);
+
+        if (!isDelete && currentMatches.length > 0) {
+            handleAutocomplete(query, currentMatches[0]);
+        }
     });
 
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && currentMatches.length > 0) {
-            TabManager.addTab(currentMatches[0]);
-            clearSearch();
+        // If Enter is pressed, use the full value currently in the input (the autocompleted one)
+        if (e.key === 'Enter') {
+            const finalValue = input.value.toLowerCase();
+            const selectedStation = stations.find(s => s.name.toLowerCase() === finalValue);
+            
+            if (selectedStation) {
+                TabManager.addTab(selectedStation);
+                clearSearch();
+            } else if (currentMatches.length > 0) {
+                // Fallback: if user edited the autocomplete into something else, take top match
+                TabManager.addTab(currentMatches[0]);
+                clearSearch();
+            }
         }
     });
 
@@ -432,7 +464,6 @@ function setupSearch() {
         setTimeout(() => { dropdown.style.display = 'none'; }, 200);
     });
 }
-
 
 // Function to handle tab switching
         function setupTabs(tabGroupSelector) {
