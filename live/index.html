@@ -270,167 +270,171 @@
             }
         }
 
-        function setupSearch() {
-            const searchInput = document.querySelector('.search-input');
-            const searchContainer = document.querySelector('.search-container');
-            let dropdown = null;
-            let justBackspaced = false;
 
-            searchInput.addEventListener('input', (e) => {
-                const rawValue = e.target.value;
-                const query = rawValue.toLowerCase().trim();
-                if (query.length < 1) {
-                    hideDropdown();
-                    return;
-                }
+/**
+ * 1. SEARCH ENGINE: Tiered filtering logic
+ */
+const SearchEngine = {
+    levenshtein(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
 
-                const matches = stations
-                    .filter(station => station.name.toLowerCase().includes(query))
-                    .sort((a, b) => {
-                        const aLower = a.name.toLowerCase();
-                        const bLower = b.name.toLowerCase();
-                        const aStarts = aLower.startsWith(query);
-                        const bStarts = bLower.startsWith(query);
-                        if (aStarts && !bStarts) return -1;
-                        if (!aStarts && bStarts) return 1;
-                        return a.name.localeCompare(b.name);
-                    });
-
-                if (matches.length > 0) {
-                    showDropdown(matches);
-                    
-                    // Skip autocomplete if last action was backspace
-                    if (justBackspaced) {
-                        justBackspaced = false;
-                    } else if (!rawValue.endsWith(' ') && matches[0].name.toLowerCase().startsWith(query)) {
-                        const start = rawValue.length;
-                        searchInput.value = matches[0].name;
-                        searchInput.setSelectionRange(start, matches[0].name.length);
-                    }
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
                 } else {
-                    hideDropdown();
-                }
-            });
-
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace') {
-                    justBackspaced = true;
-                    if (e.target.selectionEnd > e.target.selectionStart) {
-                        // Remove autocomplete selection
-                        e.preventDefault();
-                        e.target.value = e.target.value.substring(0, e.target.selectionStart);
-                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                        if (e.target.value.trim() === '') hideDropdown();
-                    }
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const stationName = e.target.value;
-                    e.target.value = '';
-                    hideDropdown();
-                    
-                    // Find and add station to tabs
-                    const station = stations.find(s => s.name === stationName);
-                    if (station) {
-                        const existingTab = document.querySelector(`.tab-btn[data-station="${station.name}"]`);
-                        if (existingTab) {
-                            document.querySelectorAll('.tab-btn').forEach(t => {
-                                t.classList.remove('active');
-                            });
-                            existingTab.classList.add('active');
-                            updateActiveTab(document.querySelector('.controls .tab-group'));
-                        } else {
-                            const newTab = document.createElement('button');
-                            newTab.className = 'tab-btn active';
-                            newTab.textContent = station.name;
-                            newTab.dataset.station = station.name;
-                            document.querySelectorAll('.tab-btn').forEach(t => {
-                                t.classList.remove('active');
-                            });
-                            document.querySelector('.controls .tab-group').appendChild(newTab);
-                            updateActiveTab(document.querySelector('.controls .tab-group'));
-                        }
-                    }
-                }
-            });
-
-            searchInput.addEventListener('focus', () => {
-                if (searchInput.value.trim()) {
-                    const query = searchInput.value.toLowerCase().trim();
-                    const matches = stations
-                        .filter(station => station.name.toLowerCase().includes(query))
-                        .sort((a, b) => {
-                            const aLower = a.name.toLowerCase();
-                            const bLower = b.name.toLowerCase();
-                            const aStarts = aLower.startsWith(query);
-                            const bStarts = bLower.startsWith(query);
-                            if (aStarts && !bStarts) return -1;
-                            if (!aStarts && bStarts) return 1;
-                            return a.name.localeCompare(b.name);
-                        });
-                    if (matches.length > 0) showDropdown(matches);
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!searchInput.contains(e.target) && (!dropdown || !dropdown.contains(e.target))) {
-                    hideDropdown();
-                }
-            });
-
-            function showDropdown(matches) {
-                hideDropdown();
-                dropdown = document.createElement('ul');
-                dropdown.className = 'search-dropdown';
-
-                matches.forEach(station => {
-                    const item = document.createElement('button');
-                    item.className = 'search-dropdown-item';
-                    item.textContent = station.name;
-                    item.addEventListener('click', () => {
-                        searchInput.value = '';
-                        console.log('Selected station:', station);
-                        hideDropdown();
-
-                        // Add to tabs if not already present
-                        const tabGroup = document.querySelector('.controls .tab-group');
-                        const existingTabs = tabGroup.querySelectorAll('.tab-btn');
-                        let tabExists = false;
-                        existingTabs.forEach(tab => {
-                            if (tab.dataset.station === station.name) {
-                                tabExists = true;
-                                existingTabs.forEach(t => {
-                                    t.classList.remove('active');
-                                });
-                                tab.classList.add('active');
-                            }
-                        });
-                        if (!tabExists) {
-                            const newTab = document.createElement('button');
-                            newTab.className = 'tab-btn active';
-                            newTab.textContent = station.name;
-                            newTab.dataset.station = station.name;
-                            existingTabs.forEach(t => {
-                                t.classList.remove('active');
-                            });
-                            tabGroup.appendChild(newTab);
-                        }
-                        updateActiveTab(tabGroup);
-                    });
-                    dropdown.appendChild(item);
-                });
-
-                searchContainer.appendChild(dropdown);
-            }
-
-            function hideDropdown() {
-                if (dropdown) {
-                    dropdown.remove();
-                    dropdown = null;
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
                 }
             }
         }
+        return matrix[b.length][a.length];
+    },
 
-        // Function to handle tab switching
+    containsWithEdits(query, name, maxEdits) {
+        name = name.toLowerCase();
+        query = query.toLowerCase();
+        for (let i = 0; i <= name.length - query.length + maxEdits; i++) {
+            let substring = name.substring(Math.max(0, i - 1), i + query.length + 1);
+            if (this.levenshtein(query, substring) <= maxEdits) return true;
+        }
+        return false;
+    },
+
+    getMatches(query, stations) {
+        const q = query.toLowerCase().trim();
+        if (q.length < 1) return [];
+
+        const startsWith = stations.filter(s => s.name.toLowerCase().startsWith(q));
+        const contains = stations.filter(s => s.name.toLowerCase().includes(q) && !s.name.toLowerCase().startsWith(q));
+        
+        let fuzzy1 = [];
+        if (q.length >= 3) {
+            fuzzy1 = stations.filter(s => {
+                const name = s.name.toLowerCase();
+                const alreadyMatched = [...startsWith, ...contains].some(m => m.name === s.name);
+                return !alreadyMatched && !name.includes(q) && this.containsWithEdits(q, name, 1);
+            });
+        }
+
+        let fuzzy2 = [];
+        if (q.length >= 5) {
+            fuzzy2 = stations.filter(s => {
+                const name = s.name.toLowerCase();
+                const alreadyMatched = [...startsWith, ...contains, ...fuzzy1].some(m => m.name === s.name);
+                return !alreadyMatched && !name.includes(q) && this.containsWithEdits(q, name, 2);
+            });
+        }
+
+        return [...startsWith, ...contains, ...fuzzy1, ...fuzzy2];
+    }
+};
+
+/**
+ * 2. TAB MANAGER: Handles tab creation and active states
+ */
+const TabManager = {
+    container: document.querySelector('.controls .tab-group'),
+
+    addTab(station) {
+        const existingTab = this.container.querySelector(`.tab-btn[data-station="${station.name}"]`);
+        this.deactivateAll();
+
+        if (existingTab) {
+            existingTab.classList.add('active');
+        } else {
+            const newTab = this.createTabElement(station);
+            this.container.appendChild(newTab);
+        }
+
+        if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
+    },
+
+    createTabElement(station) {
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn active';
+        btn.textContent = station.name;
+        btn.dataset.station = station.name;
+        btn.onclick = () => {
+            this.deactivateAll();
+            btn.classList.add('active');
+            if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
+        };
+        return btn;
+    },
+
+    deactivateAll() {
+        this.container.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    }
+};
+
+/**
+ * 3. UI CONTROLLER: Wires the input to the Engine and Tab Manager
+ */
+function setupSearch() {
+    const input = document.querySelector('.search-input');
+    const container = document.querySelector('.search-container');
+    const dropdown = document.createElement('ul');
+    dropdown.className = 'search-dropdown';
+    dropdown.style.display = 'none';
+    container.appendChild(dropdown);
+
+    let currentMatches = [];
+
+    const renderDropdown = (matches) => {
+        dropdown.innerHTML = '';
+        if (matches.length === 0) {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        matches.forEach(station => {
+            const li = document.createElement('li');
+            li.className = 'search-dropdown-item';
+            li.textContent = station.name;
+            li.onmousedown = (e) => {
+                e.preventDefault();
+                TabManager.addTab(station);
+                clearSearch();
+            };
+            dropdown.appendChild(li);
+        });
+
+        dropdown.style.display = 'block';
+        dropdown.scrollTop = 0;
+    };
+
+    const clearSearch = () => {
+        input.value = '';
+        dropdown.style.display = 'none';
+        currentMatches = [];
+    };
+
+    input.addEventListener('input', (e) => {
+        const query = e.target.value;
+        currentMatches = SearchEngine.getMatches(query, stations);
+        renderDropdown(currentMatches);
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && currentMatches.length > 0) {
+            TabManager.addTab(currentMatches[0]);
+            clearSearch();
+        }
+    });
+
+    input.addEventListener('blur', () => {
+        setTimeout(() => { dropdown.style.display = 'none'; }, 200);
+    });
+}
+
+
+// Function to handle tab switching
         function setupTabs(tabGroupSelector) {
             const tabGroup = document.querySelector(tabGroupSelector);
             if (!tabGroup) return;
