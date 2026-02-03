@@ -274,6 +274,7 @@
             const searchInput = document.querySelector('.search-input');
             const searchContainer = document.querySelector('.search-container');
             let dropdown = null;
+            let justBackspaced = false;
 
             searchInput.addEventListener('input', (e) => {
                 const rawValue = e.target.value;
@@ -298,8 +299,10 @@
                 if (matches.length > 0) {
                     showDropdown(matches);
                     
-                    // Only autocomplete if no trailing space
-                    if (!rawValue.endsWith(' ') && matches[0].name.toLowerCase().startsWith(query)) {
+                    // Skip autocomplete if last action was backspace
+                    if (justBackspaced) {
+                        justBackspaced = false;
+                    } else if (!rawValue.endsWith(' ') && matches[0].name.toLowerCase().startsWith(query)) {
                         const start = rawValue.length;
                         searchInput.value = matches[0].name;
                         searchInput.setSelectionRange(start, matches[0].name.length);
@@ -310,12 +313,15 @@
             });
 
             searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && e.target.selectionEnd > e.target.selectionStart) {
-                    // Remove autocomplete selection
-                    e.preventDefault();
-                    e.target.value = e.target.value.substring(0, e.target.selectionStart);
-                    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                    if (e.target.value.trim() === '') hideDropdown();
+                if (e.key === 'Backspace') {
+                    justBackspaced = true;
+                    if (e.target.selectionEnd > e.target.selectionStart) {
+                        // Remove autocomplete selection
+                        e.preventDefault();
+                        e.target.value = e.target.value.substring(0, e.target.selectionStart);
+                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                        if (e.target.value.trim() === '') hideDropdown();
+                    }
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
                     const stationName = e.target.value;
