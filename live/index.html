@@ -272,7 +272,7 @@
 
 
 /**
- * 1. SEARCH ENGINE: Tiered filtering logic
+ * 1. SEARCH ENGINE: Improved for early-entry fuzzy matching
  */
 const SearchEngine = {
     levenshtein(a, b) {
@@ -286,9 +286,9 @@ const SearchEngine = {
                     matrix[i][j] = matrix[i - 1][j - 1];
                 } else {
                     matrix[i][j] = Math.min(
-                        matrix[i - 1][j - 1] + 1,
-                        matrix[i][j - 1] + 1,
-                        matrix[i - 1][j] + 1
+                        matrix[i - 1][j - 1] + 1, // substitution
+                        matrix[i][j - 1] + 1,     // insertion (extra letter)
+                        matrix[i - 1][j] + 1      // deletion (missing letter)
                     );
                 }
             }
@@ -296,38 +296,52 @@ const SearchEngine = {
         return matrix[b.length][a.length];
     },
 
-    containsWithEdits(query, name, maxEdits) {
-        name = name.toLowerCase();
-        query = query.toLowerCase();
-        for (let i = 0; i <= name.length - query.length + maxEdits; i++) {
-            let substring = name.substring(Math.max(0, i - 1), i + query.length + 1);
-            if (this.levenshtein(query, substring) <= maxEdits) return true;
-        }
-        return false;
+    isFuzzyMatch(query, name, maxEdits) {
+        const q = query.toLowerCase();
+        const n = name.toLowerCase();
+
+        // 1. Check if query is a typo of the full name
+        // This catches "Aacquarossa" vs "Acquarossa" even at 2 or 3 letters
+        const distance = this.levenshtein(q, n.substring(0, q.length + 1));
+        if (distance <= maxEdits) return true;
+
+        // 2. Check words inside the name (e.g., "Londen" in "East London")
+        const words = n.split(/[\s/-]+/);
+        return words.some(word => {
+            const wordPart = word.substring(0, q.length + 1);
+            return this.levenshtein(q, wordPart) <= maxEdits;
+        });
     },
 
     getMatches(query, stations) {
         const q = query.toLowerCase().trim();
         if (q.length < 1) return [];
 
+        // Tier 1: Exact Start
         const startsWith = stations.filter(s => s.name.toLowerCase().startsWith(q));
-        const contains = stations.filter(s => s.name.toLowerCase().includes(q) && !s.name.toLowerCase().startsWith(q));
+
+        // Tier 2: Exact Contains
+        const contains = stations.filter(s => 
+            s.name.toLowerCase().includes(q) && !s.name.toLowerCase().startsWith(q)
+        );
         
+        // Tier 3: Fuzzy 1 (Tolerance: 1 edit) - Enabled at 3 chars
         let fuzzy1 = [];
         if (q.length >= 3) {
             fuzzy1 = stations.filter(s => {
                 const name = s.name.toLowerCase();
                 const alreadyMatched = [...startsWith, ...contains].some(m => m.name === s.name);
-                return !alreadyMatched && !name.includes(q) && this.containsWithEdits(q, name, 1);
+                return !alreadyMatched && this.isFuzzyMatch(q, s.name, 1);
             });
         }
 
+        // Tier 4: Fuzzy 2 (Tolerance: 2 edits) - Enabled at 5 chars
         let fuzzy2 = [];
         if (q.length >= 5) {
             fuzzy2 = stations.filter(s => {
                 const name = s.name.toLowerCase();
                 const alreadyMatched = [...startsWith, ...contains, ...fuzzy1].some(m => m.name === s.name);
-                return !alreadyMatched && !name.includes(q) && this.containsWithEdits(q, name, 2);
+                return !alreadyMatched && this.isFuzzyMatch(q, s.name, 2);
             });
         }
 
@@ -439,7 +453,11 @@ function setupSearch() {
         renderDropdown(currentMatches);
 
         if (!isDelete && currentMatches.length > 0) {
-            handleAutocomplete(query, currentMatches[0]);
+            const firstMatchName = currentMatches[0].name.toLowerCase();
+            // Only autocomplete if the user's typing is an EXACT prefix (no typos allowed in the bar)
+            if (firstMatchName.startsWith(query.toLowerCase())) {
+                handleAutocomplete(query, currentMatches[0]);
+            }
         }
     });
 
