@@ -23,6 +23,7 @@
         <div class="navbar__actions">
             <button class="btn btn--outline">Archives</button>
             <button class="btn btn--primary">About</button>
+            <button class="btn btn--outline" id="theme-toggle">🌙</button>
         </div>
     </header>
 
@@ -560,6 +561,20 @@ function setupSearch() {
 
             // Create the wind chart and populate data
             createWindChart();
+        });
+
+
+        const themeToggle = document.getElementById('theme-toggle');
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            // Optional: Update Chart colors if they look bad in dark mode
+            updateChartTheme(newTheme);
         });
     </script>
 
