@@ -86,9 +86,15 @@ body {
 .star-btn:hover {
     background: var(--bg-light);
 }
-.navbar, .metric-card, .viz-card, .tab-btn.active {
+.metric-card, .viz-card, .tab-btn.active {
     background: var(--bg-card) !important;
+}
+.navbar, .metric-card, .viz-card, .tab-btn.active {
     color: var(--text-main);
+}
+.navbar {
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border);
 }
 .metric-card, .viz-card, .tab-btn.active {
     border-color: var(--border) !important;
@@ -103,7 +109,7 @@ body {
 
 .navbar {
     display: flex; align-items: center; justify-content: space-between;
-    height: 64px; background: #fff; border-bottom: 1px solid var(--border);
+    height: 64px;
 }
 
 .navbar__brand {
