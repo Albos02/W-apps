@@ -8,89 +8,82 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="data-loader.js"></script>
 </head>
-<body class="dashboard-page">
-
+<body>
     <header class="navbar">
-        <h1 class="navbar__brand">W-Apps</h1>
+        <h1 class="brand">W-Apps</h1>
         
-        <nav class="tab-group">
-            <button class="tab-btn active">Hourly</button>
-            <button class="tab-btn">Daily</button>
-            <button class="tab-btn">Weekly</button>
-            <button class="tab-btn">Monthly</button>
+        <nav class="tabs base-card">
+            <button class="tab active">Hourly</button>
+            <button class="tab">Daily</button>
+            <button class="tab">Weekly</button>
+            <button class="tab">Monthly</button>
         </nav>
 
-        <div class="navbar__actions">
-            <button class="btn btn--outline">Archives</button>
-            <button class="btn btn--primary">About</button>
-            <button class="btn btn--outline" id="theme-toggle">🌙</button>
+        <div class="actions">
+            <button class="button outline">Archives</button>
+            <button class="button primary">About</button>
+            <button class="button outline" id="theme-toggle">🌙</button>
         </div>
     </header>
 
-    <main class="content-wrapper">
+    <main>
         <section class="controls">
-            <nav class="tab-group">
-                <button class="tab-btn active" data-station="Bouveret">Bouveret </button>
-                <button class="tab-btn" data-station="Vevey / Corseaux">Vevey / Corseaux </button>
-                <button class="tab-btn" data-station="Aigle">Aigle </button>
-                <button class="tab-btn" data-station="Evionnaz">Evionnaz </button>
-                <button class="tab-btn" data-station="Neuchâtel">Neuchâtel </button>
+            <nav class="tabs base-card">
+                <button class="tab active" data-station="Bouveret">Bouveret</button>
+                <button class="tab" data-station="Vevey / Corseaux">Vevey / Corseaux</button>
+                <button class="tab" data-station="Aigle">Aigle</button>
+                <button class="tab" data-station="Evionnaz">Evionnaz</button>
+                <button class="tab" data-station="Neuchâtel">Neuchâtel</button>
             </nav>
 
-            <div class="search-container" style="position: relative;">
-                <input class="search-input" placeholder="Search locations..." type="search" />
+            <div class="search base-card">
+                <input type="search" placeholder="Search locations..." />
             </div>
         </section>
 
         <section class="metrics">
-            <h2 class="section-title">Current Weather</h2>
-            <div class="metrics__grid">
-               <div class="by-2-wrap">
-                  <article class="metric-card">
-                     <h3>Average Wind</h3>
-                     <p class="value">4.3 kph</p>
-                     <p class="trend">−20% over last hour</p>
-                  </article>
-                  <article class="metric-card">
-                     <h3>Max Wind Gusts</h3>
-                     <p class="value">7.2 kph</p>
-                     <p class="trend">−33% over last hour</p>
-                  </article>
-                </div>
-                <div class="by-2-wrap">
-                  <article class="metric-card">
-                     <h3>Temperature</h3>
-                     <p class="value">0.3°C</p>
-                     <p class="trend positive">+1°C over last hour</p>
-                  </article>
-                  <article class="metric-card">
-                     <h3>Humidity</h3>
-                     <p class="value">56.7%</p>
-                     <p class="trend">−2% over last hour</p>
-                  </article>
-                </div>
-                <div class="by-2-wrap">
-                  <article class="metric-card">
-                     <h3>Air Pressure</h3>
-                     <p class="value">1018.6 hPa</p>
-                     <p class="trend">−10.2 hPa over last hour</p>
-                  </article>
-                </div>
+            <h2>Current Weather</h2>
+            <div class="metrics-grid">
+                <article class="base-card card metric">
+                    <h3>Average Wind</h3>
+                    <p class="value">4.3 kph</p>
+                    <p class="trend">−20% over last hour</p>
+                </article>
+                <article class="base-card card metric">
+                    <h3>Max Wind Gusts</h3>
+                    <p class="value">7.2 kph</p>
+                    <p class="trend">−33% over last hour</p>
+                </article>
+                <article class="base-card card metric">
+                    <h3>Temperature</h3>
+                    <p class="value">0.3°C</p>
+                    <p class="trend positive">+1°C over last hour</p>
+                </article>
+                <article class="base-card card metric">
+                    <h3>Humidity</h3>
+                    <p class="value">56.7%</p>
+                    <p class="trend">−2% over last hour</p>
+                </article>
+                <article class="base-card card metric pressure">
+                    <h3>Air Pressure</h3>
+                    <p class="value">1018.6 hPa</p>
+                    <p class="trend">−10.2 hPa over last hour</p>
+                </article>
             </div>
         </section>
 
-        <div class="data-display">
-            <section class="viz-card viz-card--chart">
-                <h2 class="viz-card__title">Wind Graph</h2>
-                <div class="viz-content-area">
+        <div class="visualizations">
+            <section class="base-card card visualization chart">
+                <h2>Wind Graph</h2>
+                <div class="content">
                     <canvas id="windChart"></canvas>
                 </div>
             </section>
 
-            <section class="viz-card viz-card--table">
-                <h2 class="viz-card__title">Raw Data</h2>
-                <div class="viz-content-area scrollbox">
-                    <table class="data-table">
+            <section class="base-card card visualization table">
+                <h2>Raw Data</h2>
+                <div class="content scrollable">
+                    <table>
                         <thead>
                             <tr>
                                 <th>Time</th>
@@ -100,115 +93,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            <tr>
-                                <td>01/04/2026 16:20</td>
-                                <td>9.4</td>
-                                <td>6.5</td>
-                                <td>265°</td>
-                            </tr>
-                            </tbody>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </section>
@@ -232,11 +135,11 @@
         }
 
         function updateActiveTab(tabGroup) {
-            tabGroup.querySelectorAll('.tab-btn').forEach(tab => {
-                let star = tab.querySelector('.star-btn');
+            tabGroup.querySelectorAll('.tab').forEach(tab => {
+                let star = tab.querySelector('.star');
                 if (!star) {
                     star = document.createElement('span');
-                    star.className = 'star-btn';
+                    star.className = 'star';
                     star.onclick = (e) => {
                         e.stopPropagation();
                         toggleFavorite(tab.dataset.station);
@@ -249,7 +152,7 @@
         }
         
         function updateStar(tab) {
-            const star = tab.querySelector('.star-btn');
+            const star = tab.querySelector('.star');
             const active = tab.classList.contains('active');
             const fav = isFavorited(tab.dataset.station);
             star.classList.toggle('is-active', active);
@@ -271,252 +174,216 @@
             }
         }
 
+        const SearchEngine = {
+            levenshtein(a, b) {
+                const matrix = [];
+                for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+                for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
 
-/**
- * 1. SEARCH ENGINE: Improved for early-entry fuzzy matching
- */
-const SearchEngine = {
-    levenshtein(a, b) {
-        const matrix = [];
-        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-
-        for (let i = 1; i <= b.length; i++) {
-            for (let j = 1; j <= a.length; j++) {
-                if (b.charAt(i - 1) === a.charAt(j - 1)) {
-                    matrix[i][j] = matrix[i - 1][j - 1];
-                } else {
-                    matrix[i][j] = Math.min(
-                        matrix[i - 1][j - 1] + 1, // substitution
-                        matrix[i][j - 1] + 1,     // insertion (extra letter)
-                        matrix[i - 1][j] + 1      // deletion (missing letter)
-                    );
+                for (let i = 1; i <= b.length; i++) {
+                    for (let j = 1; j <= a.length; j++) {
+                        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
                 }
+                return matrix[b.length][a.length];
+            },
+
+            isFuzzyMatch(query, name, maxEdits) {
+                const q = query.toLowerCase();
+                const n = name.toLowerCase();
+
+                const distance = this.levenshtein(q, n.substring(0, q.length + 1));
+                if (distance <= maxEdits) return true;
+
+                const words = n.split(/[\s/-]+/);
+                return words.some(word => {
+                    const wordPart = word.substring(0, q.length + 1);
+                    return this.levenshtein(q, wordPart) <= maxEdits;
+                });
+            },
+
+            getMatches(query, stations) {
+                const q = query.toLowerCase().trim();
+                if (q.length < 1) return [];
+
+                const startsWith = stations.filter(s => s.name.toLowerCase().startsWith(q));
+
+                const contains = stations.filter(s => 
+                    s.name.toLowerCase().includes(q) && !s.name.toLowerCase().startsWith(q)
+                );
+                
+                let fuzzy1 = [];
+                if (q.length >= 3) {
+                    fuzzy1 = stations.filter(s => {
+                        const alreadyMatched = [...startsWith, ...contains].some(m => m.name === s.name);
+                        return !alreadyMatched && this.isFuzzyMatch(q, s.name, 1);
+                    });
+                }
+
+                let fuzzy2 = [];
+                if (q.length >= 5) {
+                    fuzzy2 = stations.filter(s => {
+                        const alreadyMatched = [...startsWith, ...contains, ...fuzzy1].some(m => m.name === s.name);
+                        return !alreadyMatched && this.isFuzzyMatch(q, s.name, 2);
+                    });
+                }
+
+                return [...startsWith, ...contains, ...fuzzy1, ...fuzzy2];
             }
-        }
-        return matrix[b.length][a.length];
-    },
-
-    isFuzzyMatch(query, name, maxEdits) {
-        const q = query.toLowerCase();
-        const n = name.toLowerCase();
-
-        // 1. Check if query is a typo of the full name
-        // This catches "Aacquarossa" vs "Acquarossa" even at 2 or 3 letters
-        const distance = this.levenshtein(q, n.substring(0, q.length + 1));
-        if (distance <= maxEdits) return true;
-
-        // 2. Check words inside the name (e.g., "Londen" in "East London")
-        const words = n.split(/[\s/-]+/);
-        return words.some(word => {
-            const wordPart = word.substring(0, q.length + 1);
-            return this.levenshtein(q, wordPart) <= maxEdits;
-        });
-    },
-
-    getMatches(query, stations) {
-        const q = query.toLowerCase().trim();
-        if (q.length < 1) return [];
-
-        // Tier 1: Exact Start
-        const startsWith = stations.filter(s => s.name.toLowerCase().startsWith(q));
-
-        // Tier 2: Exact Contains
-        const contains = stations.filter(s => 
-            s.name.toLowerCase().includes(q) && !s.name.toLowerCase().startsWith(q)
-        );
-        
-        // Tier 3: Fuzzy 1 (Tolerance: 1 edit) - Enabled at 3 chars
-        let fuzzy1 = [];
-        if (q.length >= 3) {
-            fuzzy1 = stations.filter(s => {
-                const name = s.name.toLowerCase();
-                const alreadyMatched = [...startsWith, ...contains].some(m => m.name === s.name);
-                return !alreadyMatched && this.isFuzzyMatch(q, s.name, 1);
-            });
-        }
-
-        // Tier 4: Fuzzy 2 (Tolerance: 2 edits) - Enabled at 5 chars
-        let fuzzy2 = [];
-        if (q.length >= 5) {
-            fuzzy2 = stations.filter(s => {
-                const name = s.name.toLowerCase();
-                const alreadyMatched = [...startsWith, ...contains, ...fuzzy1].some(m => m.name === s.name);
-                return !alreadyMatched && this.isFuzzyMatch(q, s.name, 2);
-            });
-        }
-
-        return [...startsWith, ...contains, ...fuzzy1, ...fuzzy2];
-    }
-};
-
-/**
- * 2. TAB MANAGER: Handles tab creation and active states
- */
-const TabManager = {
-    container: document.querySelector('.controls .tab-group'),
-
-    addTab(station) {
-        const existingTab = this.container.querySelector(`.tab-btn[data-station="${station.name}"]`);
-        this.deactivateAll();
-
-        if (existingTab) {
-            existingTab.classList.add('active');
-        } else {
-            const newTab = this.createTabElement(station);
-            this.container.appendChild(newTab);
-        }
-
-        if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
-    },
-
-    createTabElement(station) {
-        const btn = document.createElement('button');
-        btn.className = 'tab-btn active';
-        btn.textContent = station.name;
-        btn.dataset.station = station.name;
-        btn.onclick = () => {
-            this.deactivateAll();
-            btn.classList.add('active');
-            if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
         };
-        return btn;
-    },
 
-    deactivateAll() {
-        this.container.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-    }
-};
+        const TabManager = {
+            container: document.querySelector('.controls .tabs'),
 
-/**
- * 3. UI CONTROLLER: Wires the input to the Engine and Tab Manager
- */
-function setupSearch() {
-    const input = document.querySelector('.search-input');
-    const container = document.querySelector('.search-container');
-    const dropdown = document.createElement('ul');
-    dropdown.className = 'search-dropdown';
-    dropdown.style.display = 'none';
-    container.appendChild(dropdown);
+            addTab(station) {
+                const existingTab = this.container.querySelector(`.tab[data-station="${station.name}"]`);
+                this.deactivateAll();
 
-    let currentMatches = [];
+                if (existingTab) {
+                    existingTab.classList.add('active');
+                } else {
+                    const newTab = this.createTabElement(station);
+                    this.container.appendChild(newTab);
+                }
 
-    const renderDropdown = (matches) => {
-        dropdown.innerHTML = '';
-        if (matches.length === 0) {
+                if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
+            },
+
+            createTabElement(station) {
+                const btn = document.createElement('button');
+                btn.className = 'tab active';
+                btn.textContent = station.name;
+                btn.dataset.station = station.name;
+                btn.onclick = () => {
+                    this.deactivateAll();
+                    btn.classList.add('active');
+                    if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
+                };
+                return btn;
+            },
+
+            deactivateAll() {
+                this.container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            }
+        };
+
+        function setupSearch() {
+            const input = document.querySelector('.search input');
+            const container = document.querySelector('.search');
+            const dropdown = document.createElement('ul');
+            dropdown.className = 'search-dropdown';
             dropdown.style.display = 'none';
-            return;
-        }
+            container.appendChild(dropdown);
 
-        matches.forEach(station => {
-            const li = document.createElement('li');
-            li.className = 'search-dropdown-item';
-            li.textContent = station.name;
-            li.onmousedown = (e) => {
-                e.preventDefault();
-                TabManager.addTab(station);
-                clearSearch();
+            let currentMatches = [];
+
+            const renderDropdown = (matches) => {
+                dropdown.innerHTML = '';
+                if (matches.length === 0) {
+                    dropdown.style.display = 'none';
+                    return;
+                }
+
+                matches.forEach(station => {
+                    const li = document.createElement('li');
+                    li.className = 'search-dropdown-item';
+                    li.textContent = station.name;
+                    li.onmousedown = (e) => {
+                        e.preventDefault();
+                        TabManager.addTab(station);
+                        clearSearch();
+                    };
+                    dropdown.appendChild(li);
+                });
+
+                dropdown.style.display = 'block';
+                dropdown.scrollTop = 0;
             };
-            dropdown.appendChild(li);
-        });
 
-        dropdown.style.display = 'block';
-        dropdown.scrollTop = 0;
-    };
+            const handleAutocomplete = (query, firstMatch) => {
+                if (!firstMatch || query.length < 1) return;
 
-    const handleAutocomplete = (query, firstMatch) => {
-        if (!firstMatch || query.length < 1) return;
+                const cityName = firstMatch.name;
+                if (cityName.toLowerCase().startsWith(query.toLowerCase())) {
+                    const userLen = query.length;
+                    input.value = cityName;
+                    input.setSelectionRange(userLen, cityName.length);
+                }
+            };
 
-        const cityName = firstMatch.name;
-        // Only autocomplete if what the user typed matches the start of the station name
-        if (cityName.toLowerCase().startsWith(query.toLowerCase())) {
-            const userLen = query.length;
-            input.value = cityName;
-            
-            // Highlight the "suggested" part
-            input.setSelectionRange(userLen, cityName.length);
+            const clearSearch = () => {
+                input.value = '';
+                dropdown.style.display = 'none';
+                currentMatches = [];
+            };
+
+            input.addEventListener('input', (e) => {
+                const query = e.target.value;
+                const isDelete = e.inputType && e.inputType.includes('delete');
+
+                currentMatches = SearchEngine.getMatches(query, stations);
+                renderDropdown(currentMatches);
+
+                if (!isDelete && currentMatches.length > 0) {
+                    const firstMatchName = currentMatches[0].name.toLowerCase();
+                    if (firstMatchName.startsWith(query.toLowerCase())) {
+                        handleAutocomplete(query, currentMatches[0]);
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const finalValue = input.value.toLowerCase();
+                    const selectedStation = stations.find(s => s.name.toLowerCase() === finalValue);
+                    
+                    if (selectedStation) {
+                        TabManager.addTab(selectedStation);
+                        clearSearch();
+                    } else if (currentMatches.length > 0) {
+                        TabManager.addTab(currentMatches[0]);
+                        clearSearch();
+                    }
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => { dropdown.style.display = 'none'; }, 200);
+            });
         }
-    };
 
-    const clearSearch = () => {
-        input.value = '';
-        dropdown.style.display = 'none';
-        currentMatches = [];
-    };
-
-    input.addEventListener('input', (e) => {
-        const query = e.target.value;
-        
-        // If it's a "delete" action (Backspace/Delete), don't autocomplete
-        const isDelete = e.inputType && e.inputType.includes('delete');
-
-        currentMatches = SearchEngine.getMatches(query, stations);
-        renderDropdown(currentMatches);
-
-        if (!isDelete && currentMatches.length > 0) {
-            const firstMatchName = currentMatches[0].name.toLowerCase();
-            // Only autocomplete if the user's typing is an EXACT prefix (no typos allowed in the bar)
-            if (firstMatchName.startsWith(query.toLowerCase())) {
-                handleAutocomplete(query, currentMatches[0]);
-            }
-        }
-    });
-
-    input.addEventListener('keydown', (e) => {
-        // If Enter is pressed, use the full value currently in the input (the autocompleted one)
-        if (e.key === 'Enter') {
-            const finalValue = input.value.toLowerCase();
-            const selectedStation = stations.find(s => s.name.toLowerCase() === finalValue);
-            
-            if (selectedStation) {
-                TabManager.addTab(selectedStation);
-                clearSearch();
-            } else if (currentMatches.length > 0) {
-                // Fallback: if user edited the autocomplete into something else, take top match
-                TabManager.addTab(currentMatches[0]);
-                clearSearch();
-            }
-        }
-    });
-
-    input.addEventListener('blur', () => {
-        setTimeout(() => { dropdown.style.display = 'none'; }, 200);
-    });
-}
-
-// Function to handle tab switching
         function setupTabs(tabGroupSelector) {
             const tabGroup = document.querySelector(tabGroupSelector);
             if (!tabGroup) return;
 
-            const tabs = tabGroup.querySelectorAll('.tab-btn');
+            const tabs = tabGroup.querySelectorAll('.tab');
 
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
-                    // Remove active class from all current tabs in this group
-                    const allTabs = tabGroup.querySelectorAll('.tab-btn');
-                    allTabs.forEach(t => {
-                        t.classList.remove('active');
-                    });
-
-                    // Add active class to clicked tab
+                    const allTabs = tabGroup.querySelectorAll('.tab');
+                    allTabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
 
-                    // Update star for active only for station tabs (not time period tabs)
-                    if (tabGroupSelector === '.controls .tab-group') {
+                    if (tabGroupSelector === '.controls .tabs') {
                         updateActiveTab(tabGroup);
                     }
 
-                    // Here you could add logic to update content based on selected tab
                     console.log('Selected tab:', tab.textContent.trim());
                 });
             });
         }
 
-        // Function to handle navbar action buttons
         function setupNavbarActions() {
-            const archivesBtn = document.querySelector('.btn--outline');
-            const aboutBtn = document.querySelector('.btn--primary');
+            const archivesBtn = document.querySelector('.button.outline');
+            const aboutBtn = document.querySelector('.button.primary');
 
             if (archivesBtn) {
                 archivesBtn.addEventListener('click', () => {
@@ -535,37 +402,25 @@ function setupSearch() {
             try {
                 const chartData = await WindDashboard.loadData();
                 WindDashboard.createChart(document.getElementById('windChart').getContext('2d'), chartData);
-                WindDashboard.populateTable(document.querySelector('.data-table tbody'), chartData);
+                WindDashboard.populateTable(document.querySelector('table tbody'), chartData);
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
             }
         }
 
-        // Initialize all interactive elements when DOM is loaded
         document.addEventListener('DOMContentLoaded', async () => {
-            // Load stations data
             await loadStations();
 
-            // Setup time period tabs (header)
-            setupTabs('.navbar .tab-group');
+            setupTabs('.navbar .tabs');
+            setupTabs('.controls .tabs');
+            updateActiveTab(document.querySelector('.controls .tabs'));
 
-            // Setup location tabs (controls section)
-            setupTabs('.controls .tab-group');
-            updateActiveTab(document.querySelector('.controls .tab-group'));
-
-            // Setup search functionality
             setupSearch();
-
-            // Setup navbar action buttons
             setupNavbarActions();
-
-            // Create the wind chart and populate data
             createWindChart();
         });
 
-
         const themeToggle = document.getElementById('theme-toggle');
-
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
@@ -581,6 +436,5 @@ function setupSearch() {
             updateChartTheme(newTheme);
         });
     </script>
-
 </body>
 </html>
