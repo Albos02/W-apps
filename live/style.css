@@ -361,7 +361,7 @@ body {
     .data-display {
         flex: 1;
         min-height: 0;
-        max-height: calc(100vh - 400px);
+        max-height: calc(100vh - 430px);
         gap: 24px;
     }
     
