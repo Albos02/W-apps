@@ -1,13 +1,13 @@
 :root {
     --primary: #0087f2;
     --border: #dfdfdf;
-    --bg-page: #fcfcfc;
-    --bg-card: #ffffff;
+    --bg-page: #f8f8f8;
+    --bg-card: #fdfdfd;
     --bg-soft: #f7f7f7;
     --text-main: #000000;
     --text-muted: #828282;
     --bg-mid: #aaaaaa;
-    --shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+    --shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
     --viz-height: 400px;
 }
 
@@ -185,11 +185,10 @@ main {
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text-main);
+}
+.base-card:hover{
     box-shadow: var(--shadow);
 }
-/*.base-card:hover{
-    box-shadow: none;
-}*/
 .card {
     padding: 24px;
 }
