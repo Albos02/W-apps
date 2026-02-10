@@ -41,7 +41,7 @@
             </div>
         </section>
 
-        <section class="metrics">
+        <!-- <section class="metrics">
             <h2>Current Weather</h2>
             <div class="metrics-grid">
                 <article class="base-card card metric">
@@ -70,49 +70,99 @@
                     <p class="trend">−10.2 hPa over last hour</p>
                 </article>
             </div>
+        </section> -->
+
+        <section class="metrics">
+            <h2>Current Weather</h2>
+            <div class="spotlight-container">
+                <article class="base-card card metric spotlight-item">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Average Wind</h3>
+                        <p class="value">4.3 kph</p>
+                        <p class="trend">−20% over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Max Wind Gusts</h3>
+                        <p class="value">7.2 kph</p>
+                        <p class="trend">−33% over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Temperature</h3>
+                        <p class="value">0.3°C</p>
+                        <p class="trend positive">+1°C over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Humidity</h3>
+                        <p class="value">56.7%</p>
+                        <p class="trend">−2% over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric pressure spotlight-item">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Air Pressure</h3>
+                        <p class="value">1018 hPa</p>
+                        <p class="trend">−10 hPa over last hour</p>
+                    </div>
+                </article>
+            </div>
         </section>
 
         <div class="visualizations">
             <section class="base-card card visualization chart">
-                <h2>Wind Graph</h2>
-                <div class="content">
-                    <canvas id="windChart"></canvas>
+                <div class="spotlight-content">
+                    <h2>Wind Graph</h2>
+                    <div class="content">
+                        <canvas id="windChart"></canvas>
+                    </div>
                 </div>
             </section>
 
             <section class="base-card card visualization table">
-                <h2>Raw Data</h2>
-                <div class="content scrollable">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Gusts</th>
-                                <th>Avg</th>
-                                <th>Dir</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                            <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                        </tbody>
-                    </table>
+                <div class="spotlight-content">
+                    <h2>Raw Data</h2>
+                    <div class="content scrollable">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Gusts</th>
+                                    <th>Avg</th>
+                                    <th>Dir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         </div>
@@ -408,6 +458,22 @@
             }
         }
 
+        function createSpotlight(){
+            const containers = document.getElementsByClassName("spotlight-container");
+            for (const container of containers) {
+                container.onmousemove = e => {
+                    for(const item of container.getElementsByClassName("spotlight-item")){
+                        const rect = item.getBoundingClientRect(),
+                            x = e.clientX - rect.left,
+                            y = e.clientY - rect.top;
+
+                        item.style.setProperty('--mouse-x', `${x}px`);
+                        item.style.setProperty('--mouse-y', `${y}px`);
+                    }
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             await loadStations();
 
@@ -418,6 +484,7 @@
             setupSearch();
             setupNavbarActions();
             createWindChart();
+            createSpotlight();
         });
 
         const themeToggle = document.getElementById('theme-toggle');
