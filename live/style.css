@@ -27,6 +27,16 @@
     --spotlight-border: rgba(255, 255, 255, 0.5);
 }
 
+.visualization.spotlight-item {
+    --spotlight-bg: rgba(0, 0, 0, 0.03);
+    --spotlight-border: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .visualization.spotlight-item {
+    --spotlight-bg: rgba(255, 255, 255, 0.006);
+    --spotlight-border: rgba(255, 255, 255, 0.05);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -280,7 +290,7 @@ main {
 }
 .spotlight-item::before {
     background: radial-gradient(
-        800px circle at var(--mouse-x) var(--mouse-y),
+        var(--spotlight-radius, 800px) circle at var(--mouse-x) var(--mouse-y),
         var(--spotlight-bg),
         transparent 40%
         );
@@ -288,7 +298,7 @@ main {
 }
 .spotlight-item > .spotlight-border {
     background: radial-gradient(
-         500px circle at var(--mouse-x) var(--mouse-y),
+         var(--spotlight-border-radius, 500px) circle at var(--mouse-x) var(--mouse-y),
          var(--spotlight-border),
          transparent 40%
          );

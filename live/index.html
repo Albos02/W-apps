@@ -118,8 +118,9 @@
             </div>
         </section>
 
-        <div class="visualizations">
-            <section class="base-card card visualization chart">
+        <div class="visualizations spotlight-container">
+            <section class="base-card card visualization spotlight-item chart">
+                <div class="spotlight-border"></div>
                 <div class="spotlight-content">
                     <h2>Wind Graph</h2>
                     <div class="content">
@@ -128,7 +129,8 @@
                 </div>
             </section>
 
-            <section class="base-card card visualization table">
+            <section class="base-card card visualization spotlight-item table">
+                <div class="spotlight-border"></div>
                 <div class="spotlight-content">
                     <h2>Raw Data</h2>
                     <div class="content scrollable">
@@ -462,13 +464,28 @@
             const containers = document.getElementsByClassName("spotlight-container");
             for (const container of containers) {
                 container.onmousemove = e => {
-                    for(const item of container.getElementsByClassName("spotlight-item")){
-                        const rect = item.getBoundingClientRect(),
-                            x = e.clientX - rect.left,
+                    const items = container.getElementsByClassName("spotlight-item");
+                    let maxWidth = 0;
+                    const rects = [];
+
+                    for(const item of items){
+                        const rect = item.getBoundingClientRect();
+                        maxWidth = Math.max(maxWidth, rect.width);
+                        rects.push({item, rect});
+                    }
+
+                    for(const {item, rect} of rects){
+                        const x = e.clientX - rect.left,
                             y = e.clientY - rect.top;
 
                         item.style.setProperty('--mouse-x', `${x}px`);
                         item.style.setProperty('--mouse-y', `${y}px`);
+                        
+                        // Only set dynamic radius for visualization items (graph and raw data)
+                        if (item.classList.contains('visualization')) {
+                            item.style.setProperty('--spotlight-radius', `${maxWidth * 2}px`);
+                            item.style.setProperty('--spotlight-border-radius', `${maxWidth * 1.5}px`);
+                        }
                     }
                 }
             }
