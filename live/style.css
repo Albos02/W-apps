@@ -382,6 +382,11 @@ div.search .search-dropdown::-webkit-scrollbar-thumb:hover {
     background-clip: content-box;
 }
 
+.scrollable::-webkit-scrollbar-corner,
+.search-dropdown::-webkit-scrollbar-corner {
+    background-color: var(--bg-card);
+}
+
 /* Table */
 table {
     width: 100%;
