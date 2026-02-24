@@ -348,7 +348,7 @@ main {
 
 .visualizations .content.scrollable {
     overflow-y: auto;
-    max-height: var(--viz-height);
+    max-height: calc(var(--viz-height) + 50px);
 }
 
 /* Scrollbars */
