@@ -411,6 +411,9 @@ table td {
 }
 
 /* Search Dropdown */
+div.search input::-webkit-search-cancel-button{
+    font-size: large;
+}
 .search-dropdown {
     position: absolute;
     top: 100%;
