@@ -92,6 +92,10 @@ main {
     height: 38px;
 }
 
+.tabs:empty {
+    display: none;
+}
+
 .tab {
     border: none;
     background: transparent;
