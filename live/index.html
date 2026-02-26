@@ -305,6 +305,8 @@
                 }
 
                 if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
+                localStorage.setItem('lastSelectedStation', station.name);
+                console.log('Selected tab:', station.name);
             },
 
             createTabElement(station) {
@@ -316,6 +318,8 @@
                     this.deactivateAll();
                     btn.classList.add('active');
                     if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
+                    localStorage.setItem('lastSelectedStation', station.name);
+                    console.log('Selected tab:', station.name);
                 };
                 return btn;
             },
@@ -424,6 +428,9 @@
 
                     if (tabGroupSelector === '.controls .tabs') {
                         updateActiveTab(tabGroup);
+                        if (tab.dataset.station) {
+                            localStorage.setItem('lastSelectedStation', tab.dataset.station);
+                        }
                     }
 
                     console.log('Selected tab:', tab.textContent.trim());
@@ -497,6 +504,8 @@
                 favorites = new Set(JSON.parse(savedFavorites));
             }
 
+            const lastSelectedName = localStorage.getItem('lastSelectedStation');
+
             if (favorites.size > 0 && stations.length > 0) {
                 favorites.forEach(stationName => {
                     const station = stations.find(s => s.name === stationName);
@@ -504,6 +513,13 @@
                         TabManager.addTab(station);
                     }
                 });
+            }
+            
+            if (lastSelectedName && stations.length > 0) {
+                const station = stations.find(s => s.name === lastSelectedName);
+                if (station) {
+                    TabManager.addTab(station);
+                }
             }
             
             setupTabs('.navbar .tabs');
