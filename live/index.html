@@ -29,11 +29,6 @@
     <main>
         <section class="controls">
             <nav class="tabs base-card">
-                <button class="tab active" data-station="Bouveret">Bouveret</button>
-                <button class="tab" data-station="Vevey / Corseaux">Vevey / Corseaux</button>
-                <button class="tab" data-station="Aigle">Aigle</button>
-                <button class="tab" data-station="Evionnaz">Evionnaz</button>
-                <button class="tab" data-station="Neuchâtel">Neuchâtel</button>
             </nav>
 
             <div class="search base-card">
@@ -172,7 +167,7 @@
 
     <script>
         let stations = [];
-        const favorites = new Set(['Bouveret', 'Vevey / Corseaux', 'Aigle', 'Evionnaz', 'Neuchâtel']);
+        let favorites = new Set();
 
         function isFavorited(station) {
             return favorites.has(station);
@@ -184,6 +179,7 @@
             } else {
                 favorites.add(station);
             }
+            localStorage.setItem('favoriteStations', JSON.stringify([...favorites]));
         }
 
         function updateActiveTab(tabGroup) {
@@ -496,6 +492,20 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await loadStations();
 
+            const savedFavorites = localStorage.getItem('favoriteStations');
+            if (savedFavorites) {
+                favorites = new Set(JSON.parse(savedFavorites));
+            }
+
+            if (favorites.size > 0 && stations.length > 0) {
+                favorites.forEach(stationName => {
+                    const station = stations.find(s => s.name === stationName);
+                    if (station) {
+                        TabManager.addTab(station);
+                    }
+                });
+            }
+            
             setupTabs('.navbar .tabs');
             setupTabs('.controls .tabs');
             updateActiveTab(document.querySelector('.controls .tabs'));
