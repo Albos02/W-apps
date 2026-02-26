@@ -172,7 +172,7 @@
 
     <script>
         let stations = [];
-        const favorites = new Set();
+        const favorites = new Set(['Bouveret', 'Vevey / Corseaux', 'Aigle', 'Evionnaz', 'Neuchâtel']);
 
         function isFavorited(station) {
             return favorites.has(station);
@@ -207,7 +207,9 @@
             const star = tab.querySelector('.star');
             const active = tab.classList.contains('active');
             const fav = isFavorited(tab.dataset.station);
+            
             star.classList.toggle('is-active', active);
+            
             if (active) {
                 star.textContent = fav ? '★' : '☆';
                 star.style.color = fav ? 'gold' : '';
