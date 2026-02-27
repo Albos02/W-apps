@@ -36,7 +36,18 @@ function createChart(ctx, chartData) {
                 y: { type: 'linear', display: true, position: 'left', beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' }, ticks: { callback: v => v + ' kph' } },
                 y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, max: 360, grid: { drawOnChartArea: false }, ticks: { callback: v => v + '°' } }
             },
-            interaction: { mode: 'nearest', axis: 'x', intersect: false }
+            interaction: { mode: 'nearest', axis: 'x', intersect: false },
+            onClick: (event, activeElements, chart) => {
+                if (activeElements.length > 0) {
+                    const dataIndex = activeElements[0].index;
+                    const time = chart.data.labels[dataIndex];
+                    const avg = chart.data.datasets[0].data[dataIndex];
+                    const gust = chart.data.datasets[1].data[dataIndex];
+                    const dir = chart.data.datasets[2].data[dataIndex];
+                    
+                    alert(`Graph Data Point:\nTime: ${time}\nAvg Wind: ${avg} kph\nGusts: ${gust} kph\nDirection: ${dir}°`);
+                }
+            }
         }
     });
 }
@@ -48,6 +59,10 @@ function populateTable(tableBody, { labels, datasets }) {
     
     labels.forEach((label, i) => {
         const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.onclick = () => {
+            alert(`Table Row Selected:\nTime: ${currentDate} ${label}\nAvg Wind: ${avgData[i]} kph\nGusts: ${gustData[i]} kph\nDirection: ${directionData[i]}°`);
+        };
         tr.innerHTML = `<td>${currentDate} ${label}</td><td>${gustData[i]}</td><td>${avgData[i]}</td><td>${directionData[i]}°</td>`;
         tableBody.appendChild(tr);
     });

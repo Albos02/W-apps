@@ -10,7 +10,7 @@
 </head>
 <body>
     <header class="navbar">
-        <h1 class="brand">W-Apps</h1>
+        <h1 class="brand" style="cursor: pointer;" onclick="alert('Navigating to W-Apps Home...')">W-Apps</h1>
         
         <nav class="tabs base-card">
             <button class="tab active">Hourly</button>
@@ -69,7 +69,7 @@
         <section class="metrics">
             <h2>Current Weather</h2>
             <div class="spotlight-container">
-                <article class="base-card card metric spotlight-item">
+                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('wind', 'avg')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Average Wind</h3>
@@ -77,7 +77,7 @@
                         <p class="trend">−20% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item">
+                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('wind', 'gusts')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Max Wind Gusts</h3>
@@ -85,7 +85,7 @@
                         <p class="trend">−33% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item">
+                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('temperature', 'current')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Temperature</h3>
@@ -93,7 +93,7 @@
                         <p class="trend positive">+1°C over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item">
+                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('humidity', 'current')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Humidity</h3>
@@ -101,7 +101,7 @@
                         <p class="trend">−2% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric pressure spotlight-item">
+                <article class="base-card card metric pressure spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'current')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Air Pressure</h3>
@@ -165,6 +165,10 @@
     </main>
 
     <script>
+        function handleMetricClick(category, detail) {
+            alert(`Metric card clicked:\nCategory: ${category}\nDetail: ${detail}`);
+        }
+
         let stations = [];
         let favorites = new Set();
 
@@ -485,6 +489,10 @@
                         if (tab.dataset.station) {
                             localStorage.setItem('lastSelectedStation', tab.dataset.station);
                         }
+                    }
+
+                    if (tabGroupSelector === '.navbar .tabs') {
+                        alert(`Timeframe changed to: ${tab.textContent.trim()}`);
                     }
 
                     console.log('Selected tab:', tab.textContent.trim());
