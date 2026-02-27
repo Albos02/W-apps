@@ -313,6 +313,18 @@
                 btn.className = 'tab active';
                 btn.textContent = station.name;
                 btn.dataset.station = station.name;
+                btn.draggable = true;
+                
+                btn.addEventListener('dragstart', (e) => {
+                    btn.classList.add('dragging');
+                    btn.click(); // Automatically select when dragging
+                });
+                
+                btn.addEventListener('dragend', () => {
+                    btn.classList.remove('dragging');
+                    if (typeof updateFavoritesOrder === 'function') updateFavoritesOrder();
+                });
+
                 btn.onclick = () => {
                     this.deactivateAll();
                     btn.classList.add('active');
@@ -411,6 +423,49 @@
             input.addEventListener('blur', () => {
                 setTimeout(() => { dropdown.style.display = 'none'; }, 200);
             });
+        }
+
+        function updateFavoritesOrder() {
+            const newFavorites = new Set();
+            document.querySelectorAll('.controls .tabs .tab').forEach(tab => {
+                const stationName = tab.dataset.station;
+                if (stationName && favorites.has(stationName)) {
+                    newFavorites.add(stationName);
+                }
+            });
+            favorites = newFavorites;
+            localStorage.setItem('favoriteStations', JSON.stringify([...favorites]));
+        }
+
+        function setupDragAndDrop() {
+            const container = document.querySelector('.controls .tabs');
+            
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const draggable = document.querySelector('.dragging');
+                if (!draggable) return;
+
+                const afterElement = getDragAfterElement(container, e.clientX);
+                if (afterElement == null) {
+                    container.appendChild(draggable);
+                } else {
+                    container.insertBefore(draggable, afterElement);
+                }
+            });
+
+            function getDragAfterElement(container, x) {
+                const draggableElements = [...container.querySelectorAll('.tab:not(.dragging)')];
+
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = x - box.left - box.width / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
         }
 
         function setupTabs(tabGroupSelector) {
@@ -525,6 +580,7 @@
             setupTabs('.controls .tabs');
             updateActiveTab(document.querySelector('.controls .tabs'));
 
+            setupDragAndDrop();
             setupSearch();
             setupNavbarActions();
             createWindChart();
