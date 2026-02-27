@@ -10,7 +10,7 @@
 </head>
 <body>
     <header class="navbar">
-        <h1 class="brand" style="cursor: pointer;" onclick="alert('Navigating to W-Apps Home...')">W-Apps</h1>
+        <h1 class="brand" style="cursor: pointer;" onclick="window.location.href = '../';">W-Apps</h1>
         
         <nav class="tabs base-card">
             <button class="tab active">Hourly</button>
@@ -506,13 +506,13 @@
 
             if (archivesBtn) {
                 archivesBtn.addEventListener('click', () => {
-                    alert('Archives functionality would be implemented here');
+                    window.location.href = '../';
                 });
             }
 
             if (aboutBtn) {
                 aboutBtn.addEventListener('click', () => {
-                    alert('About page would open here');
+                    window.location.href = '../';
                 });
             }
         }
