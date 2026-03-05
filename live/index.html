@@ -301,6 +301,92 @@
             }
         };
 
+
+        function showContextMenu(e, station) {
+            // Remove any existing context menu
+            const existingMenu = document.querySelector('.context-menu');
+            if (existingMenu) existingMenu.remove();
+
+            const menu = document.createElement('div');
+            menu.className = 'context-menu base-card'; // Added base-card for consistent styling
+            menu.style.position = 'fixed'; // Use fixed to avoid scroll issues
+            
+            const deleteItem = document.createElement('div');
+            deleteItem.className = 'context-menu-item';
+            deleteItem.innerHTML = '<span class="icon">❌</span> Delete Station';
+            
+            deleteItem.onclick = (event) => {
+                event.stopPropagation(); // Prevent bubbling
+                deleteStation(station);
+                menu.remove();
+            };
+
+            menu.appendChild(deleteItem);
+            document.body.appendChild(menu);
+
+            // Calculate position
+            const menuWidth = 180; // Approximate width
+            const menuHeight = 50; // Approximate height
+            let x = e.clientX;
+            let y = e.clientY;
+
+            // Boundary checks
+            if (x + menuWidth > window.innerWidth) {
+                x = window.innerWidth - menuWidth - 10;
+            }
+            if (y + menuHeight > window.innerHeight) {
+                y = window.innerHeight - menuHeight - 10;
+            }
+
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+
+            // Close on outside interaction
+            const closeMenu = (event) => {
+                if (!menu.contains(event.target)) {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                    window.removeEventListener('resize', closeMenu);
+                    window.removeEventListener('scroll', closeMenu, true);
+                    document.removeEventListener('contextmenu', closeMenu);
+                }
+            };
+
+            // Delay adding listeners to avoid immediate close
+            requestAnimationFrame(() => {
+                document.addEventListener('click', closeMenu);
+                window.addEventListener('resize', closeMenu);
+                window.addEventListener('scroll', closeMenu, true);
+                document.addEventListener('contextmenu', closeMenu);
+            });
+        }
+
+        function deleteStation(station) {
+            // Remove from favorites
+            if (favorites.has(station.name)) {
+                favorites.delete(station.name);
+                localStorage.setItem('favoriteStations', JSON.stringify([...favorites]));
+            }
+
+            // Remove tab from DOM
+            const tab = document.querySelector(`.controls .tabs .tab[data-station="${station.name}"]`);
+            if (tab) {
+                const wasActive = tab.classList.contains('active');
+                tab.remove();
+
+                // If active, switch to another tab
+                if (wasActive) {
+                    const remainingTabs = document.querySelectorAll('.controls .tabs .tab');
+                    if (remainingTabs.length > 0) {
+                        remainingTabs[0].click();
+                    } else {
+                        // No tabs left
+                        localStorage.removeItem('lastSelectedStation');
+                    }
+                }
+            }
+        }
+
         const TabManager = {
             container: document.querySelector('.controls .tabs'),
 
@@ -344,6 +430,11 @@
                     localStorage.setItem('lastSelectedStation', station.name);
                     console.log('Selected tab:', station.name);
                 };
+
+                btn.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, station);
+                });
                 return btn;
             },
 
