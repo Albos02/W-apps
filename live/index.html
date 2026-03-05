@@ -69,7 +69,7 @@
         <section class="metrics">
             <h2>Current Weather</h2>
             <div class="spotlight-container">
-                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('wind', 'avg')">
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-avg" style="cursor: pointer;" onclick="handleMetricClick('wind', 'avg')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Average Wind</h3>
@@ -77,7 +77,7 @@
                         <p class="trend" id="trend-wind-avg">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('wind', 'gusts')">
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" onclick="handleMetricClick('wind', 'gusts')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Max Wind Gusts</h3>
@@ -85,7 +85,7 @@
                         <p class="trend" id="trend-wind-gust">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('temperature', 'current')">
+                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" onclick="handleMetricClick('temperature', 'current')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Temperature</h3>
@@ -93,7 +93,7 @@
                         <p class="trend" id="trend-temp">--°C over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('humidity', 'current')">
+                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" onclick="handleMetricClick('humidity', 'current')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Humidity</h3>
@@ -101,7 +101,7 @@
                         <p class="trend" id="trend-humidity">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric pressure spotlight-item" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'current')">
+                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'current')">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Air Pressure</h3>
@@ -171,6 +171,7 @@
 
         let stations = [];
         let favorites = new Set();
+        let hiddenMetrics = new Set();
 
         function isFavorited(station) {
             return favorites.has(station);
@@ -302,7 +303,7 @@
         };
 
 
-        function showContextMenu(e, station) {
+        function showContextMenu(e, label, deleteCallback) {
             // Remove any existing context menu
             const existingMenu = document.querySelector('.context-menu');
             if (existingMenu) existingMenu.remove();
@@ -313,11 +314,11 @@
             
             const deleteItem = document.createElement('div');
             deleteItem.className = 'context-menu-item';
-            deleteItem.innerHTML = '<span class="icon">❌</span> Delete Station';
+            deleteItem.innerHTML = `<span class="icon">❌</span> ${label}`;
             
             deleteItem.onclick = (event) => {
                 event.stopPropagation(); // Prevent bubbling
-                deleteStation(station);
+                deleteCallback();
                 menu.remove();
             };
 
@@ -358,6 +359,23 @@
                 window.addEventListener('resize', closeMenu);
                 window.addEventListener('scroll', closeMenu, true);
                 document.addEventListener('contextmenu', closeMenu);
+            });
+        }
+
+        function deleteMetric(metricId) {
+            hiddenMetrics.add(metricId);
+            localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
+            
+            const metricCard = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
+            if (metricCard) metricCard.remove();
+        }
+
+        function setupMetricContextMenus() {
+            document.querySelectorAll('.metric[data-metric-id]').forEach(card => {
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, "Delete Metric", () => deleteMetric(card.dataset.metricId));
+                });
             });
         }
 
@@ -433,7 +451,7 @@
 
                 btn.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    showContextMenu(e, station);
+                    showContextMenu(e, "Delete Station", () => deleteStation(station));
                 });
                 return btn;
             },
@@ -689,6 +707,16 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             await loadStations();
+
+            const savedHiddenMetrics = localStorage.getItem('hiddenMetrics');
+            if (savedHiddenMetrics) {
+                hiddenMetrics = new Set(JSON.parse(savedHiddenMetrics));
+                hiddenMetrics.forEach(metricId => {
+                    const card = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
+                    if (card) card.remove();
+                });
+            }
+            setupMetricContextMenus();
 
             const savedFavorites = localStorage.getItem('favoriteStations');
             if (savedFavorites) {
