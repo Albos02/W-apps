@@ -228,6 +228,14 @@
         }
 
         const SearchEngine = {
+            getNearest(lat, lon, stations) {
+                const P = Math.PI / 180;
+                return stations.map(s => {
+                    const a = 0.5 - Math.cos((s.lat - lat) * P)/2 + Math.cos(lat * P) * Math.cos(s.lat * P) * (1 - Math.cos((s.lon - lon) * P))/2;
+                    return { ...s, isNearby: true, dist: 12742 * Math.asin(Math.sqrt(a)) };
+                }).filter(s => !isNaN(s.dist)).sort((a, b) => a.dist - b.dist).slice(0, 3);
+            },
+
             levenshtein(a, b) {
                 const matrix = [];
                 for (let i = 0; i <= b.length; i++) matrix[i] = [i];
@@ -364,7 +372,7 @@
                 matches.forEach(station => {
                     const li = document.createElement('li');
                     li.className = 'search-dropdown-item';
-                    li.textContent = station.name;
+                    li.innerHTML = station.isNearby ? `${station.name} <span style="opacity:0.6;font-size:0.85em;">${station.desc}</span>` : station.name;
                     li.onmousedown = (e) => {
                         e.preventDefault();
                         TabManager.addTab(station);
@@ -407,6 +415,36 @@
                         handleAutocomplete(query, currentMatches[0]);
                     }
                 }
+
+                clearTimeout(input.t);
+                input.t = setTimeout(async () => {
+                    if (query.length > 1) {
+                        try {
+                            let lat, lon, name;
+                            const [omRes, nomRes] = await Promise.all([
+                                fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&format=json`).then(r=>r.json()).catch(()=>({})),
+                                fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=ch&format=json&limit=1`).then(r=>r.json()).catch(()=>[])
+                            ]);
+
+                            if (omRes.results?.[0]) {
+                                ({ latitude: lat, longitude: lon, name } = omRes.results[0]);
+                            } else if (nomRes?.[0]) {
+                                ({ lat, lon, name } = nomRes[0]);
+                            }
+                            
+                            const fetchQuery = input.value.substring(0, input.selectionStart || input.value.length);
+                            if (lat && lon && fetchQuery.toLowerCase() === query.toLowerCase()) {
+                                const nearby = SearchEngine.getNearest(lat, lon, stations)
+                                    .filter(s => !currentMatches.some(m => m.name === s.name))
+                                    .map(s => ({ ...s, desc: `(near ${name}, ${s.dist.toFixed(1)}km)` }));
+                                
+                                if (nearby.length && document.activeElement === input) {
+                                    renderDropdown(currentMatches = [...currentMatches, ...nearby]);
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                }, 300);
             });
 
             input.addEventListener('keydown', (e) => {
