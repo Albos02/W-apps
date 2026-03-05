@@ -6,6 +6,7 @@
     <title>W-Apps Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="meteoswiss.js"></script>
     <script src="data-loader.js"></script>
 </head>
 <body>
@@ -67,9 +68,14 @@
         </section> -->
 
         <section class="metrics">
-            <h2>Current Weather</h2>
+            <div class="metrics-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="margin: 0;">Current Weather</h2>
+            </div>
             <div class="spotlight-container">
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-avg" style="cursor: pointer;" onclick="handleMetricClick('wind', 'avg')">
+                <div class="empty-state">
+                    Right-click to add metrics
+                </div>
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-avg" style="cursor: pointer;" onclick="handleMetricClick('wind', 'avg')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Average Wind</h3>
@@ -77,7 +83,7 @@
                         <p class="trend" id="trend-wind-avg">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" onclick="handleMetricClick('wind', 'gusts')">
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" onclick="handleMetricClick('wind', 'gusts')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Max Wind Gusts</h3>
@@ -85,7 +91,7 @@
                         <p class="trend" id="trend-wind-gust">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" onclick="handleMetricClick('temperature', 'current')">
+                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" onclick="handleMetricClick('temperature', 'current')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Temperature</h3>
@@ -93,7 +99,7 @@
                         <p class="trend" id="trend-temp">--°C over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" onclick="handleMetricClick('humidity', 'current')">
+                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" onclick="handleMetricClick('humidity', 'current')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Humidity</h3>
@@ -101,7 +107,7 @@
                         <p class="trend" id="trend-humidity">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'current')">
+                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'current')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Air Pressure</h3>
@@ -132,8 +138,8 @@
                             <thead>
                                 <tr>
                                     <th>Time</th>
-                                    <th>Gusts</th>
                                     <th>Avg</th>
+                                    <th>Gusts</th>
                                     <th>Dir</th>
                                 </tr>
                             </thead>
@@ -167,11 +173,14 @@
     <script>
         function handleMetricClick(category, detail) {
             alert(`Metric card clicked:\nCategory: ${category}\nDetail: ${detail}`);
+            createWindChart();
         }
 
         let stations = [];
         let favorites = new Set();
         let hiddenMetrics = new Set();
+        let currentStation = null;
+        let currentTimeframe = 'Hourly';
 
         function isFavorited(station) {
             return favorites.has(station);
@@ -303,46 +312,116 @@
         };
 
 
-        function showContextMenu(e, label, deleteCallback) {
-            // Remove any existing context menu
+        // Removed showContextMenu and showRestoreMenu, replaced by showUnifiedMenu
+        
+        function updateEmptyState() {
+            const emptyState = document.querySelector('.empty-state');
+            const totalMetrics = 5; // wind-avg, wind-gusts, temperature, humidity, pressure
+            if (hiddenMetrics.size === totalMetrics) {
+                emptyState.style.display = 'flex';
+            } else {
+                emptyState.style.display = 'none';
+            }
+        }
+
+        function restoreMetric(metricId) {
+            hiddenMetrics.delete(metricId);
+            localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
+            
+            const metricCard = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
+            if (metricCard) metricCard.classList.remove('hidden-metric');
+            updateEmptyState();
+            MetricCardDragManager.saveOrder();
+        }
+
+        function showUnifiedMenu(e, targetMetricId = null) {
+            // Remove existing context menu
             const existingMenu = document.querySelector('.context-menu');
             if (existingMenu) existingMenu.remove();
 
             const menu = document.createElement('div');
-            menu.className = 'context-menu base-card'; // Added base-card for consistent styling
-            menu.style.position = 'fixed'; // Use fixed to avoid scroll issues
-            
-            const deleteItem = document.createElement('div');
-            deleteItem.className = 'context-menu-item';
-            deleteItem.innerHTML = `<span class="icon">❌</span> ${label}`;
-            
-            deleteItem.onclick = (event) => {
-                event.stopPropagation(); // Prevent bubbling
-                deleteCallback();
-                menu.remove();
-            };
+            menu.className = 'context-menu base-card';
+            menu.style.position = 'fixed';
 
+            // --- Add Option ---
+            const addItem = document.createElement('div');
+            addItem.className = 'context-menu-item success';
+            
+            if (hiddenMetrics.size > 0) {
+                addItem.innerHTML = `<span class="icon">➕</span> Add Metric <span style="margin-left:auto;font-size:10px">▶</span>`;
+                
+                // Submenu container
+                const submenu = document.createElement('div');
+                submenu.className = 'context-menu-submenu base-card';
+                
+                const metricNames = {
+                    'wind-avg': 'Average Wind',
+                    'wind-gusts': 'Max Wind Gusts',
+                    'temperature': 'Temperature',
+                    'humidity': 'Humidity',
+                    'pressure': 'Air Pressure'
+                };
+
+                hiddenMetrics.forEach(metricId => {
+                    const subItem = document.createElement('div');
+                    subItem.className = 'context-menu-item';
+                    subItem.innerHTML = `${metricNames[metricId] || metricId}`;
+                    subItem.onclick = (event) => {
+                        event.stopPropagation();
+                        restoreMetric(metricId);
+                        menu.remove();
+                    };
+                    submenu.appendChild(subItem);
+                });
+                
+                addItem.appendChild(submenu);
+            } else {
+                addItem.innerHTML = `<span class="icon">➕</span> Add Metric`;
+                addItem.classList.add('disabled');
+            }
+            menu.appendChild(addItem);
+
+
+            // --- Separator ---
+            const separator = document.createElement('div');
+            separator.className = 'context-menu-separator';
+            menu.appendChild(separator);
+
+            // --- Delete Option ---
+            const deleteItem = document.createElement('div');
+            deleteItem.className = 'context-menu-item danger';
+            deleteItem.innerHTML = `<span class="icon">❌</span> ${targetMetricId ? "Delete Metric" : "Delete Metric"}`;
+            
+            if (targetMetricId) {
+                // Enabled: Delete specific metric
+                deleteItem.onclick = (event) => {
+                    event.stopPropagation();
+                    deleteMetric(targetMetricId);
+                    menu.remove();
+                };
+            } else {
+                // Disabled: No target
+                deleteItem.classList.add('disabled');
+            }
             menu.appendChild(deleteItem);
+
             document.body.appendChild(menu);
 
-            // Calculate position
-            const menuWidth = 180; // Approximate width
-            const menuHeight = 50; // Approximate height
+            // Position menu
             let x = e.clientX;
             let y = e.clientY;
-
+            
+            const menuWidth = 180;
+            // Height depends on content but usually safe to guess or let render
             // Boundary checks
-            if (x + menuWidth > window.innerWidth) {
-                x = window.innerWidth - menuWidth - 10;
-            }
-            if (y + menuHeight > window.innerHeight) {
-                y = window.innerHeight - menuHeight - 10;
-            }
+            if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
+            const menuHeight = menu.offsetHeight || 100;
+            if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 10;
 
             menu.style.left = `${x}px`;
             menu.style.top = `${y}px`;
 
-            // Close on outside interaction
+            // Close logic
             const closeMenu = (event) => {
                 if (!menu.contains(event.target)) {
                     menu.remove();
@@ -367,17 +446,31 @@
             localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
             
             const metricCard = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
-            if (metricCard) metricCard.remove();
+            if (metricCard) metricCard.classList.add('hidden-metric');
+            updateEmptyState();
+            MetricCardDragManager.saveOrder();
         }
 
         function setupMetricContextMenus() {
-            document.querySelectorAll('.metric[data-metric-id]').forEach(card => {
-                card.addEventListener('contextmenu', (e) => {
+            // Attach to the main metrics container
+            const metricsSection = document.querySelector('.metrics');
+            if (metricsSection) {
+                metricsSection.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    showContextMenu(e, "Delete Metric", () => deleteMetric(card.dataset.metricId));
+                    
+                    // Check if clicked target is a metric card or inside one
+                    const card = e.target.closest('.metric[data-metric-id]');
+                    
+                    if (card) {
+                        showUnifiedMenu(e, card.dataset.metricId);
+                    } else {
+                        // Clicked on container (title or empty space)
+                        showUnifiedMenu(e, null);
+                    }
                 });
-            });
+            }
         }
+
 
         function deleteStation(station) {
             // Remove from favorites
@@ -419,9 +512,14 @@
                     this.container.appendChild(newTab);
                 }
 
+                currentStation = station;
+                
                 if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
                 localStorage.setItem('lastSelectedStation', station.name);
+                localStorage.setItem('lastSelectedStationCode', station.code);
                 console.log('Selected tab:', station.name);
+                
+                createWindChart();
             },
 
             createTabElement(station) {
@@ -445,13 +543,24 @@
                     this.deactivateAll();
                     btn.classList.add('active');
                     if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
+                    
+                    currentStation = station;
                     localStorage.setItem('lastSelectedStation', station.name);
+                    localStorage.setItem('lastSelectedStationCode', station.code);
                     console.log('Selected tab:', station.name);
+                    
+                    createWindChart();
                 };
 
                 btn.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    showContextMenu(e, "Delete Station", () => deleteStation(station));
+                    // Keep using the unified menu if desired, but stations use simple delete for now as per previous reqs.
+                    // The user prompt was specific to "metric cards".
+                    // I'll keep the station deletion as is, but it relies on showContextMenu which I just removed.
+                    // I need to either restore showContextMenu or adapt showUnifiedMenu for stations.
+                    // Given the user only asked to change metric cards, I should restore showContextMenu for stations 
+                    // OR make a specific simple menu for stations.
+                    showStationContextMenu(e, station);
                 });
                 return btn;
             },
@@ -460,6 +569,123 @@
                 this.container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             }
         };
+
+        const MetricCardDragManager = {
+            container: document.querySelector('.metrics .spotlight-container'),
+
+            init() {
+                this.container.querySelectorAll('.metric').forEach(card => {
+                    card.addEventListener('dragstart', (e) => {
+                        card.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+                    card.addEventListener('dragend', () => {
+                        card.classList.remove('dragging');
+                    });
+                });
+
+                this.container.addEventListener('dragover', this.handleDragOver.bind(this));
+                this.container.addEventListener('drop', this.handleDrop.bind(this));
+            },
+
+            handleDragOver(e) {
+                e.preventDefault();
+                const dragging = this.container.querySelector('.metric.dragging');
+                if (!dragging) return;
+
+                const afterElement = this.getDragAfterElement(e.clientX, e.clientY);
+
+                if (afterElement == null) {
+                    this.container.appendChild(dragging);
+                } else {
+                    this.container.insertBefore(dragging, afterElement);
+                }
+            },
+
+            handleDrop(e) {
+                e.preventDefault();
+                this.saveOrder();
+            },
+
+            getDragAfterElement(x, y) {
+                const draggableElements = [
+                    ...this.container.querySelectorAll('.metric:not(.dragging):not(.hidden-metric)')
+                ];
+
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = x - box.left - box.width / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset, element: child };
+                    }
+                    return closest;
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            },
+
+            saveOrder() {
+                const order = [];
+                this.container.querySelectorAll('.metric:not(.hidden-metric)').forEach(card => {
+                    order.push(card.dataset.metricId);
+                });
+                localStorage.setItem('metricCardsOrder', JSON.stringify(order));
+            },
+
+            restoreOrder() {
+                const savedOrder = localStorage.getItem('metricCardsOrder');
+                if (!savedOrder) return;
+
+                const order = JSON.parse(savedOrder);
+                order.forEach(metricId => {
+                    const card = this.container.querySelector(`.metric[data-metric-id="${metricId}"]`);
+                    if (card && !card.classList.contains('hidden-metric')) {
+                        this.container.appendChild(card);
+                    }
+                });
+            }
+        };
+
+        function showStationContextMenu(e, station) {
+             const menu = document.createElement('div');
+            menu.className = 'context-menu base-card';
+            menu.style.position = 'fixed';
+            
+            const deleteItem = document.createElement('div');
+            deleteItem.className = 'context-menu-item danger';
+            deleteItem.innerHTML = `<span class="icon">❌</span> Delete Station`;
+            
+            deleteItem.onclick = (event) => {
+                event.stopPropagation();
+                deleteStation(station);
+                menu.remove();
+            };
+
+            menu.appendChild(deleteItem);
+            document.body.appendChild(menu);
+
+            // Position
+            let x = e.clientX;
+            let y = e.clientY;
+            if (x + 180 > window.innerWidth) x = window.innerWidth - 180 - 10;
+            if (y + 50 > window.innerHeight) y = window.innerHeight - 50 - 10;
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+
+            const closeMenu = (event) => {
+                if (!menu.contains(event.target)) {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                    window.removeEventListener('resize', closeMenu);
+                    window.removeEventListener('scroll', closeMenu, true);
+                    document.removeEventListener('contextmenu', closeMenu);
+                }
+            };
+            requestAnimationFrame(() => {
+                document.addEventListener('click', closeMenu);
+                window.addEventListener('resize', closeMenu);
+                window.addEventListener('scroll', closeMenu, true);
+                document.addEventListener('contextmenu', closeMenu);
+            });
+        }
 
         function setupSearch() {
             const input = document.querySelector('.search input');
@@ -639,7 +865,8 @@
                     }
 
                     if (tabGroupSelector === '.navbar .tabs') {
-                        alert(`Timeframe changed to: ${tab.textContent.trim()}`);
+                        currentTimeframe = tab.textContent.trim();
+                        createWindChart();
                     }
 
                     console.log('Selected tab:', tab.textContent.trim());
@@ -666,9 +893,33 @@
 
         async function createWindChart() {
             try {
-                const chartData = await WindDashboard.loadData();
+                const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode') || 'BOU';
+                
+                const [chartData, realtimeData] = await Promise.all([
+                    WindDashboard.loadData(stationCode, currentTimeframe),
+                    MeteoSwiss.getCurrentWeather(stationCode)
+                ]);
+                
                 WindDashboard.createChart(document.getElementById('windChart').getContext('2d'), chartData);
                 WindDashboard.populateTable(document.querySelector('table tbody'), chartData);
+                
+                const current = chartData.current || {};
+                
+                // Prioritize real-time JSON for these metrics
+                const temp = (realtimeData && realtimeData.Temperature !== null) ? realtimeData.Temperature : current.temperature;
+                const humidity = (realtimeData && realtimeData.Humidity !== null) ? realtimeData.Humidity : current.humidity;
+                const windGust = (realtimeData && realtimeData.Wind_Gusts !== null) ? realtimeData.Wind_Gusts : current.windGusts;
+                
+                // These are only in CSV
+                const pressure = current.pressure;
+                const windAvg = current.windAvg;
+
+                    document.getElementById('current-temp').textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
+                    document.getElementById('trend-temp').textContent = '--°C over last hour';
+                    document.getElementById('current-humidity').textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
+                document.getElementById('current-wind-gust').textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
+                document.getElementById('current-pressure').textContent = pressure != null ? `${pressure.toFixed(1)} hPa` : '-- hPa';
+                document.getElementById('current-wind-avg').textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
             }
@@ -713,9 +964,10 @@
                 hiddenMetrics = new Set(JSON.parse(savedHiddenMetrics));
                 hiddenMetrics.forEach(metricId => {
                     const card = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
-                    if (card) card.remove();
+                    if (card) card.classList.add('hidden-metric');
                 });
             }
+            updateEmptyState();
             setupMetricContextMenus();
 
             const savedFavorites = localStorage.getItem('favoriteStations');
@@ -750,6 +1002,9 @@
             setupNavbarActions();
             createWindChart();
             createSpotlight();
+
+            MetricCardDragManager.init();
+            MetricCardDragManager.restoreOrder();
         });
 
         const themeToggle = document.getElementById('theme-toggle');
