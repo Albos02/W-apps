@@ -1,6 +1,7 @@
 const dataCache = new Map();
 
 const CSV_BASE_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/{STATION}/ogd-smn_{STATION}_t_now.csv';
+const CSV_RECENT_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/{STATION}/ogd-smn_{STATION}_t_recent.csv';
 
 const COLUMN_INDICES = {
     timestamp: 1,
@@ -12,8 +13,43 @@ const COLUMN_INDICES = {
     windDirection: 17
 };
 
+// Configuration for time periods and aggregation
+const TIME_PERIODS = {
+    '3 Hours': 3,      // 3 hours
+    'Day': 24,         // 24 hours
+    'Week': 168,       // 7 days
+    'Month': 720       // 30 days
+};
+
+const AGGREGATION = {
+    '3 Hours': null,
+    'Day': null,
+    'Week': 'hourly',
+    'Month': '6hour'
+};
+
+const AGGREGATION_METHODS = {
+    windAvg: 'avg',
+    windGusts: 'max',
+    windDirection: 'avg',
+    temperature: 'avg',
+    humidity: 'avg',
+    pressure: 'avg'
+};
+
+const POINTS_PER_HOUR = 6;
+
+const TIMEFRAME_LIMITS = {};
+for (const [key, hours] of Object.entries(TIME_PERIODS)) {
+    TIMEFRAME_LIMITS[key] = POINTS_PER_HOUR * hours;
+}
+
 function getCSVUrl(stationCode) {
     return CSV_BASE_URL.replace(/{STATION}/g, stationCode.toLowerCase());
+}
+
+function getRecentCSVUrl(stationCode) {
+    return CSV_RECENT_URL.replace(/{STATION}/g, stationCode.toLowerCase());
 }
 
 function parseCSV(text) {
@@ -41,8 +77,26 @@ function parseCSV(text) {
     return rows;
 }
 
+function mergeData(nowRows, recentRows) {
+    if (!nowRows || nowRows.length === 0) return recentRows || [];
+    if (!recentRows || recentRows.length === 0) return nowRows;
+    
+    const nowLatest = nowRows[nowRows.length - 1];
+    const nowLatestDate = parseTimestamp(nowLatest.timestamp);
+    
+    const olderRows = recentRows.filter(row => {
+        const rowDate = parseTimestamp(row.timestamp);
+        return rowDate < nowLatestDate;
+    });
+    
+    return [...olderRows, ...nowRows];
+}
+
 function parseTimestamp(timestamp) {
-    const [datePart, timePart] = timestamp.split(' ');
+    if (!timestamp) return new Date(0);
+    const parts = timestamp.split(' ');
+    const datePart = parts[0] || '';
+    const timePart = parts[1] || '00:00';
     const [day, month, year] = datePart.split('.');
     const [hour, minute] = timePart.split(':');
     return new Date(`${year}-${month}-${day}T${hour}:${minute}:00Z`);
@@ -53,22 +107,130 @@ function formatLocalTime(timestamp) {
     return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: undefined });
 }
 
-function formatHourlyTimestamp(timestamp) {
-    const [datePart, timePart] = timestamp.split(' ');
-    const [year, month, day] = datePart.split('-');
-    const [hour] = timePart.split(':');
-    const date = new Date(`${year}-${month}-${day}T${hour}:00:00Z`);
-    return date.toLocaleString('en-GB', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: undefined });
+function formatDayTime(timestamp) {
+    const date = parseTimestamp(timestamp);
+    const dayName = date.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: undefined });
+    return `${dayName} ${time}`;
 }
 
-function convertToChartData(rows, timeframe = 'Hourly') {
-    let dataRows = [...rows];
+function formatDate(timestamp) {
+    const date = parseTimestamp(timestamp);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+}
+
+function normalizeTimeframe(timeframe) {
+    return timeframe.replace(/^Last\s+/, '');
+}
+
+function shouldShowDate(labels) {
+    if (!labels || labels.length < 2) return false;
+    const first = parseTimestamp(labels[0]);
+    const last = parseTimestamp(labels[labels.length - 1]);
+    const diffHours = (last - first) / (1000 * 60 * 60);
+    return diffHours >= 24;
+}
+
+function formatLabel(timestamp, timeframe, showDate = null) {
+    const date = parseTimestamp(timestamp);
     
-    if (timeframe !== 'Monthly') {
-        dataRows = dataRows.slice(-144);
+    if (showDate === null) {
+        showDate = (timeframe === 'Week' || timeframe === 'Month');
     }
     
-    const labels = dataRows.map(r => timeframe === 'Monthly' ? formatHourlyTimestamp(r.timestamp) : formatLocalTime(r.timestamp));
+    if (showDate) {
+        const dayName = date.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: '2-digit' });
+        const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: undefined });
+        return `${dayName} ${time}`;
+    }
+    
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: undefined });
+}
+
+function getAggregated(rows, interval) {
+    const intervalMinutes = {
+        '20min': 20, '30min': 30, 'hourly': 60,
+        '2hour': 120, '3hour': 180, '6hour': 360, '12hour': 720, 'daily': 1440
+    }[interval];
+    
+    if (!intervalMinutes) return rows;
+    
+    const grouped = new Map();
+    
+    rows.forEach(row => {
+        const date = parseTimestamp(row.timestamp);
+        const totalMinutes = date.getHours() * 60 + date.getMinutes();
+        const bucket = Math.floor(totalMinutes / intervalMinutes);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${bucket}`;
+        
+        if (!grouped.has(key)) {
+            grouped.set(key, {
+                timestamp: row.timestamp,
+                dateObj: new Date(date),
+                bucket: bucket,
+                windAvg: [], windGusts: [], windDirection: [],
+                temperature: [], humidity: [], pressure: []
+            });
+        }
+        
+        const data = grouped.get(key);
+        if (row.windAvg != null) data.windAvg.push(row.windAvg);
+        if (row.windGusts != null) data.windGusts.push(row.windGusts);
+        if (row.windDirection != null) data.windDirection.push(row.windDirection);
+        if (row.temperature != null) data.temperature.push(row.temperature);
+        if (row.humidity != null) data.humidity.push(row.humidity);
+        if (row.pressure != null) data.pressure.push(row.pressure);
+    });
+    
+    const methods = AGGREGATION_METHODS;
+    const avgFn = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    const maxFn = arr => arr.length ? Math.max(...arr) : null;
+    
+    const aggregated = [];
+    grouped.forEach((data, key) => {
+        const date = data.dateObj;
+        let timestamp;
+        if (interval === 'daily') {
+            timestamp = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
+        } else {
+            const bucketStartMinutes = data.bucket * intervalMinutes;
+            const hour = Math.floor(bucketStartMinutes / 60);
+            const minute = bucketStartMinutes % 60;
+            timestamp = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        }
+        
+        aggregated.push({
+            timestamp: timestamp,
+            windAvg: methods.windAvg === 'max' ? maxFn(data.windAvg) : avgFn(data.windAvg),
+            windGusts: methods.windGusts === 'max' ? maxFn(data.windGusts) : avgFn(data.windGusts),
+            windDirection: methods.windDirection === 'max' ? maxFn(data.windDirection) : avgFn(data.windDirection),
+            temperature: methods.temperature === 'max' ? maxFn(data.temperature) : avgFn(data.temperature),
+            humidity: methods.humidity === 'max' ? maxFn(data.humidity) : avgFn(data.humidity),
+            pressure: methods.pressure === 'max' ? maxFn(data.pressure) : avgFn(data.pressure)
+        });
+    });
+    
+    return aggregated.sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
+}
+
+function getHourlyAggregated(rows) { return getAggregated(rows, 'hourly'); }
+function getDailyAggregated(rows) { return getAggregated(rows, 'daily'); }
+
+function convertToChartData(rows, timeframe = 'Hour') {
+    const normalizedTimeframe = normalizeTimeframe(timeframe);
+    const limit = TIMEFRAME_LIMITS[normalizedTimeframe] || TIMEFRAME_LIMITS['Hour'];
+    let dataRows = rows.slice(-limit);
+    
+    const aggregation = AGGREGATION[normalizedTimeframe];
+    if (aggregation && aggregation !== 'daily') {
+        dataRows = getAggregated(dataRows, aggregation);
+    } else if (aggregation === 'daily') {
+        dataRows = getDailyAggregated(dataRows);
+    }
+    
+    const timestamps = dataRows.map(r => r.timestamp);
+    const showDate = shouldShowDate(timestamps);
+    const labels = dataRows.map(r => formatLabel(r.timestamp, normalizedTimeframe, showDate));
     
     return {
         labels: labels,
@@ -113,7 +275,6 @@ function convertToChartData(rows, timeframe = 'Hourly') {
 
 function getCurrentValues(rows) {
     if (!rows || rows.length === 0) return null;
-    
     const latest = rows[rows.length - 1];
     return {
         temperature: latest.temperature,
@@ -125,86 +286,36 @@ function getCurrentValues(rows) {
     };
 }
 
-function getHourlyAggregated(rows) {
-    const hourlyMap = new Map();
-    
-    rows.forEach(row => {
-        const date = parseTimestamp(row.timestamp);
-        const hourKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:00`;
-        
-        if (!hourlyMap.has(hourKey)) {
-            hourlyMap.set(hourKey, {
-                timestamp: hourKey,
-                windAvg: [],
-                windGusts: [],
-                windDirection: [],
-                temperature: [],
-                humidity: [],
-                pressure: []
-            });
-        }
-        
-        const hourData = hourlyMap.get(hourKey);
-        if (row.windAvg != null) hourData.windAvg.push(row.windAvg);
-        if (row.windGusts != null) hourData.windGusts.push(row.windGusts);
-        if (row.windDirection != null) hourData.windDirection.push(row.windDirection);
-        if (row.temperature != null) hourData.temperature.push(row.temperature);
-        if (row.humidity != null) hourData.humidity.push(row.humidity);
-        if (row.pressure != null) hourData.pressure.push(row.pressure);
-    });
-    
-    const aggregated = [];
-    hourlyMap.forEach((data, key) => {
-        const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
-        aggregated.push({
-            timestamp: key,
-            windAvg: avg(data.windAvg),
-            windGusts: avg(data.windGusts),
-            windDirection: avg(data.windDirection),
-            temperature: avg(data.temperature),
-            humidity: avg(data.humidity),
-            pressure: avg(data.pressure)
-        });
-    });
-    
-    return aggregated.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-}
-
 async function loadData(stationCode = 'BOU', timeframe = 'Hourly') {
-    const cacheKey = `windData_${stationCode}_${timeframe}`;
+    const rawCacheKey = `windDataRaw_${stationCode}`;
+    let rawRows = dataCache.get(rawCacheKey);
     
-    if (dataCache.has(cacheKey)) {
-        const cached = dataCache.get(cacheKey);
-        if (!(cached instanceof Promise)) return cached;
+    if (!rawRows) {
+        try {
+            const [nowResponse, recentResponse] = await Promise.all([
+                fetch(getCSVUrl(stationCode)),
+                fetch(getRecentCSVUrl(stationCode))
+            ]);
+            
+            const nowText = nowResponse.ok ? await nowResponse.text() : '';
+            const recentText = recentResponse.ok ? await recentResponse.text() : '';
+            
+            const nowRows = nowText ? parseCSV(nowText) : [];
+            const recentRows = recentText ? parseCSV(recentText) : [];
+            
+            rawRows = mergeData(nowRows, recentRows);
+            dataCache.set(rawCacheKey, rawRows);
+        } catch (error) {
+            console.error(`Error loading ${stationCode} data:`, error);
+            throw error;
+        }
+    } else if (rawRows instanceof Promise) {
+        rawRows = await rawRows;
     }
     
-    const csvUrl = getCSVUrl(stationCode);
-    
-    const promise = fetch(csvUrl)
-        .then(r => r.ok ? r.text() : Promise.reject(`HTTP ${r.status}`))
-        .then(text => {
-            let rows = parseCSV(text);
-            // Keep rows chronological: [Earliest, ..., Latest]
-            
-            const currentValues = getCurrentValues(rows);
-            
-            if (timeframe === 'Monthly') {
-                rows = getHourlyAggregated(rows);
-            }
-            
-            const chartData = convertToChartData(rows, timeframe);
-            const data = { ...chartData, current: currentValues };
-            dataCache.set(cacheKey, data);
-            return data;
-        })
-        .catch(error => {
-            console.error(`Error loading ${stationCode} data:`, error);
-            dataCache.delete(cacheKey);
-            return Promise.reject(error);
-        });
-    
-    dataCache.set(cacheKey, promise);
-    return promise;
+    const currentValues = getCurrentValues(rawRows);
+    const chartData = convertToChartData(rawRows, timeframe);
+    return { ...chartData, current: currentValues };
 }
 
 let currentChart = null;
@@ -216,9 +327,7 @@ function getData() {
 }
 
 function createChart(ctx, chartData) {
-    if (currentChart) {
-        currentChart.destroy();
-    }
+    if (currentChart) currentChart.destroy();
     
     currentChart = new Chart(ctx, {
         type: 'line',
@@ -255,15 +364,17 @@ function createChart(ctx, chartData) {
     });
 }
 
-function populateTable(tableBody, { labels, datasets }) {
+function populateTable(tableBody, data) {
     tableBody.innerHTML = '';
-    const [avgData, gustData, directionData] = datasets.map(d => d.data);
+    if (!data || !data.datasets || data.datasets.length === 0) return;
     
-    // Reverse for table display (most recent at top)
+    const { labels, datasets } = data;
+    const [avgData, gustData, directionData] = datasets.map(d => d.data || []);
+    
     const reversedLabels = [...labels].reverse();
-    const revAvg = [...avgData].reverse();
-    const revGust = [...gustData].reverse();
-    const revDir = [...directionData].reverse();
+    const revAvg = [...(avgData || [])].reverse();
+    const revGust = [...(gustData || [])].reverse();
+    const revDir = [...(directionData || [])].reverse();
 
     reversedLabels.forEach((label, i) => {
         const tr = document.createElement('tr');
@@ -281,4 +392,15 @@ function populateTable(tableBody, { labels, datasets }) {
     });
 }
 
-window.WindDashboard = { loadData, getData, createChart, populateTable };
+function createEmptyChart(ctx) {
+    createChart(ctx, {
+        labels: ['--'],
+        datasets: [
+            { label: 'Average Wind (kph)', data: [0], borderColor: '#0087f2', backgroundColor: 'rgba(0, 135, 242, 0.1)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointHoverRadius: 5 },
+            { label: 'Max Wind Gusts (kph)', data: [0], borderColor: '#ff6b6b', backgroundColor: 'rgba(255, 107, 107, 0.1)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointHoverRadius: 5 },
+            { label: 'Wind Direction (°)', data: [0], borderColor: '#32cd32', backgroundColor: 'rgba(50, 205, 50, 0.1)', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 3, pointHoverRadius: 5, yAxisID: 'y1' }
+        ]
+    });
+}
+
+window.WindDashboard = { loadData, getData, createChart, populateTable, createEmptyChart };

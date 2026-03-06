@@ -14,10 +14,10 @@
         <h1 class="brand" style="cursor: pointer;" onclick="window.location.href = '../';">W-Apps</h1>
         
         <nav class="tabs base-card">
-            <button class="tab active">Hourly</button>
-            <button class="tab">Daily</button>
-            <button class="tab">Weekly</button>
-            <button class="tab">Monthly</button>
+            <button class="tab active">3 Hours</button>
+            <button class="tab">Day</button>
+            <button class="tab">Week</button>
+            <button class="tab">Month</button>
         </nav>
 
         <div class="actions">
@@ -144,24 +144,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
-                                <tr><td>01/04/2026 16:20</td><td>9.4</td><td>6.5</td><td>265°</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -180,7 +162,7 @@
         let favorites = new Set();
         let hiddenMetrics = new Set();
         let currentStation = null;
-        let currentTimeframe = 'Hourly';
+        let currentTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
 
         function isFavorited(station) {
             return favorites.has(station);
@@ -491,8 +473,18 @@
                     if (remainingTabs.length > 0) {
                         remainingTabs[0].click();
                     } else {
-                        // No tabs left
+                        // No tabs left - reset to empty chart
                         localStorage.removeItem('lastSelectedStation');
+                        localStorage.removeItem('lastSelectedStationCode');
+                        currentStation = null;
+                        WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'));
+                        WindDashboard.populateTable(document.querySelector('table tbody'), { labels: [], datasets: [] });
+                        document.getElementById('current-temp').textContent = '--°C';
+                        document.getElementById('trend-temp').textContent = '--°C over last hour';
+                        document.getElementById('current-humidity').textContent = '--%';
+                        document.getElementById('current-wind-gust').textContent = '-- kph';
+                        document.getElementById('current-pressure').textContent = '-- hPa';
+                        document.getElementById('current-wind-avg').textContent = '-- kph';
                     }
                 }
             }
@@ -865,7 +857,14 @@
                     }
 
                     if (tabGroupSelector === '.navbar .tabs') {
+                        // First strip "Last " from all tabs, then add to selected
+                        const allTabs = tabGroup.querySelectorAll('.tab');
+                        allTabs.forEach(t => {
+                            t.textContent = t.textContent.trim().replace(/^Last\s+/, '');
+                        });
+                        tab.textContent = 'Last ' + tab.textContent.trim();
                         currentTimeframe = tab.textContent.trim();
+                        localStorage.setItem('lastSelectedTimeframe', currentTimeframe);
                         createWindChart();
                     }
 
@@ -892,8 +891,19 @@
         }
 
         async function createWindChart() {
+            // Don't load data if no station is selected
+            if (!currentStation && !localStorage.getItem('lastSelectedStation')) {
+                return;
+            }
+            
             try {
-                const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode') || 'BOU';
+                const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode');
+                
+                // If still no station, show empty chart
+                if (!stationCode) {
+                    WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'));
+                    return;
+                }
                 
                 const [chartData, realtimeData] = await Promise.all([
                     WindDashboard.loadData(stationCode, currentTimeframe),
@@ -994,14 +1004,36 @@
             }
             
             setupTabs('.navbar .tabs');
+            
+            // Restore saved timeframe tab
+            const navbarTabs = document.querySelector('.navbar .tabs');
+            const savedTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
+            const baseTimeframe = savedTimeframe.replace(/^Last\s+/, '');
+            navbarTabs.querySelectorAll('.tab').forEach(tab => {
+                const tabBase = tab.textContent.trim();
+                if (tabBase === baseTimeframe) {
+                    tab.classList.add('active');
+                    tab.textContent = 'Last ' + tabBase;
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
             setupTabs('.controls .tabs');
             updateActiveTab(document.querySelector('.controls .tabs'));
 
             setupDragAndDrop();
             setupSearch();
             setupNavbarActions();
-            createWindChart();
             createSpotlight();
+
+            // Initialize empty chart - only load data if a station is selected
+            WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'));
+            
+            // Load data only if a station is already selected
+            if (currentStation || localStorage.getItem('lastSelectedStation')) {
+                createWindChart();
+            }
 
             MetricCardDragManager.init();
             MetricCardDragManager.restoreOrder();
