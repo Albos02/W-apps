@@ -987,20 +987,37 @@
 
             const lastSelectedName = localStorage.getItem('lastSelectedStation');
 
+let finalStationToLoad = null;
+
+            // 1. Restore favorites, create tabs, but DO NOT load data yet.
             if (favorites.size > 0 && stations.length > 0) {
                 favorites.forEach(stationName => {
                     const station = stations.find(s => s.name === stationName);
                     if (station) {
-                        TabManager.addTab(station);
+                        // Create tab if it doesn't exist (to preserve ordering from favorites)
+                        const existingTab = document.querySelector(`.controls .tabs .tab[data-station="${station.name}"]`);
+                        if (!existingTab) {
+                            const newTab = TabManager.createTabElement(station);
+                            document.querySelector('.controls .tabs').appendChild(newTab);
+                        }
+                        // Keep track of the station, the last one processed will be the initial fallback
+                        finalStationToLoad = station; 
                     }
                 });
             }
-            
+
+            // 2. Determine the *actual* station to select: prioritize last explicitly selected one.
             if (lastSelectedName && stations.length > 0) {
                 const station = stations.find(s => s.name === lastSelectedName);
                 if (station) {
-                    TabManager.addTab(station);
+                    finalStationToLoad = station; // This overrides the last favorite in the loop if lastSelectedName is set
                 }
+            }
+
+            // 3. Apply the final selection state once, which also updates tabs/stars/currentStation/localStorage
+            if (finalStationToLoad) {
+                // Use TabManager.addTab ONCE to set the official current state and activate the tab visuals
+                TabManager.addTab(finalStationToLoad);
             }
             
             setupTabs('.navbar .tabs');
@@ -1030,8 +1047,8 @@
             // Initialize empty chart - only load data if a station is selected
             WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'));
             
-            // Load data only if a station is already selected
-            if (currentStation || localStorage.getItem('lastSelectedStation')) {
+            // Load data only ONCE based on the finalized state set by TabManager.addTab(finalStationToLoad)
+            if (currentStation) { 
                 createWindChart();
             }
 
