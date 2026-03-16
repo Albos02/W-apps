@@ -8,6 +8,8 @@ const COLUMN_INDICES = {
     temperature: 2,
     humidity: 6,
     pressure: 9,
+    pressureQff: 10,
+    pressureQnh: 11,
     windGusts: 14,
     windAvg: 16,
     windDirection: 17
@@ -66,6 +68,8 @@ function parseCSV(text) {
             temperature: parseFloat(values[COLUMN_INDICES.temperature]) || null,
             humidity: parseFloat(values[COLUMN_INDICES.humidity]) || null,
             pressure: parseFloat(values[COLUMN_INDICES.pressure]) || null,
+            pressureQff: parseFloat(values[COLUMN_INDICES.pressureQff]) || null,
+            pressureQnh: parseFloat(values[COLUMN_INDICES.pressureQnh]) || null,
             windGusts: parseFloat(values[COLUMN_INDICES.windGusts]) || null,
             windAvg: parseFloat(values[COLUMN_INDICES.windAvg]) || null,
             windDirection: parseFloat(values[COLUMN_INDICES.windDirection]) || null
@@ -280,6 +284,8 @@ function getCurrentValues(rows) {
         temperature: latest.temperature,
         humidity: latest.humidity,
         pressure: latest.pressure,
+        pressureQff: latest.pressureQff,
+        pressureQnh: latest.pressureQnh,
         windAvg: latest.windAvg ? Math.round(latest.windAvg * 3.6 * 10) / 10 : null,
         windGusts: latest.windGusts ? Math.round(latest.windGusts * 3.6 * 10) / 10 : null,
         windDirection: latest.windDirection

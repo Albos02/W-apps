@@ -115,6 +115,62 @@
                         <p class="trend" id="trend-pressure">-- hPa over last hour</p>
                     </div>
                 </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" onclick="handleMetricClick('wind', 'direction')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Wind Direction</h3>
+                        <p class="value" id="current-wind-direction">-- °</p>
+                        <p class="trend" id="trend-wind-direction">--° over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'qff')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Pressure QFF</h3>
+                        <p class="value" id="current-pressure-qff">-- hPa</p>
+                        <p class="trend" id="trend-pressure-qff">-- hPa over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qnh" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'qnh')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Pressure QNH</h3>
+                        <p class="value" id="current-pressure-qnh">-- hPa</p>
+                        <p class="trend" id="trend-pressure-qnh">-- hPa over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="precipitation" style="cursor: pointer;" onclick="handleMetricClick('precipitation', 'current')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Precipitation</h3>
+                        <p class="value" id="current-precipitation">-- mm</p>
+                        <p class="trend" id="trend-precipitation">-- mm over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="sunshine" style="cursor: pointer;" onclick="handleMetricClick('sunshine', 'current')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Sunshine</h3>
+                        <p class="value" id="current-sunshine">-- min</p>
+                        <p class="trend" id="trend-sunshine">-- min over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="global-radiation" style="cursor: pointer;" onclick="handleMetricClick('radiation', 'global')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Global Radiation</h3>
+                        <p class="value" id="current-global-radiation">-- W/m²</p>
+                        <p class="trend" id="trend-global-radiation">-- W/m² over last hour</p>
+                    </div>
+                </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="dew-point" style="cursor: pointer;" onclick="handleMetricClick('dewpoint', 'current')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Dew Point</h3>
+                        <p class="value" id="current-dew-point">--°C</p>
+                        <p class="trend" id="trend-dew-point">--°C over last hour</p>
+                    </div>
+                </article>
             </div>
         </section>
 
@@ -298,7 +354,7 @@
         
         function updateEmptyState() {
             const emptyState = document.querySelector('.empty-state');
-            const totalMetrics = 5; // wind-avg, wind-gusts, temperature, humidity, pressure
+            const totalMetrics = 12; // wind-avg, wind-gusts, temperature, humidity, pressure, wind-direction, pressure-qff, pressure-qnh, precipitation, sunshine, global-radiation, dew-point
             if (hiddenMetrics.size === totalMetrics) {
                 emptyState.style.display = 'flex';
             } else {
@@ -341,7 +397,14 @@
                     'wind-gusts': 'Max Wind Gusts',
                     'temperature': 'Temperature',
                     'humidity': 'Humidity',
-                    'pressure': 'Air Pressure'
+                    'pressure': 'Air Pressure',
+                    'wind-direction': 'Wind Direction',
+                    'pressure-qff': 'Pressure QFF',
+                    'pressure-qnh': 'Pressure QNH',
+                    'precipitation': 'Precipitation',
+                    'sunshine': 'Sunshine',
+                    'global-radiation': 'Global Radiation',
+                    'dew-point': 'Dew Point'
                 };
 
                 hiddenMetrics.forEach(metricId => {
@@ -485,6 +548,13 @@
                         document.getElementById('current-wind-gust').textContent = '-- kph';
                         document.getElementById('current-pressure').textContent = '-- hPa';
                         document.getElementById('current-wind-avg').textContent = '-- kph';
+                        document.getElementById('current-wind-direction').textContent = '--°';
+                        document.getElementById('current-pressure-qff').textContent = '-- hPa';
+                        document.getElementById('current-pressure-qnh').textContent = '-- hPa';
+                        document.getElementById('current-precipitation').textContent = '-- mm';
+                        document.getElementById('current-sunshine').textContent = '-- min';
+                        document.getElementById('current-global-radiation').textContent = '-- W/m²';
+                        document.getElementById('current-dew-point').textContent = '--°C';
                     }
                 }
             }
@@ -919,9 +989,16 @@
                 const temp = (realtimeData && realtimeData.Temperature !== null) ? realtimeData.Temperature : current.temperature;
                 const humidity = (realtimeData && realtimeData.Humidity !== null) ? realtimeData.Humidity : current.humidity;
                 const windGust = (realtimeData && realtimeData.Wind_Gusts !== null) ? realtimeData.Wind_Gusts : current.windGusts;
+                const precipitation = (realtimeData && realtimeData.Precipitation !== null) ? realtimeData.Precipitation : null;
+                const sunshine = (realtimeData && realtimeData.Sunshine !== null) ? realtimeData.Sunshine : null;
+                const globalRadiation = (realtimeData && realtimeData.Global_Radiation !== null) ? realtimeData.Global_Radiation : null;
+                const dewPoint = (realtimeData && realtimeData.Dew_Point !== null) ? realtimeData.Dew_Point : null;
+                const windDirection = (realtimeData && realtimeData.Wind_Direction !== null) ? realtimeData.Wind_Direction : current.windDirection;
                 
                 // These are only in CSV
                 const pressure = current.pressure;
+                const pressureQff = current.pressureQff;
+                const pressureQnh = current.pressureQnh;
                 const windAvg = current.windAvg;
 
                     document.getElementById('current-temp').textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
@@ -930,6 +1007,13 @@
                 document.getElementById('current-wind-gust').textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
                 document.getElementById('current-pressure').textContent = pressure != null ? `${pressure.toFixed(1)} hPa` : '-- hPa';
                 document.getElementById('current-wind-avg').textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
+                document.getElementById('current-wind-direction').textContent = windDirection != null ? `${Math.round(windDirection)}°` : '--°';
+                document.getElementById('current-pressure-qff').textContent = pressureQff != null ? `${pressureQff.toFixed(1)} hPa` : '-- hPa';
+                document.getElementById('current-pressure-qnh').textContent = pressureQnh != null ? `${pressureQnh.toFixed(1)} hPa` : '-- hPa';
+                document.getElementById('current-precipitation').textContent = precipitation != null ? `${precipitation.toFixed(1)} mm` : '-- mm';
+                document.getElementById('current-sunshine').textContent = sunshine != null ? `${sunshine.toFixed(0)} min` : '-- min';
+                document.getElementById('current-global-radiation').textContent = globalRadiation != null ? `${globalRadiation.toFixed(0)} W/m²` : '-- W/m²';
+                document.getElementById('current-dew-point').textContent = dewPoint != null ? `${dewPoint.toFixed(1)}°C` : '--°C';
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
             }
