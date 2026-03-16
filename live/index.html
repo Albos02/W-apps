@@ -91,6 +91,14 @@
                         <p class="trend" id="trend-wind-gust">--% over last hour</p>
                     </div>
                 </article>
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" onclick="handleMetricClick('wind', 'direction')" draggable="true">
+                    <div class="spotlight-border"></div>
+                    <div class="spotlight-content">
+                        <h3>Wind Direction</h3>
+                        <p class="value" id="current-wind-direction">-- °</p>
+                        <p class="trend" id="trend-wind-direction">--° over last hour</p>
+                    </div>
+                </article>
                 <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" onclick="handleMetricClick('temperature', 'current')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
@@ -113,14 +121,6 @@
                         <h3>Air Pressure</h3>
                         <p class="value" id="current-pressure">-- hPa</p>
                         <p class="trend" id="trend-pressure">-- hPa over last hour</p>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" onclick="handleMetricClick('wind', 'direction')" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <h3>Wind Direction</h3>
-                        <p class="value" id="current-wind-direction">-- °</p>
-                        <p class="trend" id="trend-wind-direction">--° over last hour</p>
                     </div>
                 </article>
                 <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'qff')" draggable="true">
@@ -216,7 +216,7 @@
 
         let stations = [];
         let favorites = new Set();
-        let hiddenMetrics = new Set();
+        let hiddenMetrics = new Set(['pressure', 'pressure-qff', 'pressure-qnh', 'global-radiation', 'dew-point']);
         let currentStation = null;
         let currentTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
 
@@ -1056,11 +1056,13 @@
             const savedHiddenMetrics = localStorage.getItem('hiddenMetrics');
             if (savedHiddenMetrics) {
                 hiddenMetrics = new Set(JSON.parse(savedHiddenMetrics));
-                hiddenMetrics.forEach(metricId => {
-                    const card = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
-                    if (card) card.classList.add('hidden-metric');
-                });
+            } else {
+                localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
             }
+            hiddenMetrics.forEach(metricId => {
+                const card = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
+                if (card) card.classList.add('hidden-metric');
+            });
             updateEmptyState();
             setupMetricContextMenus();
 
