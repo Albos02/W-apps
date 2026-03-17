@@ -60,7 +60,7 @@
                     <p class="trend">−2% over last hour</p>
                 </article>
                 <article class="base-card card metric pressure">
-                    <h3>Air Pressure</h3>
+                    <h3>Air Pressure - QFE</h3>
                     <p class="value">1018.6 hPa</p>
                     <p class="trend">−10.2 hPa over last hour</p>
                 </article>
@@ -118,7 +118,7 @@
                 <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'current')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
-                        <h3>Air Pressure</h3>
+                        <h3>Air Pressure - QFE</h3>
                         <p class="value" id="current-pressure">-- hPa</p>
                         <p class="trend" id="trend-pressure">-- hPa over last hour</p>
                     </div>
@@ -126,7 +126,7 @@
                 <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'qff')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
-                        <h3>Pressure QFF</h3>
+                        <h3>Air Pressure - QFF</h3>
                         <p class="value" id="current-pressure-qff">-- hPa</p>
                         <p class="trend" id="trend-pressure-qff">-- hPa over last hour</p>
                     </div>
@@ -134,7 +134,7 @@
                 <article class="base-card card metric spotlight-item" data-metric-id="pressure-qnh" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'qnh')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
-                        <h3>Pressure QNH</h3>
+                        <h3>Air Pressure - QNH</h3>
                         <p class="value" id="current-pressure-qnh">-- hPa</p>
                         <p class="trend" id="trend-pressure-qnh">-- hPa over last hour</p>
                     </div>
@@ -397,10 +397,10 @@
                     'wind-gusts': 'Max Wind Gusts',
                     'temperature': 'Temperature',
                     'humidity': 'Humidity',
-                    'pressure': 'Air Pressure',
+                    'pressure': 'Air Pressure - QFE',
                     'wind-direction': 'Wind Direction',
-                    'pressure-qff': 'Pressure QFF',
-                    'pressure-qnh': 'Pressure QNH',
+                    'pressure-qff': 'Air Pressure - QFF',
+                    'pressure-qnh': 'Air Pressure - QNH',
                     'precipitation': 'Precipitation',
                     'sunshine': 'Sunshine',
                     'global-radiation': 'Global Radiation',
