@@ -1022,11 +1022,11 @@
                 metricEls.trendTemp.textContent = '--°C over last hour';
                 metricEls.currentHumidity.textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
                 metricEls.currentWindGust.textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
-                metricEls.currentPressure.textContent = pressure != null ? `${pressure.toFixed(1)} hPa` : '-- hPa';
+                metricEls.currentPressure.textContent = pressure != null ? `${pressure.toFixed(0)} hPa` : '-- hPa';
                 metricEls.currentWindAvg.textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
                 metricEls.currentWindDirection.textContent = windDirection != null ? `${Math.round(windDirection)}°` : '--°';
-                metricEls.currentPressureQff.textContent = pressureQff != null ? `${pressureQff.toFixed(1)} hPa` : '-- hPa';
-                metricEls.currentPressureQnh.textContent = pressureQnh != null ? `${pressureQnh.toFixed(1)} hPa` : '-- hPa';
+                metricEls.currentPressureQff.textContent = pressureQff != null ? `${pressureQff.toFixed(0)} hPa` : '-- hPa';
+                metricEls.currentPressureQnh.textContent = pressureQnh != null ? `${pressureQnh.toFixed(0)} hPa` : '-- hPa';
                 metricEls.currentPrecipitation.textContent = precipitation != null ? `${precipitation.toFixed(1)} mm` : '-- mm';
                 metricEls.currentSunshine.textContent = sunshine != null ? `${sunshine.toFixed(0)} min` : '-- min';
                 metricEls.currentGlobalRadiation.textContent = globalRadiation != null ? `${globalRadiation.toFixed(0)} W/m²` : '-- W/m²';

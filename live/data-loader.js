@@ -23,15 +23,15 @@ const METRIC_CONFIG = {
     temperature: { label: 'Temperature', unit: '°C', color: '#ff9800', agg: 'avg' },
     humidity: { label: 'Humidity', unit: '%', color: '#00bcd4', agg: 'avg' },
     dewPoint: { label: 'Dew Point', unit: '°C', color: '#8bc34a', agg: 'avg' },
-    pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#9c27b0', agg: 'avg' },
-    pressureQff: { label: 'Air Pressure QFF', unit: 'hPa', color: '#e91e63', agg: 'avg' },
-    pressureQnh: { label: 'Air Pressure QNH', unit: 'hPa', color: '#673ab7', agg: 'avg' },
+    pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#9c27b0', agg: 'avg', decimals: 0 },
+    pressureQff: { label: 'Air Pressure QFF', unit: 'hPa', color: '#e91e63', agg: 'avg', decimals: 0 },
+    pressureQnh: { label: 'Air Pressure QNH', unit: 'hPa', color: '#673ab7', agg: 'avg', decimals: 0 },
     windAvg: { label: 'Average Wind', unit: 'kph', color: '#0087f2', agg: 'avg', transform: v => Math.round(v * 3.6 * 10) / 10 },
     windGusts: { label: 'Max Wind Gusts', unit: 'kph', color: '#ff6b6b', agg: 'max', transform: v => Math.round(v * 3.6 * 10) / 10 },
-    windDirection: { label: 'Wind Direction', unit: '°', color: '#32cd32', agg: 'avg', yAxisID: 'y1' },
+    windDirection: { label: 'Wind Direction', unit: '°', color: '#32cd32', agg: 'avg', yAxisID: 'y1', decimals: 0 },
     precipitation: { label: 'Precipitation', unit: 'mm', color: '#2196f3', agg: 'sum' },
-    globalRadiation: { label: 'Global Radiation', unit: 'W/m²', color: '#ffeb3b', agg: 'avg' },
-    sunshine: { label: 'Sunshine', unit: 'min', color: '#ffc107', agg: 'sum' }
+    globalRadiation: { label: 'Global Radiation', unit: 'W/m²', color: '#ffeb3b', agg: 'avg', decimals: 0 },
+    sunshine: { label: 'Sunshine', unit: 'min', color: '#ffc107', agg: 'sum', decimals: 0 }
 };
 
 const GROUPS = {
@@ -421,7 +421,8 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
                         const val = dataset.data[dataIndex];
                         const param = dataset.configParam;
                         const config = METRIC_CONFIG[param];
-                        const fmtVal = val != null ? Number(val).toFixed(1) : '--';
+                        const decimals = config.decimals !== undefined ? config.decimals : 1;
+                        const fmtVal = val != null ? Number(val).toFixed(decimals) : '--';
                         msg += `${config.label}: ${fmtVal} ${config.unit}\n`;
                     });
 
@@ -478,10 +479,11 @@ function populateTable(table, data, metricGroup = 'wind') {
             const config = METRIC_CONFIG[param];
             const val = revData[i];
 
+            const decimals = config.decimals !== undefined ? config.decimals : 1;
             const td = document.createElement('td');
             if (val != null) {
-                const fmtVal = Number(val).toFixed(1);
-                td.textContent = `${fmtVal} ${config.unit}`;
+                const fmtVal = Number(val).toFixed(decimals);
+                td.textContent = `${fmtVal}`;
                 alertMsg += `${config.label}: ${fmtVal} ${config.unit}\n`;
             } else {
                 td.textContent = '--';
