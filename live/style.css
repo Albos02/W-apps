@@ -58,7 +58,7 @@
     padding: 0;
 }
 
-* {
+:where(.base-card, .card, .metric) {
     transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 

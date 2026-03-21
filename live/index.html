@@ -204,6 +204,24 @@
             radiation: 'Radiation'
         };
 
+        const metricEls = {
+            windChart: document.getElementById('windChart'),
+            chartTitle: document.getElementById('chart-title'),
+            currentTemp: document.getElementById('current-temp'),
+            trendTemp: document.getElementById('trend-temp'),
+            currentHumidity: document.getElementById('current-humidity'),
+            currentWindGust: document.getElementById('current-wind-gust'),
+            currentPressure: document.getElementById('current-pressure'),
+            currentWindAvg: document.getElementById('current-wind-avg'),
+            currentWindDirection: document.getElementById('current-wind-direction'),
+            currentPressureQff: document.getElementById('current-pressure-qff'),
+            currentPressureQnh: document.getElementById('current-pressure-qnh'),
+            currentPrecipitation: document.getElementById('current-precipitation'),
+            currentSunshine: document.getElementById('current-sunshine'),
+            currentGlobalRadiation: document.getElementById('current-global-radiation'),
+            currentDewPoint: document.getElementById('current-dew-point')
+        };
+
         let stations = [];
         let favorites = new Set();
         let hiddenMetrics = new Set(['pressure', 'pressure-qff', 'pressure-qnh', 'global-radiation', 'dew-point']);
@@ -548,21 +566,21 @@
                         localStorage.removeItem('lastSelectedStation');
                         localStorage.removeItem('lastSelectedStationCode');
                         currentStation = null;
-                        WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'), currentMetricGroup);
+                        WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
                         WindDashboard.populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
-                        document.getElementById('current-temp').textContent = '--°C';
-                        document.getElementById('trend-temp').textContent = '--°C over last hour';
-                        document.getElementById('current-humidity').textContent = '--%';
-                        document.getElementById('current-wind-gust').textContent = '-- kph';
-                        document.getElementById('current-pressure').textContent = '-- hPa';
-                        document.getElementById('current-wind-avg').textContent = '-- kph';
-                        document.getElementById('current-wind-direction').textContent = '--°';
-                        document.getElementById('current-pressure-qff').textContent = '-- hPa';
-                        document.getElementById('current-pressure-qnh').textContent = '-- hPa';
-                        document.getElementById('current-precipitation').textContent = '-- mm';
-                        document.getElementById('current-sunshine').textContent = '-- min';
-                        document.getElementById('current-global-radiation').textContent = '-- W/m²';
-                        document.getElementById('current-dew-point').textContent = '--°C';
+                        metricEls.currentTemp.textContent = '--°C';
+                        metricEls.trendTemp.textContent = '--°C over last hour';
+                        metricEls.currentHumidity.textContent = '--%';
+                        metricEls.currentWindGust.textContent = '-- kph';
+                        metricEls.currentPressure.textContent = '-- hPa';
+                        metricEls.currentWindAvg.textContent = '-- kph';
+                        metricEls.currentWindDirection.textContent = '--°';
+                        metricEls.currentPressureQff.textContent = '-- hPa';
+                        metricEls.currentPressureQnh.textContent = '-- hPa';
+                        metricEls.currentPrecipitation.textContent = '-- mm';
+                        metricEls.currentSunshine.textContent = '-- min';
+                        metricEls.currentGlobalRadiation.textContent = '-- W/m²';
+                        metricEls.currentDewPoint.textContent = '--°C';
                     }
                 }
             }
@@ -969,7 +987,7 @@
                 const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode');
 
                 if (!stationCode) {
-                    WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'), currentMetricGroup);
+                    WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
                     return;
                 }
 
@@ -978,11 +996,10 @@
                     MeteoSwiss.getCurrentWeather(stationCode)
                 ]);
 
-                const chartTitle = document.getElementById('chart-title');
                 const displayName = METRIC_GROUP_DISPLAY_NAMES[currentMetricGroup] || currentMetricGroup;
-                chartTitle.textContent = displayName + ' Graph';
+                metricEls.chartTitle.textContent = displayName + ' Graph';
 
-                WindDashboard.createChart(document.getElementById('windChart').getContext('2d'), chartData, currentMetricGroup);
+                WindDashboard.createChart(metricEls.windChart.getContext('2d'), chartData, currentMetricGroup);
                 WindDashboard.populateTable(document.querySelector('table'), chartData, currentMetricGroup);
 
                 const current = chartData.current || {};
@@ -1001,19 +1018,19 @@
                 const pressureQnh = current.pressureQnh;
                 const windAvg = current.windAvg;
 
-                document.getElementById('current-temp').textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
-                document.getElementById('trend-temp').textContent = '--°C over last hour';
-                document.getElementById('current-humidity').textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
-                document.getElementById('current-wind-gust').textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
-                document.getElementById('current-pressure').textContent = pressure != null ? `${pressure.toFixed(1)} hPa` : '-- hPa';
-                document.getElementById('current-wind-avg').textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
-                document.getElementById('current-wind-direction').textContent = windDirection != null ? `${Math.round(windDirection)}°` : '--°';
-                document.getElementById('current-pressure-qff').textContent = pressureQff != null ? `${pressureQff.toFixed(1)} hPa` : '-- hPa';
-                document.getElementById('current-pressure-qnh').textContent = pressureQnh != null ? `${pressureQnh.toFixed(1)} hPa` : '-- hPa';
-                document.getElementById('current-precipitation').textContent = precipitation != null ? `${precipitation.toFixed(1)} mm` : '-- mm';
-                document.getElementById('current-sunshine').textContent = sunshine != null ? `${sunshine.toFixed(0)} min` : '-- min';
-                document.getElementById('current-global-radiation').textContent = globalRadiation != null ? `${globalRadiation.toFixed(0)} W/m²` : '-- W/m²';
-                document.getElementById('current-dew-point').textContent = dewPoint != null ? `${dewPoint.toFixed(1)}°C` : '--°C';
+                metricEls.currentTemp.textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
+                metricEls.trendTemp.textContent = '--°C over last hour';
+                metricEls.currentHumidity.textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
+                metricEls.currentWindGust.textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
+                metricEls.currentPressure.textContent = pressure != null ? `${pressure.toFixed(1)} hPa` : '-- hPa';
+                metricEls.currentWindAvg.textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
+                metricEls.currentWindDirection.textContent = windDirection != null ? `${Math.round(windDirection)}°` : '--°';
+                metricEls.currentPressureQff.textContent = pressureQff != null ? `${pressureQff.toFixed(1)} hPa` : '-- hPa';
+                metricEls.currentPressureQnh.textContent = pressureQnh != null ? `${pressureQnh.toFixed(1)} hPa` : '-- hPa';
+                metricEls.currentPrecipitation.textContent = precipitation != null ? `${precipitation.toFixed(1)} mm` : '-- mm';
+                metricEls.currentSunshine.textContent = sunshine != null ? `${sunshine.toFixed(0)} min` : '-- min';
+                metricEls.currentGlobalRadiation.textContent = globalRadiation != null ? `${globalRadiation.toFixed(0)} W/m²` : '-- W/m²';
+                metricEls.currentDewPoint.textContent = dewPoint != null ? `${dewPoint.toFixed(1)}°C` : '--°C';
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
             }
