@@ -12,7 +12,7 @@
 <body>
     <header class="navbar">
         <h1 class="brand" style="cursor: pointer;" onclick="window.location.href = '../';">W-Apps</h1>
-        
+
         <nav class="tabs base-card">
             <button class="tab active">3 Hours</button>
             <button class="tab">Day</button>
@@ -36,37 +36,6 @@
             </div>
         </section>
 
-        <!-- <section class="metrics">
-            <h2>Current Weather</h2>
-            <div class="metrics-grid">
-                <article class="base-card card metric">
-                    <h3>Average Wind</h3>
-                    <p class="value">4.3 kph</p>
-                    <p class="trend">−20% over last hour</p>
-                </article>
-                <article class="base-card card metric">
-                    <h3>Max Wind Gusts</h3>
-                    <p class="value">7.2 kph</p>
-                    <p class="trend">−33% over last hour</p>
-                </article>
-                <article class="base-card card metric">
-                    <h3>Temperature</h3>
-                    <p class="value">0.3°C</p>
-                    <p class="trend positive">+1°C over last hour</p>
-                </article>
-                <article class="base-card card metric">
-                    <h3>Humidity</h3>
-                    <p class="value">56.7%</p>
-                    <p class="trend">−2% over last hour</p>
-                </article>
-                <article class="base-card card metric pressure">
-                    <h3>Air Pressure - QFE</h3>
-                    <p class="value">1018.6 hPa</p>
-                    <p class="trend">−10.2 hPa over last hour</p>
-                </article>
-            </div>
-        </section> -->
-
         <section class="metrics">
             <div class="metrics-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h2 style="margin: 0;">Current Weather</h2>
@@ -75,7 +44,7 @@
                 <div class="empty-state">
                     Right-click to add metrics
                 </div>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-avg" style="cursor: pointer;" onclick="handleMetricClick('wind', 'avg')" draggable="true">
+                <article class="base-card card metric spotlight-item active" data-metric-id="wind-avg" style="cursor: pointer;" onclick="handleMetricCardClick('wind-avg')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Average Wind</h3>
@@ -83,7 +52,7 @@
                         <p class="trend" id="trend-wind-avg">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" onclick="handleMetricClick('wind', 'gusts')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" onclick="handleMetricCardClick('wind-gusts')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Max Wind Gusts</h3>
@@ -91,7 +60,7 @@
                         <p class="trend" id="trend-wind-gust">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" onclick="handleMetricClick('wind', 'direction')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" onclick="handleMetricCardClick('wind-direction')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Wind Direction</h3>
@@ -99,7 +68,7 @@
                         <p class="trend" id="trend-wind-direction">--° over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" onclick="handleMetricClick('temperature', 'current')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" onclick="handleMetricCardClick('temperature')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Temperature</h3>
@@ -107,7 +76,7 @@
                         <p class="trend" id="trend-temp">--°C over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" onclick="handleMetricClick('humidity', 'current')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" onclick="handleMetricCardClick('humidity')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Humidity</h3>
@@ -115,7 +84,7 @@
                         <p class="trend" id="trend-humidity">--% over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'current')" draggable="true">
+                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" onclick="handleMetricCardClick('pressure')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Air Pressure - QFE</h3>
@@ -123,7 +92,7 @@
                         <p class="trend" id="trend-pressure">-- hPa over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'qff')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" onclick="handleMetricCardClick('pressure-qff')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Air Pressure - QFF</h3>
@@ -131,7 +100,7 @@
                         <p class="trend" id="trend-pressure-qff">-- hPa over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qnh" style="cursor: pointer;" onclick="handleMetricClick('pressure', 'qnh')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qnh" style="cursor: pointer;" onclick="handleMetricCardClick('pressure-qnh')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Air Pressure - QNH</h3>
@@ -139,7 +108,7 @@
                         <p class="trend" id="trend-pressure-qnh">-- hPa over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="precipitation" style="cursor: pointer;" onclick="handleMetricClick('precipitation', 'current')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="precipitation" style="cursor: pointer;" onclick="handleMetricCardClick('precipitation')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Precipitation</h3>
@@ -147,7 +116,7 @@
                         <p class="trend" id="trend-precipitation">-- mm over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="sunshine" style="cursor: pointer;" onclick="handleMetricClick('sunshine', 'current')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="sunshine" style="cursor: pointer;" onclick="handleMetricCardClick('sunshine')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Sunshine</h3>
@@ -155,7 +124,7 @@
                         <p class="trend" id="trend-sunshine">-- min over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="global-radiation" style="cursor: pointer;" onclick="handleMetricClick('radiation', 'global')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="global-radiation" style="cursor: pointer;" onclick="handleMetricCardClick('global-radiation')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Global Radiation</h3>
@@ -163,7 +132,7 @@
                         <p class="trend" id="trend-global-radiation">-- W/m² over last hour</p>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="dew-point" style="cursor: pointer;" onclick="handleMetricClick('dewpoint', 'current')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="dew-point" style="cursor: pointer;" onclick="handleMetricCardClick('dew-point')" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <h3>Dew Point</h3>
@@ -178,7 +147,7 @@
             <section class="base-card card visualization spotlight-item chart">
                 <div class="spotlight-border"></div>
                 <div class="spotlight-content">
-                    <h2>Wind Graph</h2>
+                    <h2 id="chart-title">Wind Graph</h2>
                     <div class="content">
                         <canvas id="windChart"></canvas>
                     </div>
@@ -209,16 +178,79 @@
     </main>
 
     <script>
-        function handleMetricClick(category, detail) {
-            alert(`Metric card clicked:\nCategory: ${category}\nDetail: ${detail}`);
-            createWindChart();
-        }
+        const METRIC_ID_TO_KEY = {
+            'wind-avg': 'windAvg',
+            'wind-gusts': 'windGusts',
+            'wind-direction': 'windDirection',
+            'temperature': 'temperature',
+            'dew-point': 'dewPoint',
+            'humidity': 'humidity',
+            'pressure': 'pressure',
+            'pressure-qff': 'pressureQff',
+            'pressure-qnh': 'pressureQnh',
+            'precipitation': 'precipitation',
+            'sunshine': 'sunshine',
+            'global-radiation': 'globalRadiation'
+        };
+
+        const METRIC_GROUP_DISPLAY_NAMES = {
+            wind: 'Wind',
+            pressure: 'Pressure',
+            temperature: 'Temperature',
+            dewpoint: 'Dew Point',
+            humidity: 'Humidity',
+            precipitation: 'Precipitation',
+            sunshine: 'Sunshine',
+            radiation: 'Radiation'
+        };
 
         let stations = [];
         let favorites = new Set();
         let hiddenMetrics = new Set(['pressure', 'pressure-qff', 'pressure-qnh', 'global-radiation', 'dew-point']);
+        let currentMetricGroup = localStorage.getItem('currentMetricGroup') || 'wind';
         let currentStation = null;
         let currentTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
+
+        function handleMetricCardClick(metricId) {
+            const metricKey = METRIC_ID_TO_KEY[metricId];
+            if (!metricKey) return;
+
+            const group = WindDashboard.METRIC_TO_GROUP[metricKey];
+            if (!group) return;
+
+            if (currentMetricGroup === group) return;
+
+            currentMetricGroup = group;
+            localStorage.setItem('currentMetricGroup', currentMetricGroup);
+
+            document.querySelectorAll('.metric').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            Object.keys(METRIC_ID_TO_KEY).forEach(id => {
+                const key = METRIC_ID_TO_KEY[id];
+                if (WindDashboard.METRIC_TO_GROUP[key] === group) {
+                    const card = document.querySelector(`.metric[data-metric-id="${id}"]`);
+                    if (card) card.classList.add('active');
+                }
+            });
+
+            updateVisualizations();
+        }
+
+        function restoreActiveMetricCard() {
+            document.querySelectorAll('.metric').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            Object.keys(METRIC_ID_TO_KEY).forEach(id => {
+                const key = METRIC_ID_TO_KEY[id];
+                if (WindDashboard.METRIC_TO_GROUP[key] === currentMetricGroup) {
+                    const card = document.querySelector(`.metric[data-metric-id="${id}"]`);
+                    if (card) card.classList.add('active');
+                }
+            });
+        }
 
         function isFavorited(station) {
             return favorites.has(station);
@@ -249,14 +281,14 @@
                 updateStar(tab);
             });
         }
-        
+
         function updateStar(tab) {
             const star = tab.querySelector('.star');
             const active = tab.classList.contains('active');
             const fav = isFavorited(tab.dataset.station);
-            
+
             star.classList.toggle('is-active', active);
-            
+
             if (active) {
                 star.textContent = fav ? '★' : '☆';
                 star.style.color = fav ? 'gold' : '';
@@ -279,7 +311,7 @@
             getNearest(lat, lon, stations) {
                 const P = Math.PI / 180;
                 return stations.map(s => {
-                    const a = 0.5 - Math.cos((s.lat - lat) * P)/2 + Math.cos(lat * P) * Math.cos(s.lat * P) * (1 - Math.cos((s.lon - lon) * P))/2;
+                    const a = 0.5 - Math.cos((s.lat - lat) * P) / 2 + Math.cos(lat * P) * Math.cos(s.lat * P) * (1 - Math.cos((s.lon - lon) * P)) / 2;
                     return { ...s, isNearby: true, dist: 12742 * Math.asin(Math.sqrt(a)) };
                 }).filter(s => !isNaN(s.dist)).sort((a, b) => a.dist - b.dist).slice(0, 3);
             },
@@ -325,10 +357,10 @@
 
                 const startsWith = stations.filter(s => s.name.toLowerCase().startsWith(q));
 
-                const contains = stations.filter(s => 
+                const contains = stations.filter(s =>
                     s.name.toLowerCase().includes(q) && !s.name.toLowerCase().startsWith(q)
                 );
-                
+
                 let fuzzy1 = [];
                 if (q.length >= 3) {
                     fuzzy1 = stations.filter(s => {
@@ -349,12 +381,9 @@
             }
         };
 
-
-        // Removed showContextMenu and showRestoreMenu, replaced by showUnifiedMenu
-        
         function updateEmptyState() {
             const emptyState = document.querySelector('.empty-state');
-            const totalMetrics = 12; // wind-avg, wind-gusts, temperature, humidity, pressure, wind-direction, pressure-qff, pressure-qnh, precipitation, sunshine, global-radiation, dew-point
+            const totalMetrics = 12;
             if (hiddenMetrics.size === totalMetrics) {
                 emptyState.style.display = 'flex';
             } else {
@@ -365,7 +394,7 @@
         function restoreMetric(metricId) {
             hiddenMetrics.delete(metricId);
             localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
-            
+
             const metricCard = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
             if (metricCard) metricCard.classList.remove('hidden-metric');
             updateEmptyState();
@@ -373,7 +402,6 @@
         }
 
         function showUnifiedMenu(e, targetMetricId = null) {
-            // Remove existing context menu
             const existingMenu = document.querySelector('.context-menu');
             if (existingMenu) existingMenu.remove();
 
@@ -381,31 +409,29 @@
             menu.className = 'context-menu base-card';
             menu.style.position = 'fixed';
 
-            // --- Add Option ---
             const addItem = document.createElement('div');
             addItem.className = 'context-menu-item success';
-            
+
+            const metricNames = {
+                'wind-avg': 'Average Wind',
+                'wind-gusts': 'Max Wind Gusts',
+                'temperature': 'Temperature',
+                'humidity': 'Humidity',
+                'pressure': 'Air Pressure - QFE',
+                'wind-direction': 'Wind Direction',
+                'pressure-qff': 'Air Pressure - QFF',
+                'pressure-qnh': 'Air Pressure - QNH',
+                'precipitation': 'Precipitation',
+                'sunshine': 'Sunshine',
+                'global-radiation': 'Global Radiation',
+                'dew-point': 'Dew Point'
+            };
+
             if (hiddenMetrics.size > 0) {
                 addItem.innerHTML = `<span class="icon">➕</span> Add Metric <span style="margin-left:auto;font-size:10px">▶</span>`;
-                
-                // Submenu container
+
                 const submenu = document.createElement('div');
                 submenu.className = 'context-menu-submenu base-card';
-                
-                const metricNames = {
-                    'wind-avg': 'Average Wind',
-                    'wind-gusts': 'Max Wind Gusts',
-                    'temperature': 'Temperature',
-                    'humidity': 'Humidity',
-                    'pressure': 'Air Pressure - QFE',
-                    'wind-direction': 'Wind Direction',
-                    'pressure-qff': 'Air Pressure - QFF',
-                    'pressure-qnh': 'Air Pressure - QNH',
-                    'precipitation': 'Precipitation',
-                    'sunshine': 'Sunshine',
-                    'global-radiation': 'Global Radiation',
-                    'dew-point': 'Dew Point'
-                };
 
                 hiddenMetrics.forEach(metricId => {
                     const subItem = document.createElement('div');
@@ -418,7 +444,7 @@
                     };
                     submenu.appendChild(subItem);
                 });
-                
+
                 addItem.appendChild(submenu);
             } else {
                 addItem.innerHTML = `<span class="icon">➕</span> Add Metric`;
@@ -426,39 +452,31 @@
             }
             menu.appendChild(addItem);
 
-
-            // --- Separator ---
             const separator = document.createElement('div');
             separator.className = 'context-menu-separator';
             menu.appendChild(separator);
 
-            // --- Delete Option ---
             const deleteItem = document.createElement('div');
             deleteItem.className = 'context-menu-item danger';
-            deleteItem.innerHTML = `<span class="icon">❌</span> ${targetMetricId ? "Delete Metric" : "Delete Metric"}`;
-            
+
             if (targetMetricId) {
-                // Enabled: Delete specific metric
+                deleteItem.innerHTML = `<span class="icon">❌</span> Delete Metric`;
                 deleteItem.onclick = (event) => {
                     event.stopPropagation();
                     deleteMetric(targetMetricId);
                     menu.remove();
                 };
             } else {
-                // Disabled: No target
+                deleteItem.innerHTML = `<span class="icon">❌</span> Delete Metric`;
                 deleteItem.classList.add('disabled');
             }
             menu.appendChild(deleteItem);
 
             document.body.appendChild(menu);
 
-            // Position menu
             let x = e.clientX;
             let y = e.clientY;
-            
             const menuWidth = 180;
-            // Height depends on content but usually safe to guess or let render
-            // Boundary checks
             if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
             const menuHeight = menu.offsetHeight || 100;
             if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 10;
@@ -466,7 +484,6 @@
             menu.style.left = `${x}px`;
             menu.style.top = `${y}px`;
 
-            // Close logic
             const closeMenu = (event) => {
                 if (!menu.contains(event.target)) {
                     menu.remove();
@@ -477,7 +494,6 @@
                 }
             };
 
-            // Delay adding listeners to avoid immediate close
             requestAnimationFrame(() => {
                 document.addEventListener('click', closeMenu);
                 window.addEventListener('resize', closeMenu);
@@ -489,7 +505,7 @@
         function deleteMetric(metricId) {
             hiddenMetrics.add(metricId);
             localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
-            
+
             const metricCard = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
             if (metricCard) metricCard.classList.add('hidden-metric');
             updateEmptyState();
@@ -497,51 +513,43 @@
         }
 
         function setupMetricContextMenus() {
-            // Attach to the main metrics container
             const metricsSection = document.querySelector('.metrics');
             if (metricsSection) {
                 metricsSection.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    
-                    // Check if clicked target is a metric card or inside one
+
                     const card = e.target.closest('.metric[data-metric-id]');
-                    
+
                     if (card) {
                         showUnifiedMenu(e, card.dataset.metricId);
                     } else {
-                        // Clicked on container (title or empty space)
                         showUnifiedMenu(e, null);
                     }
                 });
             }
         }
 
-
         function deleteStation(station) {
-            // Remove from favorites
             if (favorites.has(station.name)) {
                 favorites.delete(station.name);
                 localStorage.setItem('favoriteStations', JSON.stringify([...favorites]));
             }
 
-            // Remove tab from DOM
             const tab = document.querySelector(`.controls .tabs .tab[data-station="${station.name}"]`);
             if (tab) {
                 const wasActive = tab.classList.contains('active');
                 tab.remove();
 
-                // If active, switch to another tab
                 if (wasActive) {
                     const remainingTabs = document.querySelectorAll('.controls .tabs .tab');
                     if (remainingTabs.length > 0) {
                         remainingTabs[0].click();
                     } else {
-                        // No tabs left - reset to empty chart
                         localStorage.removeItem('lastSelectedStation');
                         localStorage.removeItem('lastSelectedStationCode');
                         currentStation = null;
-                        WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'));
-                        WindDashboard.populateTable(document.querySelector('table tbody'), { labels: [], datasets: [] });
+                        WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'), currentMetricGroup);
+                        WindDashboard.populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
                         document.getElementById('current-temp').textContent = '--°C';
                         document.getElementById('trend-temp').textContent = '--°C over last hour';
                         document.getElementById('current-humidity').textContent = '--%';
@@ -575,13 +583,13 @@
                 }
 
                 currentStation = station;
-                
+
                 if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
                 localStorage.setItem('lastSelectedStation', station.name);
                 localStorage.setItem('lastSelectedStationCode', station.code);
                 console.log('Selected tab:', station.name);
-                
-                createWindChart();
+
+                updateVisualizations();
             },
 
             createTabElement(station) {
@@ -590,12 +598,12 @@
                 btn.textContent = station.name;
                 btn.dataset.station = station.name;
                 btn.draggable = true;
-                
+
                 btn.addEventListener('dragstart', (e) => {
                     btn.classList.add('dragging');
-                    btn.click(); // Automatically select when dragging
+                    btn.click();
                 });
-                
+
                 btn.addEventListener('dragend', () => {
                     btn.classList.remove('dragging');
                     if (typeof updateFavoritesOrder === 'function') updateFavoritesOrder();
@@ -605,23 +613,17 @@
                     this.deactivateAll();
                     btn.classList.add('active');
                     if (typeof window.updateActiveTab === 'function') window.updateActiveTab(this.container);
-                    
+
                     currentStation = station;
                     localStorage.setItem('lastSelectedStation', station.name);
                     localStorage.setItem('lastSelectedStationCode', station.code);
                     console.log('Selected tab:', station.name);
-                    
-                    createWindChart();
+
+                    updateVisualizations();
                 };
 
                 btn.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    // Keep using the unified menu if desired, but stations use simple delete for now as per previous reqs.
-                    // The user prompt was specific to "metric cards".
-                    // I'll keep the station deletion as is, but it relies on showContextMenu which I just removed.
-                    // I need to either restore showContextMenu or adapt showUnifiedMenu for stations.
-                    // Given the user only asked to change metric cards, I should restore showContextMenu for stations 
-                    // OR make a specific simple menu for stations.
                     showStationContextMenu(e, station);
                 });
                 return btn;
@@ -707,14 +709,14 @@
         };
 
         function showStationContextMenu(e, station) {
-             const menu = document.createElement('div');
+            const menu = document.createElement('div');
             menu.className = 'context-menu base-card';
             menu.style.position = 'fixed';
-            
+
             const deleteItem = document.createElement('div');
             deleteItem.className = 'context-menu-item danger';
             deleteItem.innerHTML = `<span class="icon">❌</span> Delete Station`;
-            
+
             deleteItem.onclick = (event) => {
                 event.stopPropagation();
                 deleteStation(station);
@@ -724,7 +726,6 @@
             menu.appendChild(deleteItem);
             document.body.appendChild(menu);
 
-            // Position
             let x = e.clientX;
             let y = e.clientY;
             if (x + 180 > window.innerWidth) x = window.innerWidth - 180 - 10;
@@ -819,8 +820,8 @@
                         try {
                             let lat, lon, name;
                             const [omRes, nomRes] = await Promise.all([
-                                fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&format=json`).then(r=>r.json()).catch(()=>({})),
-                                fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=ch&format=json&limit=1`).then(r=>r.json()).catch(()=>[])
+                                fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&format=json`).then(r => r.json()).catch(() => ({})),
+                                fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=ch&format=json&limit=1`).then(r => r.json()).catch(() => [])
                             ]);
 
                             if (omRes.results?.[0]) {
@@ -828,18 +829,18 @@
                             } else if (nomRes?.[0]) {
                                 ({ lat, lon, name } = nomRes[0]);
                             }
-                            
+
                             const fetchQuery = input.value.substring(0, input.selectionStart || input.value.length);
                             if (lat && lon && fetchQuery.toLowerCase() === query.toLowerCase()) {
                                 const nearby = SearchEngine.getNearest(lat, lon, stations)
                                     .filter(s => !currentMatches.some(m => m.name === s.name))
                                     .map(s => ({ ...s, desc: `(near ${name}, ${s.dist.toFixed(1)}km)` }));
-                                
+
                                 if (nearby.length && document.activeElement === input) {
                                     renderDropdown(currentMatches = [...currentMatches, ...nearby]);
                                 }
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 }, 300);
             });
@@ -848,7 +849,7 @@
                 if (e.key === 'Enter') {
                     const finalValue = input.value.toLowerCase();
                     const selectedStation = stations.find(s => s.name.toLowerCase() === finalValue);
-                    
+
                     if (selectedStation) {
                         TabManager.addTab(selectedStation);
                         clearSearch();
@@ -878,7 +879,7 @@
 
         function setupDragAndDrop() {
             const container = document.querySelector('.controls .tabs');
-            
+
             container.addEventListener('dragover', e => {
                 e.preventDefault();
                 const draggable = document.querySelector('.dragging');
@@ -927,15 +928,14 @@
                     }
 
                     if (tabGroupSelector === '.navbar .tabs') {
-                        // First strip "Last " from all tabs, then add to selected
-                        const allTabs = tabGroup.querySelectorAll('.tab');
-                        allTabs.forEach(t => {
+                        const allTabsNav = tabGroup.querySelectorAll('.tab');
+                        allTabsNav.forEach(t => {
                             t.textContent = t.textContent.trim().replace(/^Last\s+/, '');
                         });
                         tab.textContent = 'Last ' + tab.textContent.trim();
                         currentTimeframe = tab.textContent.trim();
                         localStorage.setItem('lastSelectedTimeframe', currentTimeframe);
-                        createWindChart();
+                        updateVisualizations();
                     }
 
                     console.log('Selected tab:', tab.textContent.trim());
@@ -960,32 +960,33 @@
             }
         }
 
-        async function createWindChart() {
-            // Don't load data if no station is selected
+        async function updateVisualizations() {
             if (!currentStation && !localStorage.getItem('lastSelectedStation')) {
                 return;
             }
-            
+
             try {
                 const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode');
-                
-                // If still no station, show empty chart
+
                 if (!stationCode) {
-                    WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'));
+                    WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'), currentMetricGroup);
                     return;
                 }
-                
+
                 const [chartData, realtimeData] = await Promise.all([
-                    WindDashboard.loadData(stationCode, currentTimeframe),
+                    WindDashboard.loadData(stationCode, currentTimeframe, currentMetricGroup),
                     MeteoSwiss.getCurrentWeather(stationCode)
                 ]);
-                
-                WindDashboard.createChart(document.getElementById('windChart').getContext('2d'), chartData);
-                WindDashboard.populateTable(document.querySelector('table tbody'), chartData);
-                
+
+                const chartTitle = document.getElementById('chart-title');
+                const displayName = METRIC_GROUP_DISPLAY_NAMES[currentMetricGroup] || currentMetricGroup;
+                chartTitle.textContent = displayName + ' Graph';
+
+                WindDashboard.createChart(document.getElementById('windChart').getContext('2d'), chartData, currentMetricGroup);
+                WindDashboard.populateTable(document.querySelector('table'), chartData, currentMetricGroup);
+
                 const current = chartData.current || {};
-                
-                // Prioritize real-time JSON for these metrics
+
                 const temp = (realtimeData && realtimeData.Temperature !== null) ? realtimeData.Temperature : current.temperature;
                 const humidity = (realtimeData && realtimeData.Humidity !== null) ? realtimeData.Humidity : current.humidity;
                 const windGust = (realtimeData && realtimeData.Wind_Gusts !== null) ? realtimeData.Wind_Gusts : current.windGusts;
@@ -994,16 +995,15 @@
                 const globalRadiation = (realtimeData && realtimeData.Global_Radiation !== null) ? realtimeData.Global_Radiation : null;
                 const dewPoint = (realtimeData && realtimeData.Dew_Point !== null) ? realtimeData.Dew_Point : null;
                 const windDirection = (realtimeData && realtimeData.Wind_Direction !== null) ? realtimeData.Wind_Direction : current.windDirection;
-                
-                // These are only in CSV
+
                 const pressure = current.pressure;
                 const pressureQff = current.pressureQff;
                 const pressureQnh = current.pressureQnh;
                 const windAvg = current.windAvg;
 
-                    document.getElementById('current-temp').textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
-                    document.getElementById('trend-temp').textContent = '--°C over last hour';
-                    document.getElementById('current-humidity').textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
+                document.getElementById('current-temp').textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
+                document.getElementById('trend-temp').textContent = '--°C over last hour';
+                document.getElementById('current-humidity').textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
                 document.getElementById('current-wind-gust').textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
                 document.getElementById('current-pressure').textContent = pressure != null ? `${pressure.toFixed(1)} hPa` : '-- hPa';
                 document.getElementById('current-wind-avg').textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
@@ -1019,7 +1019,7 @@
             }
         }
 
-        function createSpotlight(){
+        function createSpotlight() {
             const containers = document.getElementsByClassName("spotlight-container");
             for (const container of containers) {
                 container.onmousemove = e => {
@@ -1027,26 +1027,25 @@
                     let maxWidth = 0;
                     const rects = [];
 
-                    for(const item of items){
+                    for (const item of items) {
                         const rect = item.getBoundingClientRect();
                         maxWidth = Math.max(maxWidth, rect.width);
-                        rects.push({item, rect});
+                        rects.push({ item, rect });
                     }
 
-                    for(const {item, rect} of rects){
-                        const x = e.clientX - rect.left,
-                            y = e.clientY - rect.top;
+                    for (const { item, rect } of rects) {
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
 
                         item.style.setProperty('--mouse-x', `${x}px`);
                         item.style.setProperty('--mouse-y', `${y}px`);
-                        
-                        // Only set dynamic radius for visualization items (graph and raw data)
+
                         if (item.classList.contains('visualization')) {
                             item.style.setProperty('--spotlight-radius', `${maxWidth * 2}px`);
                             item.style.setProperty('--spotlight-border-radius', `${maxWidth * 1.5}px`);
                         }
                     }
-                }
+                };
             }
         }
 
@@ -1073,42 +1072,37 @@
 
             const lastSelectedName = localStorage.getItem('lastSelectedStation');
 
-let finalStationToLoad = null;
+            let finalStationToLoad = null;
 
-            // 1. Restore favorites, create tabs, but DO NOT load data yet.
             if (favorites.size > 0 && stations.length > 0) {
                 favorites.forEach(stationName => {
                     const station = stations.find(s => s.name === stationName);
                     if (station) {
-                        // Create tab if it doesn't exist (to preserve ordering from favorites)
                         const existingTab = document.querySelector(`.controls .tabs .tab[data-station="${station.name}"]`);
                         if (!existingTab) {
                             const newTab = TabManager.createTabElement(station);
                             document.querySelector('.controls .tabs').appendChild(newTab);
                         }
-                        // Keep track of the station, the last one processed will be the initial fallback
-                        finalStationToLoad = station; 
+                        finalStationToLoad = station;
                     }
                 });
             }
 
-            // 2. Determine the *actual* station to select: prioritize last explicitly selected one.
             if (lastSelectedName && stations.length > 0) {
                 const station = stations.find(s => s.name === lastSelectedName);
                 if (station) {
-                    finalStationToLoad = station; // This overrides the last favorite in the loop if lastSelectedName is set
+                    finalStationToLoad = station;
                 }
             }
 
-            // 3. Apply the final selection state once, which also updates tabs/stars/currentStation/localStorage
             if (finalStationToLoad) {
-                // Use TabManager.addTab ONCE to set the official current state and activate the tab visuals
                 TabManager.addTab(finalStationToLoad);
             }
-            
+
+            restoreActiveMetricCard();
+
             setupTabs('.navbar .tabs');
-            
-            // Restore saved timeframe tab
+
             const navbarTabs = document.querySelector('.navbar .tabs');
             const savedTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
             const baseTimeframe = savedTimeframe.replace(/^Last\s+/, '');
@@ -1121,7 +1115,7 @@ let finalStationToLoad = null;
                     tab.classList.remove('active');
                 }
             });
-            
+
             setupTabs('.controls .tabs');
             updateActiveTab(document.querySelector('.controls .tabs'));
 
@@ -1130,12 +1124,10 @@ let finalStationToLoad = null;
             setupNavbarActions();
             createSpotlight();
 
-            // Initialize empty chart - only load data if a station is selected
-            WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'));
-            
-            // Load data only ONCE based on the finalized state set by TabManager.addTab(finalStationToLoad)
-            if (currentStation) { 
-                createWindChart();
+            WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'), currentMetricGroup);
+
+            if (currentStation) {
+                updateVisualizations();
             }
 
             MetricCardDragManager.init();
@@ -1150,7 +1142,7 @@ let finalStationToLoad = null;
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
+
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
