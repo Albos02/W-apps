@@ -795,8 +795,7 @@
                 matches.forEach(station => {
                     const li = document.createElement('li');
                     li.className = 'search-dropdown-item';
-                    const codeLabel = station.code ? `<span style="opacity:0.6;font-size:0.85em;margin-left:6px;">(${station.code})</span>` : '';
-                    li.innerHTML = station.isNearby ? `${station.name}${codeLabel} <span style="opacity:0.6;font-size:0.85em;">${station.desc}</span>` : `${station.name}${codeLabel}`;
+                    li.innerHTML = station.isNearby ? `${station.name} <span style="opacity:0.6;font-size:0.85em;">${station.desc}</span>` : station.name;
                     li.onmousedown = (e) => {
                         e.preventDefault();
                         TabManager.addTab(station);
