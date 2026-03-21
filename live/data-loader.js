@@ -20,18 +20,19 @@ const COLUMN_INDICES = {
 };
 
 const METRIC_CONFIG = {
-    temperature: { label: 'Temperature', unit: '°C', color: '#ff9800', agg: 'avg' },
-    humidity: { label: 'Humidity', unit: '%', color: '#00bcd4', agg: 'avg' },
-    dewPoint: { label: 'Dew Point', unit: '°C', color: '#8bc34a', agg: 'avg' },
-    pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#9c27b0', agg: 'avg', decimals: 0 },
-    pressureQff: { label: 'Air Pressure QFF', unit: 'hPa', color: '#e91e63', agg: 'avg', decimals: 0 },
-    pressureQnh: { label: 'Air Pressure QNH', unit: 'hPa', color: '#673ab7', agg: 'avg', decimals: 0 },
-    windAvg: { label: 'Average Wind', unit: 'kph', color: '#0087f2', agg: 'avg', transform: v => Math.round(v * 3.6 * 10) / 10 },
-    windGusts: { label: 'Max Wind Gusts', unit: 'kph', color: '#ff6b6b', agg: 'max', transform: v => Math.round(v * 3.6 * 10) / 10 },
-    windDirection: { label: 'Wind Direction', unit: '°', color: '#32cd32', agg: 'avg', yAxisID: 'y1', decimals: 0 },
-    precipitation: { label: 'Precipitation', unit: 'mm', color: '#2196f3', agg: 'sum' },
-    globalRadiation: { label: 'Global Radiation', unit: 'W/m²', color: '#ffeb3b', agg: 'avg', decimals: 0 },
-    sunshine: { label: 'Sunshine', unit: 'min', color: '#ffc107', agg: 'sum', decimals: 0 }
+    temperature: { label: 'Temperature', unit: '°C', color: '#E24B4A', agg: 'avg' },
+    apparentTemp: { label: 'Apparent Temparature', unit: '°C', color: '#F09595', agg: 'avg'}, // Maybe for later
+    dewPoint: { label: 'Dew Point', unit: '°C', color: '#639922', agg: 'avg' },
+    humidity: { label: 'Humidity', unit: '%', color: '#0097A7', agg: 'avg' },
+    pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#33cca6', agg: 'avg', decimals: 0 },
+    pressureQff: { label: 'Air Pressure QFF', unit: 'hPa', color: '#00bfff', agg: 'avg', decimals: 0 },
+    pressureQnh: { label: 'Air Pressure QNH', unit: 'hPa', color: '#19e6e6', agg: 'avg', decimals: 0 },
+    windAvg: { label: 'Average Wind', unit: 'kph', color: '#ff742e', agg: 'avg', transform: v => Math.round(v * 3.6 * 10) / 10 },
+    windGusts: { label: 'Max Wind Gusts', unit: 'kph', color: '#c74f05', agg: 'max', transform: v => Math.round(v * 3.6 * 10) / 10 },
+    windDirection: { label: 'Wind Direction', unit: '°', color: '#a5a49f', agg: 'avg', yAxisID: 'y1', decimals: 0 },
+    precipitation: { label: 'Precipitation', unit: 'mm', color: '#0f4a85', agg: 'sum' },
+    globalRadiation: { label: 'Global Radiation', unit: 'W/m²', color: '#c38022', agg: 'avg', decimals: 0 },
+    sunshine: { label: 'Sunshine Duration', unit: 'min', color: '#ffd51a', agg: 'sum', decimals: 0 },
 };
 
 const GROUPS = {
