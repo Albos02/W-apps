@@ -373,16 +373,23 @@
                 const q = query.toLowerCase().trim();
                 if (q.length < 1) return [];
 
-                const startsWith = stations.filter(s => s.name.toLowerCase().startsWith(q));
+                const exactCode = stations.filter(s => s.code && s.code.toLowerCase() === q);
+
+                const startsWith = stations.filter(s => 
+                    (s.name.toLowerCase().startsWith(q) || (s.code && s.code.toLowerCase().startsWith(q))) &&
+                    !exactCode.some(m => m.name === s.name)
+                );
 
                 const contains = stations.filter(s =>
-                    s.name.toLowerCase().includes(q) && !s.name.toLowerCase().startsWith(q)
+                    (s.name.toLowerCase().includes(q) || (s.code && s.code.toLowerCase().includes(q))) && 
+                    !exactCode.some(m => m.name === s.name) &&
+                    !startsWith.some(m => m.name === s.name)
                 );
 
                 let fuzzy1 = [];
                 if (q.length >= 3) {
                     fuzzy1 = stations.filter(s => {
-                        const alreadyMatched = [...startsWith, ...contains].some(m => m.name === s.name);
+                        const alreadyMatched = [...exactCode, ...startsWith, ...contains].some(m => m.name === s.name);
                         return !alreadyMatched && this.isFuzzyMatch(q, s.name, 1);
                     });
                 }
@@ -390,12 +397,12 @@
                 let fuzzy2 = [];
                 if (q.length >= 5) {
                     fuzzy2 = stations.filter(s => {
-                        const alreadyMatched = [...startsWith, ...contains, ...fuzzy1].some(m => m.name === s.name);
+                        const alreadyMatched = [...exactCode, ...startsWith, ...contains, ...fuzzy1].some(m => m.name === s.name);
                         return !alreadyMatched && this.isFuzzyMatch(q, s.name, 2);
                     });
                 }
 
-                return [...startsWith, ...contains, ...fuzzy1, ...fuzzy2];
+                return [...exactCode, ...startsWith, ...contains, ...fuzzy1, ...fuzzy2];
             }
         };
 
@@ -788,7 +795,8 @@
                 matches.forEach(station => {
                     const li = document.createElement('li');
                     li.className = 'search-dropdown-item';
-                    li.innerHTML = station.isNearby ? `${station.name} <span style="opacity:0.6;font-size:0.85em;">${station.desc}</span>` : station.name;
+                    const codeLabel = station.code ? `<span style="opacity:0.6;font-size:0.85em;margin-left:6px;">(${station.code})</span>` : '';
+                    li.innerHTML = station.isNearby ? `${station.name}${codeLabel} <span style="opacity:0.6;font-size:0.85em;">${station.desc}</span>` : `${station.name}${codeLabel}`;
                     li.onmousedown = (e) => {
                         e.preventDefault();
                         TabManager.addTab(station);
