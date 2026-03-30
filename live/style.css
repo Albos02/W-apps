@@ -675,3 +675,28 @@ div.search input::-webkit-search-cancel-button{
 :root:not([data-theme="dark"]) .metric.active > .spotlight-border {
     display: none;
 }
+
+.toast {
+    position: fixed;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 16px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    min-width: 75px;
+    text-align: center;
+    border: 1px solid var(--active-color);
+    box-shadow: var(--shadow);
+}
+
+.toast.show {
+    opacity: 1;
+    pointer-events: all;
+}

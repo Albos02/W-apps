@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="meteoswiss.js" defer></script>
     <script src="data-loader.js" defer></script>
+    <script src="utils.js" defer></script>
 </head>
 <body>
     <header class="navbar">
@@ -346,6 +347,7 @@
                 }));
             } catch (error) {
                 console.error('Error loading stations:', error);
+                toast('Unable to connect. Please check your internet.');
             }
         }
 
@@ -911,7 +913,7 @@
                                     renderDropdown(currentMatches = [...currentMatches, ...nearby]);
                                 }
                             }
-                        } catch (e) { }
+                        } catch (e) { toast('Unable to connect. Please check your internet.'); }
                         apiPending = false;
                         if (input.value.trim().length > 0) renderDropdown(currentMatches);
                     }

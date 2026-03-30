@@ -332,6 +332,7 @@ async function loadData(stationCode = 'BOU', timeframe = 'Hourly', metricGroup =
             dataCache.set(rawCacheKey, rawRows);
         } catch (error) {
             console.error(`Error loading ${stationCode} data:`, error);
+            if (window.toast) window.toast('Unable to connect. Please check your internet.');
             throw error;
         }
     } else if (rawRows instanceof Promise) {
