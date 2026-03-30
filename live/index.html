@@ -809,10 +809,29 @@
 
             let currentMatches = [];
 
+            let apiPending = false;
+
             const renderDropdown = (matches) => {
                 dropdown.innerHTML = '';
-                if (matches.length === 0) {
-                    dropdown.style.display = 'none';
+                const query = input.value.trim();
+                if (matches.length === 0 && query.length > 0) {
+                    if (apiPending) {
+                        const li = document.createElement('li');
+                        li.className = 'search-dropdown-item';
+                        li.style.opacity = '0.5';
+                        li.textContent = 'Searching...';
+                        li.style.pointerEvents = 'none';
+                        dropdown.appendChild(li);
+                        dropdown.style.display = 'block';
+                    } else {
+                        const li = document.createElement('li');
+                        li.className = 'search-dropdown-item';
+                        li.style.opacity = '0.5';
+                        li.textContent = 'No results found';
+                        li.style.pointerEvents = 'none';
+                        dropdown.appendChild(li);
+                        dropdown.style.display = 'block';
+                    }
                     return;
                 }
 
@@ -854,6 +873,9 @@
                 const isDelete = e.inputType && e.inputType.includes('delete');
 
                 currentMatches = SearchEngine.getMatches(query, stations);
+                if (currentMatches.length === 0 && query.length > 1) {
+                    apiPending = true;
+                }
                 renderDropdown(currentMatches);
 
                 if (!isDelete && currentMatches.length > 0) {
@@ -890,6 +912,8 @@
                                 }
                             }
                         } catch (e) { }
+                        apiPending = false;
+                        if (input.value.trim().length > 0) renderDropdown(currentMatches);
                     }
                 }, 300);
             });
