@@ -501,12 +501,6 @@ div.search input::-webkit-search-cancel-button{
     }
 }
 
-@container (max-width: calc((200px + 8px) * 5 - 8px)) {
-    .card.pressure {
-        display: none;
-    }
-}
-
 @media (min-width: 1100px) {
     html,
     body {
