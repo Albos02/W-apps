@@ -1040,56 +1040,67 @@
                 return;
             }
 
-            try {
-                const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode');
+            const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode');
 
-                if (!stationCode) {
-                    WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
-                    return;
-                }
+            if (!stationCode) {
+                WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
+                return;
+            }
 
-                const [chartData, realtimeData] = await Promise.all([
-                    WindDashboard.loadData(stationCode, currentTimeframe, currentMetricGroup),
-                    MeteoSwiss.getCurrentWeather(stationCode)
-                ]);
+            const results = await Promise.allSettled([
+                WindDashboard.loadData(stationCode, currentTimeframe, currentMetricGroup),
+                MeteoSwiss.getCurrentWeather(stationCode)
+            ]);
 
-                const displayName = METRIC_GROUP_DISPLAY_NAMES[currentMetricGroup] || currentMetricGroup;
-                metricEls.chartTitle.textContent = displayName + ' Graph';
+            const chartData = results[0].status === 'fulfilled' ? results[0].value : null;
+            const realtimeData = results[1].status === 'fulfilled' ? results[1].value : null;
 
+            if (results[0].status === 'rejected') console.error('Chart data error:', results[0].reason);
+            if (results[1].status === 'rejected') console.error('Realtime data error:', results[1].reason);
+
+            const displayName = METRIC_GROUP_DISPLAY_NAMES[currentMetricGroup] || currentMetricGroup;
+            metricEls.chartTitle.textContent = displayName + ' Graph';
+
+            if (chartData) {
                 WindDashboard.createChart(metricEls.windChart.getContext('2d'), chartData, currentMetricGroup);
                 WindDashboard.populateTable(document.querySelector('table'), chartData, currentMetricGroup);
+            } else {
+                WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
+                WindDashboard.populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
+            }
 
-                const current = chartData.current || {};
+            const current = chartData?.current || {};
 
-                const temp = (realtimeData && realtimeData.Temperature !== null) ? realtimeData.Temperature : current.temperature;
-                const humidity = (realtimeData && realtimeData.Humidity !== null) ? realtimeData.Humidity : current.humidity;
-                const windGust = (realtimeData && realtimeData.Wind_Gusts !== null) ? realtimeData.Wind_Gusts : current.windGusts;
-                const precipitation = (realtimeData && realtimeData.Precipitation !== null) ? realtimeData.Precipitation : null;
-                const sunshine = (realtimeData && realtimeData.Sunshine !== null) ? realtimeData.Sunshine : null;
-                const globalRadiation = (realtimeData && realtimeData.Global_Radiation !== null) ? realtimeData.Global_Radiation : null;
-                const dewPoint = (realtimeData && realtimeData.Dew_Point !== null) ? realtimeData.Dew_Point : null;
-                const windDirection = (realtimeData && realtimeData.Wind_Direction !== null) ? realtimeData.Wind_Direction : current.windDirection;
+            const temp = (realtimeData && realtimeData.Temperature !== null) ? realtimeData.Temperature : ((current.temperature !== null) ? current.temperature : null);
+            const humidity = (realtimeData && realtimeData.Humidity !== null) ? realtimeData.Humidity : ((current.humidity !== null) ? current.humidity : null);
+            const windGust = (realtimeData && realtimeData.Wind_Gusts !== null) ? realtimeData.Wind_Gusts : ((current.windGusts !== null) ? current.windGusts : null);
+            const precipitation = (realtimeData && realtimeData.Precipitation !== null) ? realtimeData.Precipitation : ((current.precipitation !== null) ? current.precipitation : null);
+            const sunshine = (realtimeData && realtimeData.Sunshine !== null) ? realtimeData.Sunshine : ((current.sunshine !== null) ? current.sunshine : null);
+            const globalRadiation = (realtimeData && realtimeData.Global_Radiation !== null) ? realtimeData.Global_Radiation : ((current.globalRadiation !== null) ? current.globalRadiation : null);
+            const dewPoint = (realtimeData && realtimeData.Dew_Point !== null) ? realtimeData.Dew_Point : ((current.dewPoint !== null) ? current.dewPoint : null);
+            const windDirection = (realtimeData && realtimeData.Wind_Direction !== null) ? realtimeData.Wind_Direction : ((current.windDirection !== null) ? current.windDirection : null);
 
-                const pressure = current.pressure;
-                const pressureQff = current.pressureQff;
-                const pressureQnh = current.pressureQnh;
-                const windAvg = current.windAvg;
+            const pressure = current.pressure;
+            const pressureQff = current.pressureQff;
+            const pressureQnh = current.pressureQnh;
+            const windAvg = current.windAvg;
 
-                metricEls.currentTemp.textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
-                metricEls.trendTemp.textContent = '--°C over last hour';
-                metricEls.currentHumidity.textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
-                metricEls.currentWindGust.textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
-                metricEls.currentPressure.textContent = pressure != null ? `${pressure.toFixed(0)} hPa` : '-- hPa';
-                metricEls.currentWindAvg.textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
-                metricEls.currentWindDirection.textContent = windDirection != null ? `${Math.round(windDirection)}°` : '--°';
-                metricEls.currentPressureQff.textContent = pressureQff != null ? `${pressureQff.toFixed(0)} hPa` : '-- hPa';
-                metricEls.currentPressureQnh.textContent = pressureQnh != null ? `${pressureQnh.toFixed(0)} hPa` : '-- hPa';
-                metricEls.currentPrecipitation.textContent = precipitation != null ? `${precipitation.toFixed(1)} mm` : '-- mm';
-                metricEls.currentSunshine.textContent = sunshine != null ? `${sunshine.toFixed(0)} min` : '-- min';
-                metricEls.currentGlobalRadiation.textContent = globalRadiation != null ? `${globalRadiation.toFixed(0)} W/m²` : '-- W/m²';
-                metricEls.currentDewPoint.textContent = dewPoint != null ? `${dewPoint.toFixed(1)}°C` : '--°C';
-            } catch (error) {
-                console.error('Error initializing dashboard:', error);
+            metricEls.currentTemp.textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
+            metricEls.trendTemp.textContent = '--°C over last hour';
+            metricEls.currentHumidity.textContent = humidity != null ? `${humidity.toFixed(1)}%` : '--%';
+            metricEls.currentWindGust.textContent = windGust != null ? `${windGust.toFixed(1)} kph` : '-- kph';
+            metricEls.currentPressure.textContent = pressure != null ? `${pressure.toFixed(0)} hPa` : '-- hPa';
+            metricEls.currentWindAvg.textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
+            metricEls.currentWindDirection.textContent = windDirection != null ? `${Math.round(windDirection)}°` : '--°';
+            metricEls.currentPressureQff.textContent = pressureQff != null ? `${pressureQff.toFixed(0)} hPa` : '-- hPa';
+            metricEls.currentPressureQnh.textContent = pressureQnh != null ? `${pressureQnh.toFixed(0)} hPa` : '-- hPa';
+            metricEls.currentPrecipitation.textContent = precipitation != null ? `${precipitation.toFixed(1)} mm` : '-- mm';
+            metricEls.currentSunshine.textContent = sunshine != null ? `${sunshine.toFixed(0)} min` : '-- min';
+            metricEls.currentGlobalRadiation.textContent = globalRadiation != null ? `${globalRadiation.toFixed(0)} W/m²` : '-- W/m²';
+            metricEls.currentDewPoint.textContent = dewPoint != null ? `${dewPoint.toFixed(1)}°C` : '--°C';
+
+            if (results[0].status === 'rejected' || results[1].status === 'rejected') {
+                if (window.toast) window.toast('Some data unavailable. Using cached/fallback values.');
             }
         }
 

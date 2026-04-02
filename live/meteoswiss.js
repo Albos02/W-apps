@@ -10,6 +10,20 @@ const REALTIME_ENDPOINTS = {
     dewPoint: 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-taupunkt-10min/ch.meteoschweiz.messwerte-taupunkt-10min_en.json'
 };
 
+const CACHE_TTL = 10 * 60 * 1000;
+const MAX_CACHE_SIZE = 20;
+const realtimeCache = new Map();
+
+function pruneCache() {
+    if (realtimeCache.size < MAX_CACHE_SIZE) return;
+    
+    const entries = [...realtimeCache.entries()];
+    entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+    
+    const toRemove = entries.slice(0, Math.floor(MAX_CACHE_SIZE / 2));
+    toRemove.forEach(([key]) => realtimeCache.delete(key));
+}
+
 const COLUMN_MAPPING = {
     tre200s0: { label: 'Temperature', unit: '°C' },
     tre200h0: { label: 'Temperature', unit: '°C' },
@@ -346,8 +360,24 @@ function transformRealtimeData(realtimeData) {
 }
 
 async function getCurrentWeather(stationId) {
+    const cacheKey = stationId;
+    const cached = realtimeCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+    }
+    
+    pruneCache();
+    
     const realtimeData = await fetchRealtimeData(stationId);
-    return transformRealtimeData(realtimeData);
+    const result = transformRealtimeData(realtimeData);
+    
+    realtimeCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: result
+    });
+    
+    return result;
 }
 
 window.MeteoSwiss = {
