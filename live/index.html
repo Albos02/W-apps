@@ -447,7 +447,10 @@
             localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
 
             const metricCard = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
-            if (metricCard) metricCard.classList.remove('hidden-metric');
+            if (metricCard) {
+                metricCard.classList.remove('hidden-metric');
+                MetricCardDragManager.container.appendChild(metricCard);
+            }
             updateEmptyState();
             MetricCardDragManager.saveOrder();
         }
