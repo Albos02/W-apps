@@ -24,7 +24,7 @@ const METRIC_CONFIG = {
     apparentTemp: { label: 'Apparent Temparature', unit: '°C', color: '#F09595', agg: 'avg'}, // Maybe for later
     dewPoint: { label: 'Dew Point', unit: '°C', color: '#639922', agg: 'avg' },
     humidity: { label: 'Humidity', unit: '%', color: '#0097A7', agg: 'avg' },
-    pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#33cca6', agg: 'avg', decimals: 0 },
+    pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#33cca6', agg: 'avg', yAxisID: 'y1', decimals: 0 },
     pressureQff: { label: 'Air Pressure QFF', unit: 'hPa', color: '#00bfff', agg: 'avg', decimals: 0 },
     pressureQnh: { label: 'Air Pressure QNH', unit: 'hPa', color: '#19e6e6', agg: 'avg', decimals: 0 },
     windAvg: { label: 'Average Wind', unit: 'kph', color: '#c74f05', agg: 'avg', transform: v => Math.round(v * 3.6 * 10) / 10 },
@@ -378,14 +378,16 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
     };
 
     if (hasY1) {
+        const y1Metric = groupParams.find(p => METRIC_CONFIG[p].yAxisID === 'y1');
+        const y1Config = METRIC_CONFIG[y1Metric];
         scales.y1 = {
             type: 'linear',
             display: true,
             position: 'right',
-            beginAtZero: true,
-            max: 360,
+            beginAtZero: y1Config.unit == '°',
+            max: y1Config.unit === '°' ? 360 : undefined,
             grid: { drawOnChartArea: false },
-            ticks: { callback: v => v + '°' }
+            ticks: { callback: v => v + ' ' + y1Config.unit }
         };
     }
 
