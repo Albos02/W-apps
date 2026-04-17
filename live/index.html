@@ -314,10 +314,19 @@
                 if (!star) {
                     star = document.createElement('span');
                     star.className = 'star';
+                    star.tabIndex = 0;
                     star.onclick = (e) => {
                         e.stopPropagation();
                         toggleFavorite(tab.dataset.station);
                         updateStar(tab);
+                    };
+                    star.onkeydown = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleFavorite(tab.dataset.station);
+                            updateStar(tab);
+                        }
                     };
                     tab.appendChild(star);
                 }
