@@ -12,7 +12,7 @@
 </head>
 <body>
     <header class="navbar">
-        <h1 class="brand" style="cursor: pointer;" onclick="window.location.href = '../';">W-Apps</h1>
+        <h1 class="brand" style="cursor: pointer;" tabindex="0" onclick="window.location.href = '../';" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.location.href = '../';}">W-Apps</h1>
 
         <nav class="tabs base-card">
             <button class="tab active">3 Hours</button>
@@ -45,7 +45,7 @@
                 <div class="empty-state">
                     Right-click to add metrics
                 </div>
-                <article class="base-card card metric spotlight-item active" data-metric-id="wind-avg" style="cursor: pointer;" onclick="handleMetricCardClick('wind-avg')" draggable="true">
+                <article class="base-card card metric spotlight-item active" data-metric-id="wind-avg" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('wind-avg')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('wind-avg');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -55,7 +55,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" onclick="handleMetricCardClick('wind-gusts')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('wind-gusts')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('wind-gusts');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -65,7 +65,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" onclick="handleMetricCardClick('wind-direction')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('wind-direction')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('wind-direction');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" onclick="handleMetricCardClick('temperature')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('temperature')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('temperature');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -85,7 +85,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" onclick="handleMetricCardClick('humidity')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('humidity')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('humidity');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -95,7 +95,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" onclick="handleMetricCardClick('pressure')" draggable="true">
+                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('pressure')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('pressure');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -105,7 +105,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" onclick="handleMetricCardClick('pressure-qff')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('pressure-qff')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('pressure-qff');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -115,7 +115,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qnh" style="cursor: pointer;" onclick="handleMetricCardClick('pressure-qnh')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qnh" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('pressure-qnh')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('pressure-qnh');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -125,7 +125,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="precipitation" style="cursor: pointer;" onclick="handleMetricCardClick('precipitation')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="precipitation" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('precipitation')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('precipitation');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -135,7 +135,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="sunshine" style="cursor: pointer;" onclick="handleMetricCardClick('sunshine')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="sunshine" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('sunshine')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('sunshine');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="global-radiation" style="cursor: pointer;" onclick="handleMetricCardClick('global-radiation')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="global-radiation" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('global-radiation')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('global-radiation');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                 </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="dew-point" style="cursor: pointer;" onclick="handleMetricCardClick('dew-point')" draggable="true">
+                <article class="base-card card metric spotlight-item" data-metric-id="dew-point" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('dew-point')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('dew-point');}" draggable="true">
                     <div class="spotlight-border"></div>
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
