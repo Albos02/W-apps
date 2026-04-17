@@ -466,6 +466,16 @@ function populateTable(table, data, metricGroup = 'wind') {
     });
     thead.appendChild(headerRow);
 
+    const numCols = groupParams.length + 1;
+    const tableCard = table.closest('.visualization.card.table');
+    if (tableCard) {
+        if (numCols <= 2) {
+            tableCard.style.flexBasis = '250px';
+        } else {
+            tableCard.style.flexBasis = '';
+        }
+    }
+
     const { labels, datasets } = data;
     const reversedLabels = [...labels].reverse();
     const reversedDatasets = datasets.map(d => [...(d.data || [])].reverse());
