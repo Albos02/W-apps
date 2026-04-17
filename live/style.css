@@ -457,10 +457,18 @@ table th {
     background: var(--bg-card);
 }
 
+table th:not(:first-child) {
+    text-align: center;
+}
+
 table td {
     padding: 12px 8px;
     border-bottom: 1px solid var(--border);
     font-size: 14px;
+}
+
+table td:not(:first-child) {
+    text-align: center;
 }
 
 /* Search Dropdown */
