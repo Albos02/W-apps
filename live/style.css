@@ -471,6 +471,11 @@ table td:not(:first-child) {
     text-align: center;
 }
 
+table tr.highlighted {
+    outline: 2px solid #ff0000;
+    outline-offset: -2px;
+}
+
 /* Search Dropdown */
 div.search input::-webkit-search-cancel-button{
     font-size: large;

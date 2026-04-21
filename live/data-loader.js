@@ -422,6 +422,16 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
                     const dataIndex = activeElements[0].index;
                     const time = chart.data.labels[dataIndex];
 
+                    document.querySelectorAll('table tbody tr.highlighted').forEach(tr => tr.classList.remove('highlighted'));
+                    const tableRows = document.querySelectorAll('table tbody tr');
+                    tableRows.forEach(tr => {
+                        const timeCell = tr.querySelector('td:first-child');
+                        if (timeCell && timeCell.textContent.trim() === time) {
+                            tr.classList.add('highlighted');
+                            tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    });
+
                     let msg = `Graph Data Point:\nTime: ${time}\n`;
                     chart.data.datasets.forEach(dataset => {
                         const val = dataset.data[dataIndex];
