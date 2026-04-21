@@ -431,18 +431,6 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
                             tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
                     });
-
-                    let msg = `Graph Data Point:\nTime: ${time}\n`;
-                    chart.data.datasets.forEach(dataset => {
-                        const val = dataset.data[dataIndex];
-                        const param = dataset.configParam;
-                        const config = METRIC_CONFIG[param];
-                        const decimals = config.decimals !== undefined ? config.decimals : 1;
-                        const fmtVal = val != null ? Number(val).toFixed(decimals) : '--';
-                        msg += `${config.label}: ${fmtVal} ${config.unit}\n`;
-                    });
-
-                    alert(msg.trim());
                 }
             }
         }
@@ -496,9 +484,8 @@ function populateTable(table, data, metricGroup = 'wind') {
 
         const tdTime = document.createElement('td');
         tdTime.innerHTML = label;
+        tr.dataset.time = label;
         tr.appendChild(tdTime);
-
-        let alertMsg = `Table Row Selected:\nTime: ${label}\n`;
 
         reversedDatasets.forEach((revData, dsIndex) => {
             const param = groupParams[dsIndex];
@@ -510,15 +497,16 @@ function populateTable(table, data, metricGroup = 'wind') {
             if (val != null) {
                 const fmtVal = Number(val).toFixed(decimals);
                 td.textContent = `${fmtVal}`;
-                alertMsg += `${config.label}: ${fmtVal} ${config.unit}\n`;
             } else {
                 td.textContent = '--';
-                alertMsg += `${config.label}: -- ${config.unit}\n`;
             }
             tr.appendChild(td);
         });
 
-        tr.onclick = () => alert(alertMsg.trim());
+        tr.onclick = () => {
+            document.querySelectorAll('table tbody tr.highlighted').forEach(row => row.classList.remove('highlighted'));
+            tr.classList.add('highlighted');
+        };
         tbody.appendChild(tr);
     });
 }
