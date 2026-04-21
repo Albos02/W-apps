@@ -506,6 +506,22 @@ function populateTable(table, data, metricGroup = 'wind') {
         tr.onclick = () => {
             document.querySelectorAll('table tbody tr.highlighted').forEach(row => row.classList.remove('highlighted'));
             tr.classList.add('highlighted');
+
+            if (currentChart) {
+                const label = tr.dataset.time;
+                const index = currentChart.data.labels.indexOf(label);
+                if (index !== -1) {
+                    const meta = currentChart.getDatasetMeta(0);
+                    const point = meta.data[index];
+                    
+                    if (point) {
+                        currentChart.tooltip.setActiveElements([
+                            { datasetIndex: 0, index: index }
+                        ], { x: point.x, y: point.y });
+                        currentChart.update();
+                    }
+                }
+            }
         };
         tbody.appendChild(tr);
     });
