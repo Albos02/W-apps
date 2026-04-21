@@ -515,9 +515,11 @@ function populateTable(table, data, metricGroup = 'wind') {
                     const point = meta.data[index];
                     
                     if (point) {
-                        currentChart.tooltip.setActiveElements([
-                            { datasetIndex: 0, index: index }
-                        ], { x: point.x, y: point.y });
+                        const activeElements = currentChart.data.datasets.map((_, i) => ({
+                            datasetIndex: i,
+                            index: index
+                        }));
+                        currentChart.tooltip.setActiveElements(activeElements, { x: point.x, y: point.y });
                         currentChart.update();
                     }
                 }
