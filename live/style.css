@@ -465,15 +465,30 @@ table td {
     padding: 12px 8px;
     border-bottom: 1px solid var(--border);
     font-size: 14px;
+    transition: transform 0.2s ease;
 }
 
 table td:not(:first-child) {
     text-align: center;
 }
 
-table tr.highlighted {
-    outline: 2px solid #ff0000;
-    outline-offset: -2px;
+table tr.highlighted td {
+    transform: translateX(10px);
+}
+
+table tr.highlighted td:first-child {
+    position: relative;
+}
+
+table tr.highlighted td:first-child::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    background-color: var(--primary);
+    border-radius: 4px;
 }
 
 /* Search Dropdown */

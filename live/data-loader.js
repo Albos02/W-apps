@@ -504,25 +504,31 @@ function populateTable(table, data, metricGroup = 'wind') {
         });
 
         tr.onclick = () => {
+            const isHighlighted = tr.classList.contains('highlighted');
             document.querySelectorAll('table tbody tr.highlighted').forEach(row => row.classList.remove('highlighted'));
-            tr.classList.add('highlighted');
-
-            if (currentChart) {
-                const label = tr.dataset.time;
-                const index = currentChart.data.labels.indexOf(label);
-                if (index !== -1) {
-                    const meta = currentChart.getDatasetMeta(0);
-                    const point = meta.data[index];
-                    
-                    if (point) {
-                        const activeElements = currentChart.data.datasets.map((_, i) => ({
-                            datasetIndex: i,
-                            index: index
-                        }));
-                        currentChart.tooltip.setActiveElements(activeElements, { x: point.x, y: point.y });
-                        currentChart.update();
+            
+            if (!isHighlighted) {
+                tr.classList.add('highlighted');
+                if (currentChart) {
+                    const label = tr.dataset.time;
+                    const index = currentChart.data.labels.indexOf(label);
+                    if (index !== -1) {
+                        const meta = currentChart.getDatasetMeta(0);
+                        const point = meta.data[index];
+                        
+                        if (point) {
+                            const activeElements = currentChart.data.datasets.map((_, i) => ({
+                                datasetIndex: i,
+                                index: index
+                            }));
+                            currentChart.tooltip.setActiveElements(activeElements, { x: point.x, y: point.y });
+                            currentChart.update();
+                        }
                     }
                 }
+            } else if (currentChart) {
+                currentChart.tooltip.setActiveElements([], { x: 0, y: 0 });
+                currentChart.update();
             }
         };
         tbody.appendChild(tr);
