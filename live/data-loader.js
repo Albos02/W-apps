@@ -448,11 +448,14 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
 
                     document.querySelectorAll('table tbody tr.highlighted').forEach(tr => tr.classList.remove('highlighted'));
                     const tableRows = document.querySelectorAll('table tbody tr');
+                    const tableContainer = document.querySelector('.table .content.scrollable');
                     tableRows.forEach(tr => {
                         const timeCell = tr.querySelector('td:first-child');
                         if (timeCell && timeCell.textContent.trim() === time) {
                             tr.classList.add('highlighted');
-                             tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            if (tableContainer) {
+                                tableContainer.scrollTop = tr.offsetTop - (tableContainer.clientHeight / 2) + (tr.clientHeight / 2);
+                            }
                         }
                     });
                 }
