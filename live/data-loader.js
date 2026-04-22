@@ -428,7 +428,7 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
                         const timeCell = tr.querySelector('td:first-child');
                         if (timeCell && timeCell.textContent.trim() === time) {
                             tr.classList.add('highlighted');
-                            tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                             tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     });
                 }
