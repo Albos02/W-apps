@@ -1,3 +1,25 @@
+const verticalLinePlugin = {
+    id: 'verticalLine',
+    afterDraw: (chart) => {
+        const ctx = chart.ctx;
+        const xAxis = chart.scales.x;
+        const yAxis = chart.scales.y;
+        const x = chart._verticalLineX;
+        if (x == null) return;
+        const xPos = xAxis.getPixelForValue(x);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 123, 255, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(xPos, yAxis.top);
+        ctx.lineTo(xPos, yAxis.bottom);
+        ctx.stroke();
+        ctx.restore();
+    }
+};
+Chart.register(verticalLinePlugin);
+
 const dataCache = new Map();
 
 const CSV_BASE_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/{STATION}/ogd-smn_{STATION}_t_now.csv';
@@ -413,7 +435,8 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
                     bodyColor: '#fff',
                     borderColor: '#fff',
                     borderWidth: 1
-                }
+                },
+                verticalLine: {}
             },
             scales: scales,
             interaction: { mode: 'nearest', axis: 'x', intersect: false },
@@ -421,6 +444,7 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
                 if (activeElements.length > 0) {
                     const dataIndex = activeElements[0].index;
                     const time = chart.data.labels[dataIndex];
+                    chart._verticalLineX = time;
 
                     document.querySelectorAll('table tbody tr.highlighted').forEach(tr => tr.classList.remove('highlighted'));
                     const tableRows = document.querySelectorAll('table tbody tr');
@@ -521,12 +545,14 @@ function populateTable(table, data, metricGroup = 'wind') {
                                 datasetIndex: i,
                                 index: index
                             }));
+                            currentChart._verticalLineX = label;
                             currentChart.tooltip.setActiveElements(activeElements, { x: point.x, y: point.y });
                             currentChart.update();
                         }
                     }
                 }
             } else if (currentChart) {
+                currentChart._verticalLineX = null;
                 currentChart.tooltip.setActiveElements([], { x: 0, y: 0 });
                 currentChart.update();
             }
