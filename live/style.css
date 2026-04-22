@@ -400,7 +400,7 @@ main {
 }
 
 .visualizations .content.scrollable {
-    overflow-y: auto;
+    overflow: auto;
     max-height: var(--viz-height);
 }
 
