@@ -180,7 +180,7 @@ function formatLabel(timestamp, timeframe, showDate = null) {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const hour = date.getHours();
-        return `<span style="white-space:nowrap">${dayName}\u00A0${hour}h</span> ${day}/${month}`;
+        return `${dayName}\u00A0${hour}h ${day}/${month}`;
     }
 
     return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: undefined });
