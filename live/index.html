@@ -70,7 +70,14 @@
                     <div class="spotlight-content">
                         <div class="metric-value-wrapper">
                             <h3>Wind Direction</h3>
-                            <p class="value" id="current-wind-direction">-- °</p>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <p class="value" id="current-wind-direction">-- °</p>
+                                <div id="wind-arrow" style="width: 24px; height: 24px; display: none; align-items: center; justify-content: center; transform-origin: center; transition: transform 0.5s ease;">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+                                    </svg>
+                                </div>
+                            </div>
                             <p class="trend" id="trend-wind-direction">--° over last hour</p>
                         </div>
                     </div>
@@ -239,6 +246,7 @@
             currentPressure: document.getElementById('current-pressure'),
             currentWindAvg: document.getElementById('current-wind-avg'),
             currentWindDirection: document.getElementById('current-wind-direction'),
+            windArrow: document.getElementById('wind-arrow'),
             currentPressureQff: document.getElementById('current-pressure-qff'),
             currentPressureQnh: document.getElementById('current-pressure-qnh'),
             currentPrecipitation: document.getElementById('current-precipitation'),
@@ -1104,6 +1112,12 @@
             metricEls.currentPressure.textContent = pressure != null ? `${pressure.toFixed(0)} hPa` : '-- hPa';
             metricEls.currentWindAvg.textContent = windAvg != null ? `${windAvg.toFixed(1)} kph` : '-- kph';
             metricEls.currentWindDirection.textContent = windDirection != null ? `${Math.round(windDirection)}°` : '--°';
+            if (windDirection != null) {
+                metricEls.windArrow.style.display = 'flex';
+                metricEls.windArrow.style.transform = `rotate(${windDirection + 180}deg)`;
+            } else {
+                metricEls.windArrow.style.display = 'none';
+            }
             metricEls.currentPressureQff.textContent = pressureQff != null ? `${pressureQff.toFixed(0)} hPa` : '-- hPa';
             metricEls.currentPressureQnh.textContent = pressureQnh != null ? `${pressureQnh.toFixed(0)} hPa` : '-- hPa';
             metricEls.currentPrecipitation.textContent = precipitation != null ? `${precipitation.toFixed(1)} mm` : '-- mm';
