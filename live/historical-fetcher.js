@@ -76,4 +76,4 @@ function populateTable(table, data, metricGroup = 'wind') {
     // Keep table population skeleton, but it should be refactored to use a unified data model.
 }
 
-window.WindDashboard = { createChart, populateTable, GROUPS, METRIC_TO_GROUP };
+window.WindDashboard = { createChart, populateTable, GROUPS, METRIC_TO_GROUP, METRIC_CONFIG };
