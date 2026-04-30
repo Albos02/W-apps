@@ -73,6 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Metric Cards Context Menu (Right Click)
+    metricsContainer.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const card = e.target.closest('.metric');
+        const metricId = card ? card.dataset.metricId : null;
+        
+        if (typeof window.showUnifiedMenu === 'function') {
+            window.showUnifiedMenu(e, metricId);
+        }
+    });
+
     // Handle Keyboard (Enter/Space)
     metricsContainer.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {

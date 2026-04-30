@@ -315,6 +315,7 @@
 
         function updateEmptyState() {
             const emptyState = document.querySelector('.empty-state');
+            if (!emptyState) return;
             const totalMetrics = 12;
             if (hiddenMetrics.size === totalMetrics) {
                 emptyState.style.display = 'flex';
@@ -375,7 +376,8 @@
                     subItem.onclick = (event) => {
                         event.stopPropagation();
                         restoreMetric(metricId);
-                        menu.remove();
+                        const menu = document.querySelector('.context-menu');
+                        if (menu) menu.remove();
                     };
                     submenu.appendChild(subItem);
                 });
