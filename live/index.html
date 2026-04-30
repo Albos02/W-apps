@@ -38,140 +38,11 @@
         </section>
 
         <section class="metrics">
-            <div class="metrics-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h2 style="margin: 0;">Current Weather</h2>
+            <div class="metrics-header">
+                <h2>Current Weather</h2>
             </div>
             <div class="spotlight-container">
-                <div class="empty-state">
-                    Right-click to add metrics
-                </div>
-                <article class="base-card card metric spotlight-item active" data-metric-id="wind-avg" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('wind-avg')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('wind-avg');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Average Wind</h3>
-                            <p class="value" id="current-wind-avg">-- kph</p>
-                            <p class="trend" id="trend-wind-avg">--% over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-gusts" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('wind-gusts')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('wind-gusts');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Max Wind Gusts</h3>
-                            <p class="value" id="current-wind-gust">-- kph</p>
-                            <p class="trend" id="trend-wind-gust">--% over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="wind-direction" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('wind-direction')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('wind-direction');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Wind Direction</h3>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <p class="value" id="current-wind-direction">-- °</p>
-                                <div id="wind-arrow" style="width: 24px; height: 24px; display: none; align-items: center; justify-content: center; transform-origin: center; transition: transform 0.5s ease;">
-                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <p class="trend" id="trend-wind-direction">--° over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="temperature" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('temperature')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('temperature');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Temperature</h3>
-                            <p class="value" id="current-temp">--°C</p>
-                            <p class="trend" id="trend-temp">--°C over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="humidity" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('humidity')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('humidity');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Humidity</h3>
-                            <p class="value" id="current-humidity">--%</p>
-                            <p class="trend" id="trend-humidity">--% over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric pressure spotlight-item" data-metric-id="pressure" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('pressure')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('pressure');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Air Pressure - QFE</h3>
-                            <p class="value" id="current-pressure">-- hPa</p>
-                            <p class="trend" id="trend-pressure">-- hPa over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qff" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('pressure-qff')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('pressure-qff');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Air Pressure - QFF</h3>
-                            <p class="value" id="current-pressure-qff">-- hPa</p>
-                            <p class="trend" id="trend-pressure-qff">-- hPa over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="pressure-qnh" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('pressure-qnh')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('pressure-qnh');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Air Pressure - QNH</h3>
-                            <p class="value" id="current-pressure-qnh">-- hPa</p>
-                            <p class="trend" id="trend-pressure-qnh">-- hPa over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="precipitation" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('precipitation')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('precipitation');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Precipitation</h3>
-                            <p class="value" id="current-precipitation">-- mm</p>
-                            <p class="trend" id="trend-precipitation">-- mm over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="sunshine" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('sunshine')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('sunshine');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Sunshine</h3>
-                            <p class="value" id="current-sunshine">-- min</p>
-                            <p class="trend" id="trend-sunshine">-- min over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="global-radiation" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('global-radiation')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('global-radiation');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Global Radiation</h3>
-                            <p class="value" id="current-global-radiation">-- W/m²</p>
-                            <p class="trend" id="trend-global-radiation">-- W/m² over last hour</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="base-card card metric spotlight-item" data-metric-id="dew-point" style="cursor: pointer;" tabindex="0" onclick="handleMetricCardClick('dew-point')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleMetricCardClick('dew-point');}" draggable="true">
-                    <div class="spotlight-border"></div>
-                    <div class="spotlight-content">
-                        <div class="metric-value-wrapper">
-                            <h3>Dew Point</h3>
-                            <p class="value" id="current-dew-point">--°C</p>
-                            <p class="trend" id="trend-dew-point">--°C over last hour</p>
-                        </div>
-                    </div>
-                </article>
+                <!-- Metrics will be dynamically injected -->
             </div>
         </section>
 
@@ -179,7 +50,7 @@
             <section class="base-card card visualization spotlight-item chart">
                 <div class="spotlight-border"></div>
                 <div class="spotlight-content">
-                    <h2 id="chart-title">Wind Graph</h2>
+                    <h2 id="chart-title">Graph</h2>
                     <div class="content">
                         <canvas id="windChart"></canvas>
                     </div>
@@ -192,16 +63,8 @@
                     <h2>Raw Data</h2>
                     <div class="content scrollable">
                         <table>
-                            <thead>
-                                <tr>
-                                    <th>Time</th>
-                                    <th>Avg</th>
-                                    <th>Gusts</th>
-                                    <th>Dir</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
+                            <thead></thead>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
