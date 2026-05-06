@@ -8,11 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="meteoswiss.js" defer></script>
     <script src="data-loader.js" defer></script>
+    <script src="ui-manager.js" defer></script>
     <script src="utils.js" defer></script>
 </head>
 <body>
     <header class="navbar">
-        <h1 class="brand" style="cursor: pointer;" tabindex="0" onclick="window.location.href = '../';" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.location.href = '../';}">W-Apps</h1>
+        <h1 class="brand" style="cursor: pointer;" tabindex="0">W-Apps</h1>
 
         <nav class="tabs base-card">
             <button class="tab active">3 Hours</button>
@@ -1243,20 +1244,6 @@
 
             MetricCardDragManager.init();
             MetricCardDragManager.restoreOrder();
-        });
-
-        const themeToggle = document.getElementById('theme-toggle');
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
         });
     </script>
 </body>

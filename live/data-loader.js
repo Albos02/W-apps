@@ -589,4 +589,4 @@ function createEmptyChart(ctx, metricGroup = 'wind') {
     }, metricGroup);
 }
 
-window.WindDashboard = { loadData, getData, createChart, populateTable, createEmptyChart, GROUPS, METRIC_TO_GROUP };
+window.WindDashboard = { loadData, getData, createChart, populateTable, createEmptyChart, GROUPS, METRIC_TO_GROUP, METRIC_CONFIG };
