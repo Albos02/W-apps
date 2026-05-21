@@ -1,3 +1,5 @@
+import { toast } from './utils.js';
+
 const verticalLinePlugin = {
     id: 'verticalLine',
     afterDraw: (chart) => {
@@ -41,9 +43,24 @@ const COLUMN_INDICES = {
     sunshine: 30
 };
 
+const METRIC_ID_TO_KEY = {
+    'wind-avg': 'windAvg',
+    'wind-gusts': 'windGusts',
+    'wind-direction': 'windDirection',
+    'temperature': 'temperature',
+    'dew-point': 'dewPoint',
+    'humidity': 'humidity',
+    'pressure': 'pressure',
+    'pressure-qff': 'pressureQff',
+    'pressure-qnh': 'pressureQnh',
+    'precipitation': 'precipitation',
+    'sunshine': 'sunshine',
+    'global-radiation': 'globalRadiation'
+};
+
 const METRIC_CONFIG = {
     temperature: { label: 'Temperature', unit: '°C', color: '#E24B4A', agg: 'avg' },
-    apparentTemp: { label: 'Apparent Temparature', unit: '°C', color: '#F09595', agg: 'avg'}, // Maybe for later
+    apparentTemp: { label: 'Apparent Temperature', unit: '°C', color: '#F09595', agg: 'avg'}, // Maybe for later
     dewPoint: { label: 'Dew Point', unit: '°C', color: '#639922', agg: 'avg' },
     humidity: { label: 'Humidity', unit: '%', color: '#0097A7', agg: 'avg' },
     pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#33cca6', agg: 'avg', yAxisID: 'y1', decimals: 0 },
@@ -356,7 +373,7 @@ async function loadData(stationCode = 'BOU', timeframe = 'Hourly', metricGroup =
             dataCache.set(rawCacheKey, rawRows);
         } catch (error) {
             console.error(`Error loading ${stationCode} data:`, error);
-            if (window.toast) window.toast('Unable to connect. Please check your internet.');
+            toast('Unable to connect. Please check your internet.');
             throw error;
         }
     } else if (rawRows instanceof Promise) {
@@ -589,4 +606,4 @@ function createEmptyChart(ctx, metricGroup = 'wind') {
     }, metricGroup);
 }
 
-window.WindDashboard = { loadData, getData, createChart, populateTable, createEmptyChart, GROUPS, METRIC_TO_GROUP, METRIC_CONFIG };
+export const WindDashboard = { loadData, getData, createChart, populateTable, createEmptyChart, GROUPS, METRIC_TO_GROUP, METRIC_CONFIG, METRIC_ID_TO_KEY };

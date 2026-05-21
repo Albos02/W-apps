@@ -1,3 +1,5 @@
+import { toast } from './utils.js';
+
 const METEOSWISS_BASE_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn';
 
 const REALTIME_ENDPOINTS = {
@@ -190,7 +192,7 @@ async function fetchStationData(stationId, granularity = 'Hourly', isHistorical 
 
     } catch (error) {
         console.error(`Error fetching station data for ${stationId}:`, error);
-        if (window.toast) window.toast('Unable to connect. Please check your internet.');
+        toast('Unable to connect. Please check your internet.');
         throw error;
     }
 }
@@ -312,7 +314,7 @@ async function fetchRealtimeData(stationId) {
                 };
             } catch (e) {
                 console.warn(`Failed to fetch ${key}:`, e);
-                if (window.toast) window.toast('Unable to connect. Please check your internet.');
+                toast('Unable to connect. Please check your internet.');
                 return { key, data: null };
             }
         });
@@ -327,7 +329,7 @@ async function fetchRealtimeData(stationId) {
 
     } catch (error) {
         console.error('Error fetching realtime data:', error);
-        if (window.toast) window.toast('Unable to connect. Please check your internet.');
+        toast('Unable to connect. Please check your internet.');
     }
 
     return results;
@@ -380,7 +382,7 @@ async function getCurrentWeather(stationId) {
     return result;
 }
 
-window.MeteoSwiss = {
+export const MeteoSwiss = {
     fetchStationData,
     getChartData,
     fetchRealtimeData,

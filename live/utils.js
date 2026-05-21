@@ -1,4 +1,4 @@
-window.toast = (() => {
+export const toast = (() => {
     let el = null;
     let timeout = null;
     return (msg) => {
