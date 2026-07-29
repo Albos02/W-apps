@@ -1,5 +1,3 @@
-import { toast } from './utils.js';
-
 const verticalLinePlugin = {
     id: 'verticalLine',
     afterDraw: (chart) => {
@@ -22,27 +20,6 @@ const verticalLinePlugin = {
 };
 Chart.register(verticalLinePlugin);
 
-const dataCache = new Map();
-
-const CSV_BASE_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/{STATION}/ogd-smn_{STATION}_t_now.csv';
-const CSV_RECENT_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/{STATION}/ogd-smn_{STATION}_t_recent.csv';
-
-const COLUMN_INDICES = {
-    timestamp: 1,
-    temperature: 2,
-    humidity: 6,
-    dewPoint: 7,
-    pressure: 9,
-    pressureQff: 10,
-    pressureQnh: 11,
-    windGusts: 14,
-    windAvg: 16,
-    windDirection: 17,
-    precipitation: 23,
-    globalRadiation: 25,
-    sunshine: 30
-};
-
 const METRIC_ID_TO_KEY = {
     'wind-avg': 'windAvg',
     'wind-gusts': 'windGusts',
@@ -60,7 +37,7 @@ const METRIC_ID_TO_KEY = {
 
 const METRIC_CONFIG = {
     temperature: { label: 'Temperature', unit: '°C', color: '#E24B4A', agg: 'avg' },
-    apparentTemp: { label: 'Apparent Temperature', unit: '°C', color: '#F09595', agg: 'avg'}, // Maybe for later
+    apparentTemp: { label: 'Apparent Temperature', unit: '°C', color: '#F09595', agg: 'avg'},
     dewPoint: { label: 'Dew Point', unit: '°C', color: '#639922', agg: 'avg' },
     humidity: { label: 'Humidity', unit: '%', color: '#0097A7', agg: 'avg' },
     pressure: { label: 'Air Pressure QFE', unit: 'hPa', color: '#33cca6', agg: 'avg', yAxisID: 'y1', decimals: 0 },
@@ -123,57 +100,12 @@ for (const [key, hours] of Object.entries(TIME_PERIODS)) {
     TIMEFRAME_LIMITS[key] = POINTS_PER_HOUR * hours;
 }
 
-function getCSVUrl(stationCode) {
-    return CSV_BASE_URL.replace(/{STATION}/g, stationCode.toLowerCase());
-}
-
-function getRecentCSVUrl(stationCode) {
-    return CSV_RECENT_URL.replace(/{STATION}/g, stationCode.toLowerCase());
-}
-
-function parseCSV(text) {
-    const lines = text.trim().split('\n');
-    const rows = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(';');
-        if (values.length < Object.keys(COLUMN_INDICES).length) continue;
-
-        const row = { timestamp: values[COLUMN_INDICES.timestamp] };
-
-        for (const param of Object.keys(METRIC_CONFIG)) {
-            const idx = COLUMN_INDICES[param];
-            const raw = parseFloat(values[idx]);
-            row[param] = isNaN(raw) ? null : raw;
-        }
-
-        rows.push(row);
-    }
-
-    return rows;
-}
-
-function mergeData(nowRows, recentRows) {
-    if (!nowRows || nowRows.length === 0) return recentRows || [];
-    if (!recentRows || recentRows.length === 0) return nowRows;
-
-    const nowLatest = nowRows[nowRows.length - 1];
-    const nowLatestDate = parseTimestamp(nowLatest.timestamp);
-
-    const olderRows = recentRows.filter(row => {
-        const rowDate = parseTimestamp(row.timestamp);
-        return rowDate < nowLatestDate;
-    });
-
-    return [...olderRows, ...nowRows];
-}
-
 function parseTimestamp(timestamp) {
     if (!timestamp) return new Date(0);
-    const parts = timestamp.split(' ');
+    const parts = timestamp.split('T');
     const datePart = parts[0] || '';
-    const timePart = parts[1] || '00:00';
-    const [day, month, year] = datePart.split('.');
+    const timePart = parts[1] || '00:00:00';
+    const [year, month, day] = datePart.split('-');
     const [hour, minute] = timePart.split(':');
     return new Date(`${year}-${month}-${day}T${hour}:${minute}:00Z`);
 }
@@ -291,7 +223,11 @@ function getAggregated(rows, interval) {
         aggregated.push(row);
     });
 
-    return aggregated.sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
+    return aggregated.sort((a, b) => {
+        const dateA = parseTimestamp(a.timestamp);
+        const dateB = parseTimestamp(b.timestamp);
+        return dateA - dateB;
+    });
 }
 
 function getHourlyAggregated(rows) { return getAggregated(rows, 'hourly'); }
@@ -340,7 +276,7 @@ function convertToChartData(rows, timeframe = 'Hour', metricGroup = 'wind') {
 }
 
 function getCurrentValues(rows) {
-    if (!rows || rows.length === 0) return null;
+    if (!rows || rows.length === 0) return {};
     const latest = rows[rows.length - 1];
 
     const current = {};
@@ -352,46 +288,7 @@ function getCurrentValues(rows) {
     return current;
 }
 
-async function loadData(stationCode = 'BOU', timeframe = 'Hourly', metricGroup = 'wind') {
-    const rawCacheKey = `windDataRaw_${stationCode}`;
-    let rawRows = dataCache.get(rawCacheKey);
-
-    if (!rawRows) {
-        try {
-            const [nowResponse, recentResponse] = await Promise.all([
-                fetch(getCSVUrl(stationCode)),
-                fetch(getRecentCSVUrl(stationCode))
-            ]);
-
-            const nowText = nowResponse.ok ? await nowResponse.text() : '';
-            const recentText = recentResponse.ok ? await recentResponse.text() : '';
-
-            const nowRows = nowText ? parseCSV(nowText) : [];
-            const recentRows = recentText ? parseCSV(recentText) : [];
-
-            rawRows = mergeData(nowRows, recentRows);
-            dataCache.set(rawCacheKey, rawRows);
-        } catch (error) {
-            console.error(`Error loading ${stationCode} data:`, error);
-            toast('Unable to connect. Please check your internet.');
-            throw error;
-        }
-    } else if (rawRows instanceof Promise) {
-        rawRows = await rawRows;
-    }
-
-    const currentValues = getCurrentValues(rawRows);
-    const chartData = convertToChartData(rawRows, timeframe, metricGroup);
-    return { ...chartData, current: currentValues };
-}
-
 let currentChart = null;
-
-function getData() {
-    const data = dataCache.get('windData');
-    if (data instanceof Promise) throw new Error('Data not loaded');
-    return data;
-}
 
 function createChart(ctx, chartData, metricGroup = 'wind') {
     if (currentChart) {
@@ -550,7 +447,7 @@ function populateTable(table, data, metricGroup = 'wind') {
         tr.onclick = () => {
             const isHighlighted = tr.classList.contains('highlighted');
             document.querySelectorAll('table tbody tr.highlighted').forEach(row => row.classList.remove('highlighted'));
-            
+
             if (!isHighlighted) {
                 tr.classList.add('highlighted');
                 if (currentChart) {
@@ -559,7 +456,7 @@ function populateTable(table, data, metricGroup = 'wind') {
                     if (index !== -1) {
                         const meta = currentChart.getDatasetMeta(0);
                         const point = meta.data[index];
-                        
+
                         if (point) {
                             const activeElements = currentChart.data.datasets.map((_, i) => ({
                                 datasetIndex: i,
@@ -606,4 +503,4 @@ function createEmptyChart(ctx, metricGroup = 'wind') {
     }, metricGroup);
 }
 
-export const WindDashboard = { loadData, getData, createChart, populateTable, createEmptyChart, GROUPS, METRIC_TO_GROUP, METRIC_CONFIG, METRIC_ID_TO_KEY };
+export { METRIC_ID_TO_KEY, METRIC_CONFIG, GROUPS, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe, parseTimestamp };

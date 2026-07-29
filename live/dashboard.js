@@ -1,9 +1,7 @@
 import { toast } from './utils.js';
-import { MeteoSwiss } from './meteoswiss.js';
-import { WindDashboard } from './data-loader.js';
+import { loadStationList, fetchCurrentValuesForStation, fetchTimeSeries } from './data-retrieval.js';
+import { METRIC_ID_TO_KEY, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe } from './chart-utils.js';
 import { onMetricChange, initUI } from './ui-manager.js';
-
-const { METRIC_ID_TO_KEY } = WindDashboard;
 
 const METRIC_GROUP_DISPLAY_NAMES = {
     wind: 'Wind',
@@ -55,7 +53,7 @@ function restoreActiveMetricCard() {
 
     Object.keys(METRIC_ID_TO_KEY).forEach(id => {
         const key = METRIC_ID_TO_KEY[id];
-        if (WindDashboard.METRIC_TO_GROUP[key] === currentMetricGroup) {
+        if (METRIC_TO_GROUP[key] === currentMetricGroup) {
             const card = document.querySelector(`.metric[data-metric-id="${id}"]`);
             if (card) card.classList.add('active');
         }
@@ -116,11 +114,7 @@ function updateStar(tab) {
 
 async function loadStations() {
     try {
-        const response = await fetch('../assets/coord_station_meteosuisse.json');
-        const data = await response.json();
-        stations = data.filter(([code, lat, lon, name]) => name !== null).map(([code, lat, lon, name, canton, index]) => ({
-            code, lat, lon, name: name.replace(' / ', '/'), canton, index
-        }));
+        stations = await loadStationList();
     } catch (error) {
         console.error('Error loading stations:', error);
         toast('Unable to connect. Please check your internet.');
@@ -378,8 +372,8 @@ function deleteStation(station) {
                 localStorage.removeItem('lastSelectedStation');
                 localStorage.removeItem('lastSelectedStationCode');
                 currentStation = null;
-                WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
-                WindDashboard.populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
+                createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
+                populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
                 metricEls.currentTemp.textContent = '--°C';
                 metricEls.trendTemp.textContent = '--°C over last hour';
                 metricEls.currentHumidity.textContent = '--%';
@@ -810,47 +804,47 @@ async function updateVisualizations() {
     const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode');
 
     if (!stationCode) {
-        WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
+        createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
         return;
     }
 
     const results = await Promise.allSettled([
-        WindDashboard.loadData(stationCode, currentTimeframe, currentMetricGroup),
-        MeteoSwiss.getCurrentWeather(stationCode)
+        fetchTimeSeries(stationCode),
+        fetchCurrentValuesForStation(stationCode)
     ]);
 
-    const chartData = results[0].status === 'fulfilled' ? results[0].value : null;
-    const realtimeData = results[1].status === 'fulfilled' ? results[1].value : null;
+    const timeSeries = results[0].status === 'fulfilled' ? results[0].value : null;
+    const latestRecord = results[1].status === 'fulfilled' ? results[1].value : null;
 
-    if (results[0].status === 'rejected') console.error('Chart data error:', results[0].reason);
-    if (results[1].status === 'rejected') console.error('Realtime data error:', results[1].reason);
+    if (results[0].status === 'rejected') console.error('Time series error:', results[0].reason);
+    if (results[1].status === 'rejected') console.error('Current values error:', results[1].reason);
 
     const displayName = METRIC_GROUP_DISPLAY_NAMES[currentMetricGroup] || currentMetricGroup;
     metricEls.chartTitle.textContent = displayName + ' Graph';
 
-    if (chartData) {
-        WindDashboard.createChart(metricEls.windChart.getContext('2d'), chartData, currentMetricGroup);
-        WindDashboard.populateTable(document.querySelector('table'), chartData, currentMetricGroup);
+    if (timeSeries) {
+        const chartData = convertToChartData(timeSeries, currentTimeframe, currentMetricGroup);
+        createChart(metricEls.windChart.getContext('2d'), chartData, currentMetricGroup);
+        populateTable(document.querySelector('table'), chartData, currentMetricGroup);
     } else {
-        WindDashboard.createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
-        WindDashboard.populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
+        createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
+        populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
     }
 
-    const current = chartData?.current || {};
+    const current = latestRecord || (timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries) : {});
 
-    const temp = (realtimeData && realtimeData.Temperature !== null) ? realtimeData.Temperature : ((current.temperature !== null) ? current.temperature : null);
-    const humidity = (realtimeData && realtimeData.Humidity !== null) ? realtimeData.Humidity : ((current.humidity !== null) ? current.humidity : null);
-    const windGust = (realtimeData && realtimeData.Wind_Gusts !== null) ? realtimeData.Wind_Gusts : ((current.windGusts !== null) ? current.windGusts : null);
-    const precipitation = (realtimeData && realtimeData.Precipitation !== null) ? realtimeData.Precipitation : ((current.precipitation !== null) ? current.precipitation : null);
-    const sunshine = (realtimeData && realtimeData.Sunshine !== null) ? realtimeData.Sunshine : ((current.sunshine !== null) ? current.sunshine : null);
-    const globalRadiation = (realtimeData && realtimeData.Global_Radiation !== null) ? realtimeData.Global_Radiation : ((current.globalRadiation !== null) ? current.globalRadiation : null);
-    const dewPoint = (realtimeData && realtimeData.Dew_Point !== null) ? realtimeData.Dew_Point : ((current.dewPoint !== null) ? current.dewPoint : null);
-    const windDirection = (realtimeData && realtimeData.Wind_Direction !== null) ? realtimeData.Wind_Direction : ((current.windDirection !== null) ? current.windDirection : null);
-
-    const pressure = current.pressure;
-    const pressureQff = current.pressureQff;
-    const pressureQnh = current.pressureQnh;
-    const windAvg = current.windAvg;
+    const temp = current.temperature ?? null;
+    const humidity = current.humidity ?? null;
+    const windGust = current.windGusts ?? null;
+    const precipitation = current.precipitation ?? null;
+    const sunshine = current.sunshine ?? null;
+    const globalRadiation = current.globalRadiation ?? null;
+    const dewPoint = current.dewPoint ?? null;
+    const windDirection = current.windDirection ?? null;
+    const pressure = current.pressure ?? null;
+    const pressureQff = current.pressureQff ?? null;
+    const pressureQnh = current.pressureQnh ?? null;
+    const windAvg = current.windAvg ?? null;
 
     metricEls.currentTemp.textContent = temp != null ? `${temp.toFixed(1)}°C` : '--°C';
     metricEls.trendTemp.textContent = '--°C over last hour';
@@ -982,7 +976,7 @@ async function initDashboard() {
     initUI();
     createSpotlight();
 
-    WindDashboard.createEmptyChart(document.getElementById('windChart').getContext('2d'), currentMetricGroup);
+    createEmptyChart(document.getElementById('windChart').getContext('2d'), currentMetricGroup);
 
     if (currentStation) {
         updateVisualizations();

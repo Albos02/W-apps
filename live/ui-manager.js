@@ -1,4 +1,4 @@
-import { WindDashboard } from './data-loader.js';
+import { METRIC_CONFIG, GROUPS, METRIC_TO_GROUP, METRIC_ID_TO_KEY } from './chart-utils.js';
 
 let onMetricChangeCallback = null;
 
@@ -7,9 +7,8 @@ export function onMetricChange(callback) {
 }
 
 export function initUI() {
-    const { METRIC_CONFIG, GROUPS, METRIC_TO_GROUP, METRIC_ID_TO_KEY } = WindDashboard;
     if (!METRIC_CONFIG || !GROUPS) {
-        console.error('METRIC_CONFIG or GROUPS not found in WindDashboard');
+        console.error('METRIC_CONFIG or GROUPS not found');
         return;
     }
     
