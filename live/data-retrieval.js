@@ -1,4 +1,4 @@
-const STATION_LIST_PATH = 'assets/coord_station_meteosuisse.json'
+const STATION_LIST_PATH = '../assets/coord_station_meteosuisse.json'
 const VQHA80_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/VQHA80.csv'
 const OGD_SMN_BASE = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn'
 const CACHE_TTL = 10 * 60 * 1000
