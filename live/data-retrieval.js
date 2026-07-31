@@ -1,5 +1,4 @@
 const STATION_LIST_PATH = '../assets/coord_station_meteosuisse.json'
-const VQHA80_URL = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/VQHA80.csv'
 const OGD_SMN_BASE = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn'
 const CACHE_TTL = 10 * 60 * 1000
 
@@ -38,11 +37,11 @@ export async function loadStationList() {
 }
 
 let currentCache = {}
-let currentCacheTime = 0
+let currentCacheTimes = {}
 
 export async function fetchCurrentValuesForStation(stationCode) {
   const now = Date.now()
-  if (currentCache[stationCode] && (now - currentCacheTime) < CACHE_TTL) {
+  if (currentCache[stationCode] && (now - (currentCacheTimes[stationCode] || 0)) < CACHE_TTL) {
     return currentCache[stationCode]
   }
   const lower = stationCode.toLowerCase()
@@ -53,7 +52,7 @@ export async function fetchCurrentValuesForStation(stationCode) {
   const latest = rows.length > 0 ? rows[rows.length - 1] : null
   if (latest) {
     currentCache[stationCode] = latest
-    currentCacheTime = now
+    currentCacheTimes[stationCode] = now
   }
   return latest
 }
@@ -118,8 +117,8 @@ export async function fetchTimeSeries(stationCode) {
 }
 
 export function clearCache() {
-  currentCache = null
-  currentCacheTime = 0
+  currentCache = {}
+  currentCacheTimes = {}
   timeSeriesCache = {}
   timeSeriesCacheTimes = {}
 }
