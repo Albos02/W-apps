@@ -202,12 +202,12 @@ function getAggregated(rows, interval) {
         const date = data.dateObj;
         let timestamp;
         if (interval === 'daily') {
-            timestamp = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
+            timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         } else {
             const bucketStartMinutes = data.bucket * intervalMinutes;
             const hour = Math.floor(bucketStartMinutes / 60);
             const minute = bucketStartMinutes % 60;
-            timestamp = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
         }
 
         const row = { timestamp: timestamp };

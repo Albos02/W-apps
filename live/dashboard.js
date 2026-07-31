@@ -831,7 +831,7 @@ async function updateVisualizations() {
         populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
     }
 
-    const current = latestRecord || (timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries) : {});
+    const current = timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries) : (latestRecord || {});
 
     const temp = current.temperature ?? null;
     const humidity = current.humidity ?? null;
