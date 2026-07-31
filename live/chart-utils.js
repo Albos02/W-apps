@@ -476,6 +476,11 @@ function populateTable(table, data, metricGroup = 'wind') {
         };
         tbody.appendChild(tr);
     });
+
+    const scrollContainer = table.closest('.content.scrollable');
+    if (scrollContainer) {
+        scrollContainer.scrollTop = 0;
+    }
 }
 
 function createEmptyChart(ctx, metricGroup = 'wind') {
