@@ -275,27 +275,22 @@ function convertToChartData(rows, timeframe = 'Hour', metricGroup = 'wind') {
     return { labels, datasets };
 }
 
-function getCurrentValues(rows) {
+function getCurrentValues(rows, visibleParams) {
     if (!rows || rows.length === 0) return {};
 
-    const current = {};
-    let ts = null;
-    for (let i = rows.length - 1; i >= 0; i--) {
-        if (Object.keys(METRIC_CONFIG).some(param => rows[i][param] != null)) {
-            ts = rows[i].timestamp;
-            break;
-        }
-    }
-    current.timestamp = ts || rows[rows.length - 1].timestamp;
+    const params = visibleParams && visibleParams.length > 0
+        ? visibleParams
+        : Object.keys(METRIC_CONFIG);
 
+    let source = rows[rows.length - 1];
+    const latestHasAny = params.some(param => source[param] != null);
+    if (!latestHasAny && rows.length >= 2) {
+        source = rows[rows.length - 2];
+    }
+
+    const current = { timestamp: source.timestamp };
     for (const [param, config] of Object.entries(METRIC_CONFIG)) {
-        let val = null;
-        for (let i = rows.length - 1; i >= 0; i--) {
-            if (rows[i][param] != null) {
-                val = rows[i][param];
-                break;
-            }
-        }
+        let val = source[param];
         if (val != null && config.transform) val = config.transform(val);
         current[param] = val;
     }

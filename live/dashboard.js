@@ -798,6 +798,15 @@ function setupTabs(tabGroupSelector) {
     });
 }
 
+function getVisibleMetricParams() {
+    const params = [];
+    document.querySelectorAll('.metric[data-metric-id]:not(.hidden-metric)').forEach(card => {
+        const key = METRIC_ID_TO_KEY[card.dataset.metricId];
+        if (key && !params.includes(key)) params.push(key);
+    });
+    return params;
+}
+
 async function updateVisualizations() {
     if (!currentStation && !localStorage.getItem('lastSelectedStation')) {
         return;
@@ -833,7 +842,7 @@ async function updateVisualizations() {
         populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
     }
 
-    const current = timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries) : (latestRecord || {});
+    const current = timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries, getVisibleMetricParams()) : (latestRecord || {});
 
     metricEls.currentWeatherTime.textContent = current.timestamp ? formatLocalTime(current.timestamp) : '';
 
