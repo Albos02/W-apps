@@ -1,5 +1,5 @@
 import { toast } from './utils.js';
-import { loadStationList, fetchCurrentValuesForStation, fetchTimeSeries } from './data-retrieval.js';
+import { loadStationList, fetchCurrentValuesForStation, fetchTimeSeries, fetchLatestMeasurement, clearCache } from './data-retrieval.js';
 import { METRIC_ID_TO_KEY, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe, formatLocalTime } from './chart-utils.js';
 import { onMetricChange, initUI } from './ui-manager.js';
 
@@ -31,8 +31,11 @@ const metricEls = {
     currentSunshine: document.getElementById('current-sunshine'),
     currentGlobalRadiation: document.getElementById('current-global-radiation'),
     currentDewPoint: document.getElementById('current-dew-point'),
-    currentWeatherTime: document.getElementById('current-weather-time')
+    currentWeatherTime: document.getElementById('current-weather-time'),
+    refreshWeather: document.getElementById('refresh-weather')
 };
+
+let currentTimestamp = null;
 
 let stations = [];
 let favorites = new Set();
@@ -845,6 +848,8 @@ async function updateVisualizations() {
     const current = timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries, getVisibleMetricParams()) : (latestRecord || {});
 
     metricEls.currentWeatherTime.textContent = current.timestamp ? formatLocalTime(current.timestamp) : '';
+    currentTimestamp = current.timestamp || null;
+    metricEls.refreshWeather.style.display = 'none';
 
     const temp = current.temperature ?? null;
     const humidity = current.humidity ?? null;
@@ -882,6 +887,31 @@ async function updateVisualizations() {
     if (results[0].status === 'rejected' || results[1].status === 'rejected') {
         toast('Some data unavailable. Using cached/fallback values.');
     }
+}
+
+async function checkForNewMeasurements() {
+    const stationCode = currentStation?.code || localStorage.getItem('lastSelectedStationCode');
+    if (!stationCode) return;
+
+    try {
+        const latest = await fetchLatestMeasurement(stationCode);
+        if (latest?.timestamp && latest.timestamp !== currentTimestamp) {
+            metricEls.refreshWeather.style.display = 'inline-block';
+        }
+    } catch (error) {
+        console.error('Measurement check error:', error);
+    }
+}
+
+function setupRefreshPolling() {
+    metricEls.refreshWeather.onclick = async () => {
+        metricEls.refreshWeather.style.display = 'none';
+        clearCache();
+        await updateVisualizations();
+        checkForNewMeasurements();
+    };
+
+    setInterval(checkForNewMeasurements, 30 * 1000);
 }
 
 function createSpotlight() {
@@ -997,6 +1027,8 @@ async function initDashboard() {
 
     MetricCardDragManager.init();
     MetricCardDragManager.restoreOrder();
+
+    setupRefreshPolling();
 }
 
 // Initialize when modules load

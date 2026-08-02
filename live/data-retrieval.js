@@ -57,6 +57,15 @@ export async function fetchCurrentValuesForStation(stationCode) {
   return latest
 }
 
+export async function fetchLatestMeasurement(stationCode) {
+  const lower = stationCode.toLowerCase()
+  const res = await fetch(`${OGD_SMN_BASE}/${lower}/ogd-smn_${lower}_t_now.csv`).catch(() => null)
+  if (!res?.ok) return null
+  const csv = await res.text()
+  const rows = parseTimeSeriesCSV(csv)
+  return rows.length > 0 ? rows[rows.length - 1] : null
+}
+
 function parseTimestampDDMMYYYY(val) {
   const [d, m, y, hh, mi] = val.split(/[\s.:\/-]+/)
   return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}T${(hh || '00').padStart(2, '0')}:${(mi || '00').padStart(2, '0')}:00`
