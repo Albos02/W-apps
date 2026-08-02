@@ -896,7 +896,7 @@ async function checkForNewMeasurements() {
     try {
         const latest = await fetchLatestMeasurement(stationCode);
         if (latest?.timestamp && latest.timestamp !== currentTimestamp) {
-            metricEls.refreshWeather.style.display = 'inline-block';
+            metricEls.refreshWeather.style.display = 'inline-flex';
         }
     } catch (error) {
         console.error('Measurement check error:', error);
