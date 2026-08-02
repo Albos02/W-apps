@@ -1,6 +1,6 @@
 import { toast } from './utils.js';
 import { loadStationList, fetchCurrentValuesForStation, fetchTimeSeries } from './data-retrieval.js';
-import { METRIC_ID_TO_KEY, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe } from './chart-utils.js';
+import { METRIC_ID_TO_KEY, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe, formatLocalTime } from './chart-utils.js';
 import { onMetricChange, initUI } from './ui-manager.js';
 
 const METRIC_GROUP_DISPLAY_NAMES = {
@@ -30,7 +30,8 @@ const metricEls = {
     currentPrecipitation: document.getElementById('current-precipitation'),
     currentSunshine: document.getElementById('current-sunshine'),
     currentGlobalRadiation: document.getElementById('current-global-radiation'),
-    currentDewPoint: document.getElementById('current-dew-point')
+    currentDewPoint: document.getElementById('current-dew-point'),
+    currentWeatherTime: document.getElementById('current-weather-time')
 };
 
 let stations = [];
@@ -387,6 +388,7 @@ function deleteStation(station) {
                 metricEls.currentSunshine.textContent = '-- min';
                 metricEls.currentGlobalRadiation.textContent = '-- W/m²';
                 metricEls.currentDewPoint.textContent = '--°C';
+                metricEls.currentWeatherTime.textContent = '';
             }
         }
     }
@@ -832,6 +834,8 @@ async function updateVisualizations() {
     }
 
     const current = timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries) : (latestRecord || {});
+
+    metricEls.currentWeatherTime.textContent = current.timestamp ? formatLocalTime(current.timestamp) : '';
 
     const temp = current.temperature ?? null;
     const humidity = current.humidity ?? null;

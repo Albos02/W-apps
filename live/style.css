@@ -228,6 +228,13 @@ main {
     margin-bottom: 16px;
 }
 
+.metrics h2 .weather-time {
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.6;
+    margin-left: 6px;
+}
+
 .metrics-grid {
     display: flex;
     flex-wrap: wrap;

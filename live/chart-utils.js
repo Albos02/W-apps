@@ -279,6 +279,15 @@ function getCurrentValues(rows) {
     if (!rows || rows.length === 0) return {};
 
     const current = {};
+    let ts = null;
+    for (let i = rows.length - 1; i >= 0; i--) {
+        if (Object.keys(METRIC_CONFIG).some(param => rows[i][param] != null)) {
+            ts = rows[i].timestamp;
+            break;
+        }
+    }
+    current.timestamp = ts || rows[rows.length - 1].timestamp;
+
     for (const [param, config] of Object.entries(METRIC_CONFIG)) {
         let val = null;
         for (let i = rows.length - 1; i >= 0; i--) {
@@ -513,4 +522,4 @@ function createEmptyChart(ctx, metricGroup = 'wind') {
     }, metricGroup);
 }
 
-export { METRIC_ID_TO_KEY, METRIC_CONFIG, GROUPS, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe, parseTimestamp };
+export { METRIC_ID_TO_KEY, METRIC_CONFIG, GROUPS, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe, parseTimestamp, formatLocalTime };
