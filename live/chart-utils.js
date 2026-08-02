@@ -277,11 +277,16 @@ function convertToChartData(rows, timeframe = 'Hour', metricGroup = 'wind') {
 
 function getCurrentValues(rows) {
     if (!rows || rows.length === 0) return {};
-    const latest = rows[rows.length - 1];
 
     const current = {};
     for (const [param, config] of Object.entries(METRIC_CONFIG)) {
-        let val = latest[param];
+        let val = null;
+        for (let i = rows.length - 1; i >= 0; i--) {
+            if (rows[i][param] != null) {
+                val = rows[i][param];
+                break;
+            }
+        }
         if (val != null && config.transform) val = config.transform(val);
         current[param] = val;
     }
