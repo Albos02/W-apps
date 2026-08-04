@@ -124,6 +124,10 @@ main {
     display: flex;
     align-items: center;
     transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .tab.active {
@@ -206,6 +210,7 @@ main {
     font-weight: 500;
     font-size: 14px;
     border: none;
+    touch-action: manipulation;
 }
 
 .button.primary {
@@ -310,6 +315,10 @@ main {
     height: 140px;
     width: 200px;
     overflow-x: visible;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
     p {
         text-wrap: nowrap;
     }
@@ -554,6 +563,7 @@ div.search input::-webkit-search-cancel-button{
     padding: 8px 12px;
     cursor: pointer;
     border-bottom: 1px solid var(--border);
+    touch-action: manipulation;
 }
 
 .search-dropdown-item:hover {
@@ -653,6 +663,7 @@ div.search input::-webkit-search-cancel-button{
     padding: 4px;
     min-width: 150px;
     animation: fadeIn 0.1s ease-out;
+    touch-action: manipulation;
 }
 
 @keyframes fadeIn {
@@ -670,6 +681,10 @@ div.search input::-webkit-search-cancel-button{
     font-size: 14px;
     color: var(--text-main);
     transition: background 0.2s ease;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .context-menu-item:hover {
@@ -730,8 +745,27 @@ div.search input::-webkit-search-cancel-button{
     background: transparent;
 }
 
-.context-menu-item:hover > .context-menu-submenu {
+@media (hover: hover) {
+    .context-menu-item:hover > .context-menu-submenu {
+        display: block;
+    }
+}
+
+.context-menu-item.open > .context-menu-submenu {
     display: block;
+}
+
+@media (max-width: 640px) {
+    .context-menu-submenu {
+        left: 0;
+        top: 100%;
+        margin-left: 0;
+        margin-top: 4px;
+    }
+
+    .context-menu-submenu::before {
+        display: none;
+    }
 }
 
 .metric.active {

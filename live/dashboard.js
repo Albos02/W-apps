@@ -258,6 +258,14 @@ function showUnifiedMenu(e, targetMetricId = null) {
     if (hiddenMetrics.size > 0) {
         addItem.innerHTML = `<span class="icon">➕</span> Add Metric <span style="margin-left:auto;font-size:10px">▶</span>`;
 
+        if (window.matchMedia('(hover: none)').matches) {
+            addItem.classList.add('touch-only');
+        }
+        addItem.addEventListener('click', (event) => {
+            event.stopPropagation();
+            addItem.classList.toggle('open');
+        });
+
         const submenu = document.createElement('div');
         submenu.className = 'context-menu-submenu base-card';
 
