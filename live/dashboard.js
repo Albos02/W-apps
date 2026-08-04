@@ -392,6 +392,8 @@ function deleteStation(station) {
                 metricEls.currentGlobalRadiation.textContent = '-- W/m²';
                 metricEls.currentDewPoint.textContent = '--°C';
                 metricEls.currentWeatherTime.textContent = '';
+                metricEls.refreshWeather.style.display = 'none';
+                currentTimestamp = null;
             }
         }
     }
@@ -895,7 +897,10 @@ async function checkForNewMeasurements() {
 
     try {
         const latest = await fetchLatestMeasurement(stationCode);
-        if (latest?.timestamp && latest.timestamp !== currentTimestamp) {
+        if (!latest?.timestamp) return;
+        const params = getVisibleMetricParams();
+        const hasData = params.some(p => latest[p] != null);
+        if (hasData && latest.timestamp !== currentTimestamp) {
             metricEls.refreshWeather.style.display = 'inline-flex';
         }
     } catch (error) {
