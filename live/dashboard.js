@@ -36,6 +36,7 @@ const metricEls = {
 };
 
 let currentTimestamp = null;
+let lastTouchTime = 0;
 
 let stations = [];
 let favorites = new Set();
@@ -229,7 +230,7 @@ function restoreMetric(metricId) {
     MetricCardDragManager.saveOrder();
 }
 
-function showUnifiedMenu(e, targetMetricId = null) {
+function buildUnifiedMenu(targetMetricId = null) {
     const existingMenu = document.querySelector('.context-menu');
     if (existingMenu) existingMenu.remove();
 
@@ -239,6 +240,7 @@ function showUnifiedMenu(e, targetMetricId = null) {
 
     const addItem = document.createElement('div');
     addItem.className = 'context-menu-item success';
+    addItem.dataset.action = 'add';
 
     const metricNames = {
         'wind-avg': 'Average Wind',
@@ -257,14 +259,7 @@ function showUnifiedMenu(e, targetMetricId = null) {
 
     if (hiddenMetrics.size > 0) {
         addItem.innerHTML = `<span class="icon">➕</span> Add Metric <span style="margin-left:auto;font-size:10px">▶</span>`;
-
-        if (window.matchMedia('(hover: none)').matches) {
-            addItem.classList.add('touch-only');
-        }
-        addItem.addEventListener('click', (event) => {
-            event.stopPropagation();
-            addItem.classList.toggle('open');
-        });
+        addItem.classList.add('submenu-parent');
 
         const submenu = document.createElement('div');
         submenu.className = 'context-menu-submenu base-card';
@@ -272,6 +267,7 @@ function showUnifiedMenu(e, targetMetricId = null) {
         hiddenMetrics.forEach(metricId => {
             const subItem = document.createElement('div');
             subItem.className = 'context-menu-item';
+            subItem.dataset.metricId = metricId;
             subItem.innerHTML = `${metricNames[metricId] || metricId}`;
             subItem.onclick = (event) => {
                 event.stopPropagation();
@@ -294,6 +290,7 @@ function showUnifiedMenu(e, targetMetricId = null) {
 
     const deleteItem = document.createElement('div');
     deleteItem.className = 'context-menu-item danger';
+    deleteItem.dataset.action = 'delete';
 
     if (targetMetricId) {
         deleteItem.innerHTML = `<span class="icon">❌</span> Delete Metric`;
@@ -309,6 +306,22 @@ function showUnifiedMenu(e, targetMetricId = null) {
     menu.appendChild(deleteItem);
 
     document.body.appendChild(menu);
+
+    return { menu, addItem, deleteItem };
+}
+
+function showUnifiedMenu(e, targetMetricId = null) {
+    const { menu, addItem } = buildUnifiedMenu(targetMetricId);
+
+    if (hiddenMetrics.size > 0) {
+        if (window.matchMedia('(hover: none)').matches) {
+            addItem.classList.add('touch-only');
+        }
+        addItem.addEventListener('click', (event) => {
+            event.stopPropagation();
+            addItem.classList.toggle('open');
+        });
+    }
 
     let x = e.clientX;
     let y = e.clientY;
@@ -338,6 +351,310 @@ function showUnifiedMenu(e, targetMetricId = null) {
     });
 }
 
+function showTouchDragMenu(heldCard, x, y) {
+    const targetMetricId = heldCard ? heldCard.dataset.metricId : null;
+    const { menu } = buildUnifiedMenu(targetMetricId);
+
+    const menuWidth = menu.offsetWidth || 180;
+    const menuHeight = menu.offsetHeight || 100;
+    const gap = 12;
+
+    let left = x + gap;
+    if (left + menuWidth > window.innerWidth - 8) left = x - menuWidth - gap;
+    left = Math.max(8, left);
+
+    let top = y - menuHeight / 2;
+    top = Math.max(8, Math.min(top, window.innerHeight - menuHeight - 8));
+
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+
+    return menu;
+}
+
+const TOUCH_KEEP_RADIUS = 28;
+const TOUCH_MENU_MARGIN = 24;
+
+function setupTouchMetricMenus() {
+    const section = document.querySelector('.metrics');
+    if (!section) return;
+
+    let longPressTimer = null;
+    let activeTouchId = null;
+    let gestureActive = false;
+    let startX = 0;
+    let startY = 0;
+    let heldCard = null;
+    let dragMenu = null;
+    let hoveredItem = null;
+    let mode = 'idle'; // idle | selecting | reordering
+
+    function clearGesture() {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+        section.querySelectorAll('.metric.gesture-holding, .metric.draggable-hint, .metric.dragging')
+            .forEach(el => {
+                el.classList.remove('dragging');
+                el.classList.remove('gesture-holding');
+                el.classList.remove('draggable-hint');
+                el.style.transform = '';
+            });
+        gestureActive = false;
+        activeTouchId = null;
+        heldCard = null;
+        mode = 'idle';
+        if (hoveredItem) {
+            hoveredItem.classList.remove('hovered');
+            hoveredItem = null;
+        }
+        if (dragMenu) {
+            dragMenu.remove();
+            dragMenu = null;
+        }
+        document.querySelectorAll('.context-menu').forEach(m => m.remove());
+        section.style.touchAction = '';
+    }
+
+    function activateGesture() {
+        gestureActive = true;
+        mode = 'idle';
+        section.style.touchAction = 'none';
+        if (heldCard) {
+            heldCard.classList.add('gesture-holding');
+            heldCard.classList.add('draggable-hint');
+        }
+        dragMenu = showTouchDragMenu(heldCard, startX, startY);
+    }
+
+    function menuRect(margin = 0) {
+        if (!dragMenu) return null;
+        const rects = [dragMenu, ...dragMenu.querySelectorAll('.context-menu-submenu')]
+            .map(el => el.getBoundingClientRect());
+        let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+        for (const r of rects) {
+            left = Math.min(left, r.left);
+            top = Math.min(top, r.top);
+            right = Math.max(right, r.right);
+            bottom = Math.max(bottom, r.bottom);
+        }
+        return {
+            left: left - margin,
+            top: top - margin,
+            right: right + margin,
+            bottom: bottom + margin
+        };
+    }
+
+    function isOverMenu(x, y) {
+        const r = menuRect(0);
+        if (!r) return false;
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    }
+
+    function isWithinMenuGrace(x, y) {
+        const r = menuRect(TOUCH_MENU_MARGIN);
+        if (!r) return false;
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    }
+
+    function updateHover(x, y) {
+        const el = document.elementFromPoint(x, y);
+        const item = el ? el.closest('.context-menu-item') : null;
+
+        if (item === hoveredItem) return;
+
+        if (hoveredItem) hoveredItem.classList.remove('hovered');
+        hoveredItem = item || null;
+        if (item) item.classList.add('hovered');
+
+        const menu = item ? item.closest('.context-menu') : null;
+        const desiredParent = item ? (
+            item.classList.contains('submenu-parent') ? item :
+            (item.closest('.context-menu-submenu') ? item.closest('.context-menu-submenu').parentElement : null)
+        ) : null;
+
+        if (menu) {
+            menu.querySelectorAll('.context-menu-item.open').forEach(openItem => {
+                if (openItem !== desiredParent) openItem.classList.remove('open');
+            });
+            if (desiredParent && !desiredParent.classList.contains('disabled')) {
+                desiredParent.classList.add('open');
+            }
+        }
+    }
+
+    function applySelection(x, y) {
+        const el = document.elementFromPoint(x, y);
+        const item = el ? el.closest('.context-menu-item') : null;
+
+        if (item && item.dataset.metricId) {
+            restoreMetric(item.dataset.metricId);
+        } else if (item && item.dataset.action === 'delete' && heldCard && !item.classList.contains('disabled')) {
+            deleteMetric(heldCard.dataset.metricId);
+        }
+    }
+
+    function startReorder() {
+        mode = 'reordering';
+        if (dragMenu) {
+            dragMenu.remove();
+            dragMenu = null;
+        }
+        document.querySelectorAll('.context-menu').forEach(m => m.remove());
+        if (hoveredItem) {
+            hoveredItem.classList.remove('hovered');
+            hoveredItem = null;
+        }
+        if (heldCard) {
+            heldCard.classList.remove('gesture-holding');
+            heldCard.classList.remove('draggable-hint');
+            heldCard.classList.add('dragging');
+        }
+    }
+
+    function getTouchDragAfterElement(x, y) {
+        const container = MetricCardDragManager.container;
+        const elements = [...container.querySelectorAll('.metric:not(.dragging):not(.hidden-metric)')];
+
+        let best = null;
+        let bestDist = Infinity;
+        for (const child of elements) {
+            const box = child.getBoundingClientRect();
+            const d = Math.hypot(x - (box.left + box.width / 2), y - (box.top + box.height / 2));
+            if (d < bestDist) {
+                bestDist = d;
+                best = child;
+            }
+        }
+        if (!best) return null;
+
+        const box = best.getBoundingClientRect();
+        const centerX = box.left + box.width / 2;
+        const centerY = box.top + box.height / 2;
+        const sameRow = Math.abs(y - centerY) <= box.height / 2;
+        const after = sameRow ? (x > centerX) : (y > centerY);
+
+        if (after) {
+            let sib = best.nextElementSibling;
+            while (sib && (!sib.classList || !sib.classList.contains('metric') || sib.classList.contains('hidden-metric') || sib.classList.contains('dragging'))) {
+                sib = sib.nextElementSibling;
+            }
+            return sib;
+        }
+        return best;
+    }
+
+    function moveReorder(x, y) {
+        if (!heldCard) return;
+        heldCard.style.transform = `translate(${x - startX}px, ${y - startY}px)`;
+
+        const container = MetricCardDragManager.container;
+        const afterElement = getTouchDragAfterElement(x, y);
+        if (afterElement == null) {
+            if (container.lastElementChild !== heldCard) container.appendChild(heldCard);
+        } else if (afterElement !== heldCard) {
+            container.insertBefore(heldCard, afterElement);
+        }
+    }
+
+    function commitReorder() {
+        if (heldCard) {
+            heldCard.style.transform = '';
+            heldCard.classList.remove('dragging');
+        }
+        MetricCardDragManager.saveOrder();
+    }
+
+    section.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        activeTouchId = touch.identifier;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        heldCard = e.target.closest('.metric[data-metric-id]');
+        gestureActive = false;
+        mode = 'idle';
+        lastTouchTime = Date.now();
+
+        longPressTimer = setTimeout(() => {
+            longPressTimer = null;
+            activateGesture();
+        }, 450);
+    }, { passive: true });
+
+    section.addEventListener('touchmove', (e) => {
+        const touch = Array.from(e.touches).find(t => t.identifier === activeTouchId);
+        if (!touch) return;
+        const x = touch.clientX;
+        const y = touch.clientY;
+
+        if (!gestureActive) {
+            const dx = x - startX;
+            const dy = y - startY;
+            if (Math.hypot(dx, dy) > 12) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            return;
+        }
+
+        e.preventDefault();
+
+        if (mode === 'reordering') {
+            moveReorder(x, y);
+            return;
+        }
+
+        const overMenu = isOverMenu(x, y);
+        const withinKeep = Math.hypot(x - startX, y - startY) <= TOUCH_KEEP_RADIUS;
+
+        if (overMenu) {
+            mode = 'selecting';
+            updateHover(x, y);
+            return;
+        }
+
+        if (mode === 'selecting') {
+            if (!isWithinMenuGrace(x, y)) {
+                startReorder();
+                moveReorder(x, y);
+            }
+            return;
+        }
+
+        if (!withinKeep) {
+            startReorder();
+            moveReorder(x, y);
+        }
+    }, { passive: false });
+
+    section.addEventListener('touchend', (e) => {
+        if (!gestureActive) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+            document.querySelectorAll('.context-menu').forEach(m => m.remove());
+            return;
+        }
+
+        const touch = Array.from(e.changedTouches).find(t => t.identifier === activeTouchId);
+        if (touch) {
+            e.preventDefault();
+            if (mode === 'reordering') {
+                commitReorder();
+            } else if (mode === 'selecting') {
+                applySelection(touch.clientX, touch.clientY);
+            }
+        }
+        clearGesture();
+    }, { passive: false });
+
+    section.addEventListener('touchcancel', () => {
+        clearGesture();
+    }, { passive: true });
+}
+
 function deleteMetric(metricId) {
     hiddenMetrics.add(metricId);
     localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
@@ -353,6 +670,7 @@ function setupMetricContextMenus() {
     if (metricsSection) {
         metricsSection.addEventListener('contextmenu', (e) => {
             e.preventDefault();
+            if (Date.now() - lastTouchTime < 1000) return;
 
             const card = e.target.closest('.metric[data-metric-id]');
 
@@ -972,6 +1290,7 @@ async function initDashboard() {
     });
     updateEmptyState();
     setupMetricContextMenus();
+    setupTouchMetricMenus();
 
     const savedFavorites = localStorage.getItem('favoriteStations');
     if (savedFavorites) {

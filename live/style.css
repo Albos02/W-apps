@@ -61,7 +61,7 @@
 }
 
 :where(.base-card, .card, .metric) {
-    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
 }
 
 body {
@@ -154,6 +154,29 @@ main {
     cursor: grabbing;
     transform: scale(0.98);
     z-index: 100;
+}
+
+.metric.gesture-holding {
+    opacity: 0.8;
+    transform: scale(0.98);
+}
+
+.card.metric.draggable-hint {
+    z-index: 20;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.card.metric.draggable-hint::after {
+    content: '≡';
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--text-muted);
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: 5;
 }
 
 .star {
@@ -688,6 +711,10 @@ div.search input::-webkit-search-cancel-button{
 }
 
 .context-menu-item:hover {
+    background: var(--bg-soft);
+}
+
+.context-menu-item.hovered {
     background: var(--bg-soft);
 }
 
