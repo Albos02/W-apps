@@ -400,6 +400,7 @@ function setupTouchMetricMenus() {
                 el.classList.remove('gesture-holding');
                 el.classList.remove('draggable-hint');
                 el.style.transform = '';
+                el.setAttribute('draggable', 'false');
             });
         gestureActive = false;
         activeTouchId = null;
@@ -511,6 +512,7 @@ function setupTouchMetricMenus() {
             heldCard.classList.remove('gesture-holding');
             heldCard.classList.remove('draggable-hint');
             heldCard.classList.add('dragging');
+            heldCard.setAttribute('draggable', 'true');
         }
     }
 
@@ -563,6 +565,7 @@ function setupTouchMetricMenus() {
         if (heldCard) {
             heldCard.style.transform = '';
             heldCard.classList.remove('dragging');
+            heldCard.setAttribute('draggable', 'false');
         }
         MetricCardDragManager.saveOrder();
     }
@@ -574,6 +577,9 @@ function setupTouchMetricMenus() {
         startX = touch.clientX;
         startY = touch.clientY;
         heldCard = e.target.closest('.metric[data-metric-id]');
+        if (heldCard) {
+            heldCard.setAttribute('draggable', 'false');
+        }
         gestureActive = false;
         mode = 'idle';
         lastTouchTime = Date.now();
@@ -594,8 +600,10 @@ function setupTouchMetricMenus() {
             const dx = x - startX;
             const dy = y - startY;
             if (Math.hypot(dx, dy) > 12) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
             }
             return;
         }
@@ -792,9 +800,11 @@ const MetricCardDragManager = {
     container: document.querySelector('.metrics .spotlight-container'),
 
     init() {
+        let isDragging = false;
         this.container.addEventListener('dragstart', (e) => {
             const card = e.target.closest('.metric');
             if (card) {
+                isDragging = true;
                 card.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
             }
@@ -802,11 +812,15 @@ const MetricCardDragManager = {
         this.container.addEventListener('dragend', (e) => {
             const card = e.target.closest('.metric');
             if (card) {
+                isDragging = false;
                 card.classList.remove('dragging');
             }
         });
 
-        this.container.addEventListener('dragover', this.handleDragOver.bind(this));
+        this.container.addEventListener('dragover', (e) => {
+            if (!isDragging) return;
+            this.handleDragOver(e);
+        });
         this.container.addEventListener('drop', this.handleDrop.bind(this));
     },
 
