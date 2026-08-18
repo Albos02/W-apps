@@ -154,6 +154,7 @@ main {
     cursor: grabbing;
     transform: scale(0.98);
     z-index: 100;
+    transition: none;
 }
 
 .metric.gesture-holding {

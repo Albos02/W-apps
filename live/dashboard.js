@@ -405,6 +405,8 @@ function setupTouchMetricMenus() {
     let heldCard = null;
     let dragMenu = null;
     let hoveredItem = null;
+    let grabOffsetX = 0;
+    let grabOffsetY = 0;
     let mode = 'idle'; // idle | selecting | reordering
 
     function clearGesture() {
@@ -418,6 +420,9 @@ function setupTouchMetricMenus() {
                 el.classList.remove('gesture-holding');
                 el.classList.remove('draggable-hint');
                 el.style.transform = '';
+                el.style.position = '';
+                el.style.left = '';
+                el.style.top = '';
                 el.setAttribute('draggable', 'false');
             });
         gestureActive = false;
@@ -548,6 +553,12 @@ function setupTouchMetricMenus() {
             heldCard.classList.remove('draggable-hint');
             heldCard.classList.add('dragging');
             heldCard.setAttribute('draggable', 'true');
+            const rect = heldCard.getBoundingClientRect();
+            grabOffsetX = startX - rect.left;
+            grabOffsetY = startY - rect.top;
+            heldCard.style.position = 'fixed';
+            heldCard.style.left = '0px';
+            heldCard.style.top = '0px';
         }
     }
 
@@ -585,7 +596,7 @@ function setupTouchMetricMenus() {
 
     function moveReorder(x, y) {
         if (!heldCard) return;
-        heldCard.style.transform = `translate(${x - startX}px, ${y - startY}px)`;
+        heldCard.style.transform = `translate(${x - grabOffsetX}px, ${y - grabOffsetY}px)`;
 
         const container = MetricCardDragManager.container;
         const afterElement = getTouchDragAfterElement(x, y);
@@ -599,6 +610,9 @@ function setupTouchMetricMenus() {
     function commitReorder() {
         if (heldCard) {
             heldCard.style.transform = '';
+            heldCard.style.position = '';
+            heldCard.style.left = '';
+            heldCard.style.top = '';
             heldCard.classList.remove('dragging');
             heldCard.setAttribute('draggable', 'false');
         }
