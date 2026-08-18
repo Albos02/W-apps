@@ -761,6 +761,18 @@ div.search input::-webkit-search-cancel-button{
     margin-left: 4px;
 }
 
+.context-menu-submenu.flip-left {
+    left: auto;
+    right: 100%;
+    margin-left: 0;
+    margin-right: 4px;
+}
+
+.context-menu-submenu.flip-left::before {
+    left: auto;
+    right: -20px;
+}
+
 /* Invisible bridge to prevent menu from closing when moving mouse */
 .context-menu-submenu::before {
     content: "";
@@ -780,19 +792,6 @@ div.search input::-webkit-search-cancel-button{
 
 .context-menu-item.open > .context-menu-submenu {
     display: block;
-}
-
-@media (max-width: 640px) {
-    .context-menu-submenu {
-        left: 0;
-        top: 100%;
-        margin-left: 0;
-        margin-top: 4px;
-    }
-
-    .context-menu-submenu::before {
-        display: none;
-    }
 }
 
 .metric.active {

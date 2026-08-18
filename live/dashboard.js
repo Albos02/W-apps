@@ -310,6 +310,17 @@ function buildUnifiedMenu(targetMetricId = null) {
     return { menu, addItem, deleteItem };
 }
 
+function checkSubmenuFlip(submenu) {
+    if (!submenu) return;
+    const rect = submenu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    if (rect.right > viewportWidth) {
+        submenu.classList.add('flip-left');
+    } else {
+        submenu.classList.remove('flip-left');
+    }
+}
+
 function showUnifiedMenu(e, targetMetricId = null) {
     const { menu, addItem } = buildUnifiedMenu(targetMetricId);
 
@@ -319,7 +330,14 @@ function showUnifiedMenu(e, targetMetricId = null) {
         }
         addItem.addEventListener('click', (event) => {
             event.stopPropagation();
+            const wasOpen = addItem.classList.contains('open');
             addItem.classList.toggle('open');
+            if (!wasOpen) {
+                const submenu = addItem.querySelector('.context-menu-submenu');
+                if (submenu) {
+                    requestAnimationFrame(() => checkSubmenuFlip(submenu));
+                }
+            }
         });
     }
 
@@ -481,7 +499,13 @@ function setupTouchMetricMenus() {
                 if (openItem !== desiredParent) openItem.classList.remove('open');
             });
             if (desiredParent && !desiredParent.classList.contains('disabled')) {
-                desiredParent.classList.add('open');
+                if (!desiredParent.classList.contains('open')) {
+                    desiredParent.classList.add('open');
+                    const submenu = desiredParent.querySelector('.context-menu-submenu');
+                    if (submenu) {
+                        requestAnimationFrame(() => checkSubmenuFlip(submenu));
+                    }
+                }
             }
         }
     }
