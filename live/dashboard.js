@@ -472,8 +472,19 @@ function setupTouchMetricMenus() {
         return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
     }
 
+    function mainMenuRect(margin = 0) {
+        if (!dragMenu) return null;
+        const r = dragMenu.getBoundingClientRect();
+        return {
+            left: r.left - margin,
+            top: r.top - margin,
+            right: r.right + margin,
+            bottom: r.bottom + margin
+        };
+    }
+
     function isWithinMenuGrace(x, y) {
-        const r = menuRect(TOUCH_MENU_MARGIN);
+        const r = mainMenuRect(TOUCH_MENU_MARGIN);
         if (!r) return false;
         return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
     }
