@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
-      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
+      - uses: actions/configure-pages@d8770c2b3b71963902cec525cf516368b4411a78
+      - uses: actions/upload-pages-artifact@56f665a6f297fa95f8d735b314187fb2d7764569
         with:
           path: .
   deploy:
@@ -31,4 +31,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@d6db90164ac5e864129b34643512b9d91b2f28a8
+        uses: actions/deploy-pages@fe3a48c7a92349c070c10c413d44b21fb3268179
