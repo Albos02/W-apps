@@ -667,21 +667,19 @@ function setupTouchMetricMenus() {
         const overMenu = isOverMenu(x, y);
         const withinKeep = Math.hypot(x - startX, y - startY) <= TOUCH_KEEP_RADIUS;
 
+        if (!withinKeep) {
+            startReorder();
+            moveReorder(x, y);
+            return;
+        }
+
         if (overMenu) {
             mode = 'selecting';
             updateHover(x, y);
             return;
         }
 
-        if (mode === 'selecting') {
-            if (!isWithinMenuGrace(x, y)) {
-                startReorder();
-                moveReorder(x, y);
-            }
-            return;
-        }
-
-        if (!withinKeep) {
+        if (mode === 'selecting' && !isWithinMenuGrace(x, y)) {
             startReorder();
             moveReorder(x, y);
         }
