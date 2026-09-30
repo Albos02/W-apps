@@ -14,6 +14,8 @@ const METRIC_GROUP_DISPLAY_NAMES = {
     radiation: 'Radiation'
 };
 
+const MOBILE_TOUCH_QUERY = '(max-width: 1100px) and (hover: none) and (pointer: coarse)';
+
 const metricEls = {
     windChart: document.getElementById('windChart'),
     chartTitle: document.getElementById('chart-title'),
@@ -230,7 +232,7 @@ function restoreMetric(metricId) {
     MetricCardDragManager.saveOrder();
 }
 
-function buildUnifiedMenu(targetMetricId = null) {
+function buildUnifiedMenu(targetMetricId = null, includeReorder = false) {
     const existingMenu = document.querySelector('.context-menu');
     if (existingMenu) existingMenu.remove();
 
@@ -305,25 +307,27 @@ function buildUnifiedMenu(targetMetricId = null) {
     }
     menu.appendChild(deleteItem);
 
-    const reorderSeparator = document.createElement('div');
-    reorderSeparator.className = 'context-menu-separator';
-    menu.appendChild(reorderSeparator);
+    if (includeReorder) {
+        const reorderSeparator = document.createElement('div');
+        reorderSeparator.className = 'context-menu-separator';
+        menu.appendChild(reorderSeparator);
 
-    const reorderItem = document.createElement('div');
-    reorderItem.className = 'context-menu-item';
-    reorderItem.dataset.action = 'reorder';
-    reorderItem.innerHTML = `<span class="icon">↕</span> Reorder`;
+        const reorderItem = document.createElement('div');
+        reorderItem.className = 'context-menu-item';
+        reorderItem.dataset.action = 'reorder';
+        reorderItem.innerHTML = `<span class="icon">↕</span> Reorder`;
 
-    if (targetMetricId) {
-        reorderItem.onclick = (event) => {
-            event.stopPropagation();
-            armMetricReorder(targetMetricId);
-            menu.remove();
-        };
-    } else {
-        reorderItem.classList.add('disabled');
+        if (targetMetricId) {
+            reorderItem.onclick = (event) => {
+                event.stopPropagation();
+                armMetricReorder(targetMetricId);
+                menu.remove();
+            };
+        } else {
+            reorderItem.classList.add('disabled');
+        }
+        menu.appendChild(reorderItem);
     }
-    menu.appendChild(reorderItem);
 
     document.body.appendChild(menu);
 
@@ -405,7 +409,10 @@ function showUnifiedMenu(e, targetMetricId = null) {
 
 function showTouchDragMenu(heldCard, x, y) {
     const targetMetricId = heldCard ? heldCard.dataset.metricId : null;
-    const { menu } = buildUnifiedMenu(targetMetricId);
+    const { menu } = buildUnifiedMenu(
+        targetMetricId,
+        window.matchMedia(MOBILE_TOUCH_QUERY).matches
+    );
 
     const menuWidth = menu.offsetWidth || 180;
     const menuHeight = menu.offsetHeight || 100;
