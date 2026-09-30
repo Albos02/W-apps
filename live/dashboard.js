@@ -305,6 +305,26 @@ function buildUnifiedMenu(targetMetricId = null) {
     }
     menu.appendChild(deleteItem);
 
+    const reorderSeparator = document.createElement('div');
+    reorderSeparator.className = 'context-menu-separator';
+    menu.appendChild(reorderSeparator);
+
+    const reorderItem = document.createElement('div');
+    reorderItem.className = 'context-menu-item';
+    reorderItem.dataset.action = 'reorder';
+    reorderItem.innerHTML = `<span class="icon">↕</span> Reorder`;
+
+    if (targetMetricId) {
+        reorderItem.onclick = (event) => {
+            event.stopPropagation();
+            armMetricReorder(targetMetricId);
+            menu.remove();
+        };
+    } else {
+        reorderItem.classList.add('disabled');
+    }
+    menu.appendChild(reorderItem);
+
     document.body.appendChild(menu);
 
     return { menu, addItem, deleteItem };
@@ -319,6 +339,20 @@ function checkSubmenuFlip(submenu) {
     } else {
         submenu.classList.remove('flip-left');
     }
+}
+
+function armMetricReorder(metricId) {
+    const card = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
+    if (!card || card.classList.contains('hidden-metric')) return;
+    document.querySelectorAll('.metric.reorder-armed').forEach(armedCard => {
+        if (armedCard === card) return;
+        armedCard.classList.remove('reorder-armed', 'draggable-hint');
+        armedCard.setAttribute('draggable', 'false');
+    });
+    card.classList.remove('gesture-holding');
+    card.classList.add('reorder-armed', 'draggable-hint');
+    card.setAttribute('draggable', 'true');
+    toast('Drag the highlighted card to reorder it.');
 }
 
 function showUnifiedMenu(e, targetMetricId = null) {
@@ -390,9 +424,6 @@ function showTouchDragMenu(heldCard, x, y) {
     return menu;
 }
 
-const TOUCH_KEEP_RADIUS = 28;
-const TOUCH_MENU_MARGIN = 24;
-
 function setupTouchMetricMenus() {
     const section = document.querySelector('.metrics');
     if (!section) return;
@@ -407,7 +438,7 @@ function setupTouchMetricMenus() {
     let hoveredItem = null;
     let grabOffsetX = 0;
     let grabOffsetY = 0;
-    let mode = 'idle'; // idle | selecting | reordering
+    let mode = 'idle'; // idle | selecting | armed | reordering
 
     function clearGesture() {
         if (longPressTimer) {
@@ -416,6 +447,7 @@ function setupTouchMetricMenus() {
         }
         section.querySelectorAll('.metric.gesture-holding, .metric.draggable-hint, .metric.dragging')
             .forEach(el => {
+                if (el.classList.contains('reorder-armed')) return;
                 el.classList.remove('dragging');
                 el.classList.remove('gesture-holding');
                 el.classList.remove('draggable-hint');
@@ -423,6 +455,9 @@ function setupTouchMetricMenus() {
                 el.style.position = '';
                 el.style.left = '';
                 el.style.top = '';
+                el.style.width = '';
+                el.style.height = '';
+                el.style.transition = '';
                 el.setAttribute('draggable', 'false');
             });
         gestureActive = false;
@@ -477,23 +512,6 @@ function setupTouchMetricMenus() {
         return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
     }
 
-    function mainMenuRect(margin = 0) {
-        if (!dragMenu) return null;
-        const r = dragMenu.getBoundingClientRect();
-        return {
-            left: r.left - margin,
-            top: r.top - margin,
-            right: r.right + margin,
-            bottom: r.bottom + margin
-        };
-    }
-
-    function isWithinMenuGrace(x, y) {
-        const r = mainMenuRect(TOUCH_MENU_MARGIN);
-        if (!r) return false;
-        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-    }
-
     function updateHover(x, y) {
         const el = document.elementFromPoint(x, y);
         const item = el ? el.closest('.context-menu-item') : null;
@@ -534,11 +552,14 @@ function setupTouchMetricMenus() {
             restoreMetric(item.dataset.metricId);
         } else if (item && item.dataset.action === 'delete' && heldCard && !item.classList.contains('disabled')) {
             deleteMetric(heldCard.dataset.metricId);
+        } else if (item && item.dataset.action === 'reorder' && heldCard && !item.classList.contains('disabled')) {
+            armMetricReorder(heldCard.dataset.metricId);
         }
     }
 
     function startReorder() {
         mode = 'reordering';
+        section.style.touchAction = 'none';
         if (dragMenu) {
             dragMenu.remove();
             dragMenu = null;
@@ -551,11 +572,14 @@ function setupTouchMetricMenus() {
         if (heldCard) {
             heldCard.classList.remove('gesture-holding');
             heldCard.classList.remove('draggable-hint');
+            heldCard.classList.remove('reorder-armed');
             heldCard.classList.add('dragging');
             heldCard.setAttribute('draggable', 'true');
             const rect = heldCard.getBoundingClientRect();
             grabOffsetX = startX - rect.left;
             grabOffsetY = startY - rect.top;
+            heldCard.style.width = `${rect.width}px`;
+            heldCard.style.height = `${rect.height}px`;
             heldCard.style.position = 'fixed';
             heldCard.style.left = '0px';
             heldCard.style.top = '0px';
@@ -608,13 +632,32 @@ function setupTouchMetricMenus() {
     }
 
     function commitReorder() {
-        if (heldCard) {
-            heldCard.style.transform = '';
-            heldCard.style.position = '';
-            heldCard.style.left = '';
-            heldCard.style.top = '';
-            heldCard.classList.remove('dragging');
-            heldCard.setAttribute('draggable', 'false');
+        const card = heldCard;
+        if (card) {
+            const heldRect = card.getBoundingClientRect();
+            card.style.transition = 'none';
+            card.style.transform = '';
+            card.style.position = '';
+            card.style.left = '';
+            card.style.top = '';
+            card.style.width = '';
+            card.style.height = '';
+            card.classList.remove('dragging');
+            card.setAttribute('draggable', 'false');
+
+            const targetRect = card.getBoundingClientRect();
+            const offsetX = heldRect.left - targetRect.left;
+            const offsetY = heldRect.top - targetRect.top;
+            if (Math.abs(offsetX) > 1 || Math.abs(offsetY) > 1) {
+                card.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                card.getBoundingClientRect();
+                card.style.transition = '';
+                requestAnimationFrame(() => {
+                    if (card.isConnected) card.style.transform = '';
+                });
+            } else {
+                card.style.transition = '';
+            }
         }
         MetricCardDragManager.saveOrder();
     }
@@ -626,6 +669,17 @@ function setupTouchMetricMenus() {
         startX = touch.clientX;
         startY = touch.clientY;
         heldCard = e.target.closest('.metric[data-metric-id]');
+        const armedCard = section.querySelector('.metric.reorder-armed');
+        if (armedCard && armedCard !== heldCard) {
+            armedCard.classList.remove('reorder-armed', 'draggable-hint');
+            armedCard.setAttribute('draggable', 'false');
+        }
+        if (heldCard?.classList.contains('reorder-armed')) {
+            gestureActive = true;
+            mode = 'armed';
+            section.style.touchAction = 'none';
+            return;
+        }
         if (heldCard) {
             heldCard.setAttribute('draggable', 'false');
         }
@@ -644,6 +698,15 @@ function setupTouchMetricMenus() {
         if (!touch) return;
         const x = touch.clientX;
         const y = touch.clientY;
+
+        if (mode === 'armed') {
+            if (Math.hypot(x - startX, y - startY) > 12) {
+                e.preventDefault();
+                startReorder();
+                moveReorder(x, y);
+            }
+            return;
+        }
 
         if (!gestureActive) {
             const dx = x - startX;
@@ -664,24 +727,9 @@ function setupTouchMetricMenus() {
             return;
         }
 
-        const overMenu = isOverMenu(x, y);
-        const withinKeep = Math.hypot(x - startX, y - startY) <= TOUCH_KEEP_RADIUS;
-
-        if (!withinKeep) {
-            startReorder();
-            moveReorder(x, y);
-            return;
-        }
-
-        if (overMenu) {
+        if (isOverMenu(x, y)) {
             mode = 'selecting';
             updateHover(x, y);
-            return;
-        }
-
-        if (mode === 'selecting' && !isWithinMenuGrace(x, y)) {
-            startReorder();
-            moveReorder(x, y);
         }
     }, { passive: false });
 
@@ -861,6 +909,8 @@ const MetricCardDragManager = {
             if (card) {
                 isDragging = false;
                 card.classList.remove('dragging');
+                card.classList.remove('reorder-armed', 'draggable-hint');
+                card.setAttribute('draggable', 'false');
             }
         });
 
