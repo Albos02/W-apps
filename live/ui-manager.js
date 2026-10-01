@@ -60,7 +60,8 @@ export function initUI() {
         themeToggle.addEventListener('click', toggleTheme);
     }
 
-    const activeGroup = localStorage.getItem('currentMetricGroup') || 'wind';
+    const storedGroup = localStorage.getItem('currentMetricGroup');
+    const activeGroup = GROUPS[storedGroup] ? storedGroup : 'wind';
     const renderTableHeaders = (group) => {
         const params = GROUPS[group] || [];
         tableHead.innerHTML = `

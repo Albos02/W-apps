@@ -1,6 +1,6 @@
 import { toast } from './utils.js';
 import { loadStationList, fetchCurrentValuesForStation, fetchTimeSeries, fetchLatestMeasurement, clearCache } from './data-retrieval.js';
-import { METRIC_ID_TO_KEY, METRIC_TO_GROUP, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe, formatLocalTime } from './chart-utils.js';
+import { METRIC_ID_TO_KEY, METRIC_TO_GROUP, GROUPS, createChart, createEmptyChart, populateTable, convertToChartData, getCurrentValues, normalizeTimeframe, formatLocalTime } from './chart-utils.js';
 import { onMetricChange, initUI } from './ui-manager.js';
 
 const METRIC_GROUP_DISPLAY_NAMES = {
@@ -15,6 +15,7 @@ const METRIC_GROUP_DISPLAY_NAMES = {
 };
 
 const MOBILE_TOUCH_QUERY = '(max-width: 1100px) and (hover: none) and (pointer: coarse)';
+const VALID_TIMEFRAMES = new Set(['3 Hours', 'Day', 'Week', 'Month']);
 
 const metricEls = {
     windChart: document.getElementById('windChart'),
@@ -43,9 +44,11 @@ let lastTouchTime = 0;
 let stations = [];
 let favorites = new Set();
 let hiddenMetrics = new Set(['pressure', 'pressure-qff', 'pressure-qnh', 'global-radiation', 'dew-point']);
-let currentMetricGroup = localStorage.getItem('currentMetricGroup') || 'wind';
+let currentMetricGroup = GROUPS[localStorage.getItem('currentMetricGroup')] ? localStorage.getItem('currentMetricGroup') : 'wind';
 let currentStation = null;
-let currentTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
+let visualizationRequestId = 0;
+const savedTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
+let currentTimeframe = VALID_TIMEFRAMES.has(normalizeTimeframe(savedTimeframe)) ? `Last ${normalizeTimeframe(savedTimeframe)}` : 'Last Day';
 
 onMetricChange((group) => {
     currentMetricGroup = group;
@@ -211,12 +214,8 @@ const SearchEngine = {
 
 function updateEmptyState() {
     const emptyState = document.querySelector('.empty-state');
-    const totalMetrics = 12;
-    if (hiddenMetrics.size === totalMetrics) {
-        emptyState.style.display = 'flex';
-    } else {
-        emptyState.style.display = 'none';
-    }
+    const visibleMetrics = document.querySelectorAll('.metric[data-metric-id]:not(.hidden-metric)').length;
+    emptyState.style.display = visibleMetrics === 0 ? 'flex' : 'none';
 }
 
 function restoreMetric(metricId) {
@@ -360,7 +359,7 @@ function armMetricReorder(metricId) {
 }
 
 function showUnifiedMenu(e, targetMetricId = null) {
-    const { menu, addItem } = buildUnifiedMenu(targetMetricId);
+    const { menu, addItem } = buildUnifiedMenu(targetMetricId, true);
 
     if (hiddenMetrics.size > 0) {
         if (window.matchMedia('(hover: none)').matches) {
@@ -812,6 +811,7 @@ function deleteStation(station) {
                 localStorage.removeItem('lastSelectedStation');
                 localStorage.removeItem('lastSelectedStationCode');
                 currentStation = null;
+                visualizationRequestId++;
                 createEmptyChart(metricEls.windChart.getContext('2d'), currentMetricGroup);
                 populateTable(document.querySelector('table'), { labels: [], datasets: [] }, currentMetricGroup);
                 metricEls.currentTemp.textContent = '--°C';
@@ -951,15 +951,24 @@ const MetricCardDragManager = {
         const draggableElements = [
             ...this.container.querySelectorAll('.metric:not(.dragging):not(.hidden-metric)')
         ];
+        if (draggableElements.length === 0) return null;
 
-        return draggableElements.reduce((closest, child) => {
+        const closest = draggableElements.reduce((best, child) => {
             const box = child.getBoundingClientRect();
-            const offset = x - box.left - box.width / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset, element: child };
-            }
-            return closest;
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
+            const distance = Math.hypot(x - (box.left + box.width / 2), y - (box.top + box.height / 2));
+            return distance < best.distance ? { child, box, distance } : best;
+        }, { child: null, box: null, distance: Infinity });
+
+        const { child, box } = closest;
+        const sameRow = Math.abs(y - (box.top + box.height / 2)) <= box.height / 2;
+        const after = sameRow ? x > box.left + box.width / 2 : y > box.top + box.height / 2;
+        if (!after) return child;
+
+        let sibling = child.nextElementSibling;
+        while (sibling && (!sibling.classList.contains('metric') || sibling.classList.contains('hidden-metric') || sibling.classList.contains('dragging'))) {
+            sibling = sibling.nextElementSibling;
+        }
+        return sibling;
     },
 
     saveOrder() {
@@ -974,7 +983,14 @@ const MetricCardDragManager = {
         const savedOrder = localStorage.getItem('metricCardsOrder');
         if (!savedOrder) return;
 
-        const order = JSON.parse(savedOrder);
+        let order;
+        try {
+            order = JSON.parse(savedOrder);
+        } catch (error) {
+            console.warn('Ignoring invalid metric card order preference:', error);
+            return;
+        }
+        if (!Array.isArray(order)) return;
         order.forEach(metricId => {
             const card = this.container.querySelector(`.metric[data-metric-id="${metricId}"]`);
             if (card && !card.classList.contains('hidden-metric')) {
@@ -1256,7 +1272,84 @@ function getVisibleMetricParams() {
     return params;
 }
 
+const trendElements = {
+    windAvg: document.getElementById('trend-wind-avg'),
+    windGusts: document.getElementById('trend-wind-gust'),
+    windDirection: document.getElementById('trend-wind-direction'),
+    temperature: document.getElementById('trend-temp'),
+    humidity: document.getElementById('trend-humidity'),
+    pressure: document.getElementById('trend-pressure'),
+    pressureQff: document.getElementById('trend-pressure-qff'),
+    pressureQnh: document.getElementById('trend-pressure-qnh'),
+    precipitation: document.getElementById('trend-precipitation'),
+    sunshine: document.getElementById('trend-sunshine'),
+    globalRadiation: document.getElementById('trend-global-radiation'),
+    dewPoint: document.getElementById('trend-dew-point')
+};
+
+const trendUnits = {
+    windAvg: '%', windGusts: '%', windDirection: '°', temperature: '°C', humidity: '%',
+    pressure: ' hPa', pressureQff: ' hPa', pressureQnh: ' hPa', precipitation: ' mm',
+    sunshine: ' min', globalRadiation: ' W/m²', dewPoint: '°C'
+};
+
+function updateTrendValues(rows) {
+    const emptyTrends = () => Object.entries(trendElements).forEach(([param, element]) => {
+        element.textContent = `--${trendUnits[param]} over last hour`;
+    });
+    if (!rows?.length) {
+        emptyTrends();
+        return;
+    }
+
+    const latestTimestamp = Date.parse(`${rows[rows.length - 1].timestamp}Z`);
+    const cutoff = latestTimestamp - 60 * 60 * 1000;
+    for (const [param, element] of Object.entries(trendElements)) {
+        let latest = null;
+        let baseline = null;
+        for (let i = rows.length - 1; i >= 0; i--) {
+            const value = rows[i][param];
+            if (value == null || !Number.isFinite(value)) continue;
+            const timestamp = Date.parse(`${rows[i].timestamp}Z`);
+            if (latest == null) latest = { value, timestamp };
+            if (timestamp <= cutoff) {
+                baseline = value;
+                break;
+            }
+        }
+        if (!latest || baseline == null) {
+            element.textContent = `--${trendUnits[param]} over last hour`;
+            continue;
+        }
+
+        let change;
+        if (param === 'precipitation' || param === 'sunshine') {
+            change = rows.reduce((sum, row) => {
+                const timestamp = Date.parse(`${row.timestamp}Z`);
+                return timestamp > cutoff && timestamp <= latest.timestamp && Number.isFinite(row[param])
+                    ? sum + row[param]
+                    : sum;
+            }, 0);
+        } else if (param === 'windAvg' || param === 'windGusts') {
+            change = baseline === 0 ? (latest.value === 0 ? 0 : null) : ((latest.value - baseline) / Math.abs(baseline)) * 100;
+        } else if (param === 'windDirection') {
+            change = ((latest.value - baseline + 540) % 360) - 180;
+        } else {
+            change = latest.value - baseline;
+        }
+
+        if (change == null || !Number.isFinite(change)) {
+            element.textContent = `--${trendUnits[param]} over last hour`;
+            continue;
+        }
+        const decimals = param === 'sunshine' ? 0 : 1;
+        const sign = change > 0 ? '+' : '';
+        element.textContent = `${sign}${change.toFixed(decimals)}${trendUnits[param]} over last hour`;
+    }
+}
+
 async function updateVisualizations() {
+    const requestId = ++visualizationRequestId;
     if (!currentStation && !localStorage.getItem('lastSelectedStation')) {
         return;
     }
@@ -1276,6 +1369,8 @@ async function updateVisualizations() {
     const timeSeries = results[0].status === 'fulfilled' ? results[0].value : null;
     const latestRecord = results[1].status === 'fulfilled' ? results[1].value : null;
 
+    if (requestId !== visualizationRequestId) return;
+
     if (results[0].status === 'rejected') console.error('Time series error:', results[0].reason);
     if (results[1].status === 'rejected') console.error('Current values error:', results[1].reason);
 
@@ -1292,6 +1387,7 @@ async function updateVisualizations() {
     }
 
     const current = timeSeries && timeSeries.length > 0 ? getCurrentValues(timeSeries, getVisibleMetricParams()) : (latestRecord || {});
+    updateTrendValues(timeSeries || []);
 
     metricEls.currentWeatherTime.textContent = current.timestamp ? formatLocalTime(current.timestamp) : '';
     currentTimestamp = current.timestamp || null;
@@ -1341,6 +1437,7 @@ async function checkForNewMeasurements() {
 
     try {
         const latest = await fetchLatestMeasurement(stationCode);
+        if (stationCode !== (currentStation?.code || localStorage.getItem('lastSelectedStationCode'))) return;
         if (!latest?.timestamp) return;
         const params = getVisibleMetricParams();
         const hasData = params.some(p => latest[p] != null);
@@ -1398,10 +1495,16 @@ async function initDashboard() {
 
     const savedHiddenMetrics = localStorage.getItem('hiddenMetrics');
     if (savedHiddenMetrics) {
-        hiddenMetrics = new Set(JSON.parse(savedHiddenMetrics));
-    } else {
-        localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
+        try {
+            const parsed = JSON.parse(savedHiddenMetrics);
+            if (Array.isArray(parsed)) hiddenMetrics = new Set(parsed);
+        } catch (error) {
+            console.warn('Ignoring invalid hidden metrics preference:', error);
+        }
     }
+    const validMetricIds = new Set([...document.querySelectorAll('.metric[data-metric-id]')].map(card => card.dataset.metricId));
+    hiddenMetrics = new Set([...hiddenMetrics].filter(metricId => validMetricIds.has(metricId)));
+    localStorage.setItem('hiddenMetrics', JSON.stringify([...hiddenMetrics]));
     hiddenMetrics.forEach(metricId => {
         const card = document.querySelector(`.metric[data-metric-id="${metricId}"]`);
         if (card) card.classList.add('hidden-metric');
@@ -1449,8 +1552,8 @@ async function initDashboard() {
     setupTabs('.navbar .tabs');
 
     const navbarTabs = document.querySelector('.navbar .tabs');
-    const savedTimeframe = localStorage.getItem('lastSelectedTimeframe') || 'Last Day';
-    const baseTimeframe = savedTimeframe.replace(/^Last\s+/, '');
+    const baseTimeframe = normalizeTimeframe(currentTimeframe);
+    localStorage.setItem('lastSelectedTimeframe', currentTimeframe);
     navbarTabs.querySelectorAll('.tab').forEach(tab => {
         const tabBase = tab.textContent.trim();
         if (tabBase === baseTimeframe) {

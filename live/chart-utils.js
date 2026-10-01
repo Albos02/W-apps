@@ -45,7 +45,7 @@ const METRIC_CONFIG = {
     pressureQnh: { label: 'Air Pressure QNH', unit: 'hPa', color: '#19e6e6', agg: 'avg', decimals: 0 },
     windAvg: { label: 'Average Wind', unit: 'kph', color: '#c74f05', agg: 'avg' },
     windGusts: { label: 'Max Wind Gusts', unit: 'kph', color: '#ff742e', agg: 'max' },
-    windDirection: { label: 'Wind Direction', unit: '°', color: '#a5a49f', agg: 'avg', yAxisID: 'y1', decimals: 0 },
+    windDirection: { label: 'Wind Direction', unit: '°', color: '#a5a49f', agg: 'circular', yAxisID: 'y1', decimals: 0 },
     precipitation: { label: 'Precipitation', unit: 'mm', color: '#0f4a85', agg: 'sum' },
     globalRadiation: { label: 'Global Radiation', unit: 'W/m²', color: '#c38022', agg: 'avg', decimals: 0 },
     sunshine: { label: 'Sunshine Duration', unit: 'min', color: '#ffd51a', agg: 'sum', decimals: 0 },
@@ -92,13 +92,6 @@ const AGGREGATION = {
     'Month': '6hour',
     'Year': 'daily'
 };
-
-const POINTS_PER_HOUR = 6;
-
-const TIMEFRAME_LIMITS = {};
-for (const [key, hours] of Object.entries(TIME_PERIODS)) {
-    TIMEFRAME_LIMITS[key] = POINTS_PER_HOUR * hours;
-}
 
 function parseTimestamp(timestamp) {
     if (!timestamp) return new Date(0);
@@ -169,9 +162,11 @@ function getAggregated(rows, interval) {
 
     rows.forEach(row => {
         const date = parseTimestamp(row.timestamp);
-        const totalMinutes = date.getHours() * 60 + date.getMinutes();
+        // MeteoSwiss timestamps are UTC. Keep aggregation in UTC too; local
+        // getters shift bucket timestamps by the browser's UTC offset.
+        const totalMinutes = date.getUTCHours() * 60 + date.getUTCMinutes();
         const bucket = Math.floor(totalMinutes / intervalMinutes);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${bucket}`;
+        const key = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}_${bucket}`;
 
         if (!grouped.has(key)) {
             const initialData = {
@@ -194,6 +189,13 @@ function getAggregated(rows, interval) {
     });
 
     const avgFn = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    const circularMeanFn = arr => {
+        if (!arr.length) return null;
+        const radians = arr.map(value => value * Math.PI / 180);
+        const sin = radians.reduce((sum, value) => sum + Math.sin(value), 0);
+        const cos = radians.reduce((sum, value) => sum + Math.cos(value), 0);
+        return (Math.atan2(sin, cos) * 180 / Math.PI + 360) % 360;
+    };
     const maxFn = arr => arr.length ? Math.max(...arr) : null;
     const sumFn = arr => arr.length ? arr.reduce((a, b) => a + b, 0) : null;
 
@@ -202,12 +204,12 @@ function getAggregated(rows, interval) {
         const date = data.dateObj;
         let timestamp;
         if (interval === 'daily') {
-            timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            timestamp = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
         } else {
             const bucketStartMinutes = data.bucket * intervalMinutes;
             const hour = Math.floor(bucketStartMinutes / 60);
             const minute = bucketStartMinutes % 60;
-            timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+            timestamp = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
         }
 
         const row = { timestamp: timestamp };
@@ -216,6 +218,8 @@ function getAggregated(rows, interval) {
                 row[param] = maxFn(data[param]);
             } else if (config.agg === 'sum') {
                 row[param] = sumFn(data[param]);
+            } else if (config.agg === 'circular') {
+                row[param] = circularMeanFn(data[param]);
             } else {
                 row[param] = avgFn(data[param]);
             }
@@ -235,8 +239,10 @@ function getDailyAggregated(rows) { return getAggregated(rows, 'daily'); }
 
 function convertToChartData(rows, timeframe = 'Hour', metricGroup = 'wind') {
     const normalizedTimeframe = normalizeTimeframe(timeframe);
-    const limit = TIMEFRAME_LIMITS[normalizedTimeframe] || TIMEFRAME_LIMITS['Day'];
-    let dataRows = rows.slice(-limit);
+    const periodHours = TIME_PERIODS[normalizedTimeframe] || TIME_PERIODS['Day'];
+    const latestTimestamp = rows.length ? parseTimestamp(rows[rows.length - 1].timestamp).getTime() : 0;
+    const cutoff = latestTimestamp - periodHours * 60 * 60 * 1000;
+    let dataRows = rows.filter(row => parseTimestamp(row.timestamp).getTime() >= cutoff);
 
     const aggregation = AGGREGATION[normalizedTimeframe];
     if (aggregation === 'daily') {
@@ -246,7 +252,11 @@ function convertToChartData(rows, timeframe = 'Hour', metricGroup = 'wind') {
     }
 
     const timestamps = dataRows.map(r => r.timestamp);
-    const showDate = shouldShowDate(timestamps);
+    const hasMultipleLocalDates = new Set(timestamps.map(timestamp => {
+        const date = parseTimestamp(timestamp);
+        return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+    })).size > 1;
+    const showDate = shouldShowDate(timestamps) || (normalizedTimeframe === 'Day' && hasMultipleLocalDates);
     const labels = dataRows.map(r => formatLabel(r.timestamp, normalizedTimeframe, showDate));
 
     const groupParams = GROUPS[metricGroup] || GROUPS['wind'];
@@ -366,21 +376,18 @@ function createChart(ctx, chartData, metricGroup = 'wind') {
             onClick: (event, activeElements, chart) => {
                 if (activeElements.length > 0) {
                     const dataIndex = activeElements[0].index;
-                    const time = chart.data.labels[dataIndex];
-                    chart._verticalLineX = time;
+                    chart._verticalLineX = dataIndex;
 
                     document.querySelectorAll('table tbody tr.highlighted').forEach(tr => tr.classList.remove('highlighted'));
                     const tableRows = document.querySelectorAll('table tbody tr');
                     const tableContainer = document.querySelector('.table .content.scrollable');
-                    tableRows.forEach(tr => {
-                        const timeCell = tr.querySelector('td:first-child');
-                        if (timeCell && timeCell.textContent.trim() === time) {
-                            tr.classList.add('highlighted');
-                            if (tableContainer) {
-                                tableContainer.scrollTop = tr.offsetTop - (tableContainer.clientHeight / 2) + (tr.clientHeight / 2);
-                            }
+                    const row = [...tableRows].find(tr => Number(tr.dataset.chartIndex) === dataIndex);
+                    if (row) {
+                        row.classList.add('highlighted');
+                        if (tableContainer) {
+                            tableContainer.scrollTop = row.offsetTop - (tableContainer.clientHeight / 2) + (row.clientHeight / 2);
                         }
-                    });
+                    }
                 }
             }
         }
@@ -397,7 +404,7 @@ function populateTable(table, data, metricGroup = 'wind') {
     thead.innerHTML = '';
     tbody.innerHTML = '';
 
-    if (!data || !data.datasets || data.datasets.length === 0) return;
+    if (!data || !data.datasets) return;
 
     const groupParams = GROUPS[metricGroup] || GROUPS['wind'];
 
@@ -424,6 +431,8 @@ function populateTable(table, data, metricGroup = 'wind') {
         }
     }
 
+    if (data.datasets.length === 0) return;
+
     const { labels, datasets } = data;
     const reversedLabels = [...labels].reverse();
     const reversedDatasets = datasets.map(d => [...(d.data || [])].reverse());
@@ -431,9 +440,10 @@ function populateTable(table, data, metricGroup = 'wind') {
     reversedLabels.forEach((label, i) => {
         const tr = document.createElement('tr');
         tr.style.cursor = 'pointer';
+        tr.dataset.chartIndex = String(labels.length - i - 1);
 
         const tdTime = document.createElement('td');
-        tdTime.innerHTML = label;
+        tdTime.textContent = label;
         tr.dataset.time = label;
         tr.appendChild(tdTime);
 
@@ -460,8 +470,7 @@ function populateTable(table, data, metricGroup = 'wind') {
             if (!isHighlighted) {
                 tr.classList.add('highlighted');
                 if (currentChart) {
-                    const label = tr.dataset.time;
-                    const index = currentChart.data.labels.indexOf(label);
+                    const index = Number(tr.dataset.chartIndex);
                     if (index !== -1) {
                         const meta = currentChart.getDatasetMeta(0);
                         const point = meta.data[index];
@@ -471,7 +480,7 @@ function populateTable(table, data, metricGroup = 'wind') {
                                 datasetIndex: i,
                                 index: index
                             }));
-                            currentChart._verticalLineX = label;
+                            currentChart._verticalLineX = index;
                             currentChart.tooltip.setActiveElements(activeElements, { x: point.x, y: point.y });
                             currentChart.update();
                         }

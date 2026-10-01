@@ -120,8 +120,12 @@ export async function fetchTimeSeries(stationCode) {
     }
   }
   deduped.sort((a, b) => a.timestamp.localeCompare(b.timestamp))
-  timeSeriesCache[stationCode] = deduped
-  timeSeriesCacheTimes[stationCode] = now
+  // A failed request must not turn an empty/partial response into a 10-minute
+  // cache entry, otherwise a transient API error hides history until expiry.
+  if (nowRes?.ok && recentRes?.ok) {
+    timeSeriesCache[stationCode] = deduped
+    timeSeriesCacheTimes[stationCode] = now
+  }
   return deduped
 }
 
